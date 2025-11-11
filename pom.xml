@@ -37,6 +37,7 @@
     <properties>
         <main-class>nl.knaw.dans.validatebagpack.DdValidateBagpackApplication</main-class>
         <dd-validate-bagpack-api.version>0.1.0-SNAPSHOT</dd-validate-bagpack-api.version>
+        <dans-build-resources-maven-plugin.version>0.8.0</dans-build-resources-maven-plugin.version>
     </properties>
 
     <scm>
