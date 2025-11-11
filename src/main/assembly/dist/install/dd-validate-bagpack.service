@@ -1,0 +1,15 @@
+[Unit]
+Description=Dd Validate Bagpack Service
+
+[Service]
+ExecStart=/opt/dans.knaw.nl/dd-validate-bagpack/bin/dd-validate-bagpack server /etc/opt/dans.knaw.nl/dd-validate-bagpack/config.yml
+# Java returns 143 even if the SIGTERM was handled correctly.
+SuccessExitStatus=143
+Environment="JAVA_OPTS=-Xms64m"
+Environment="LC_ALL=en_US.UTF-8"
+
+User=dd-validate-bagpack
+Group=dd-validate-bagpack
+
+[Install]
+WantedBy=multi-user.target
