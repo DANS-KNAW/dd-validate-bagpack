@@ -13,23 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package nl.knaw.dans.validatebagpack.config;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
-import io.dropwizard.core.Configuration;
-
-import javax.validation.Valid;
-import javax.validation.constraints.NotEmpty;
-import javax.validation.constraints.NotNull;
-
 import lombok.Data;
-import lombok.EqualsAndHashCode;
+
+import javax.validation.constraints.NotNull;
+import java.net.URI;
 
 @Data
-@EqualsAndHashCode(callSuper = true)
-public class DdValidateBagpackConfig extends Configuration {
+public class ValidationConfig {
     @NotNull
-    @Valid
-    private ValidationConfig validation;
+    private URI dataCiteSchema;
 }

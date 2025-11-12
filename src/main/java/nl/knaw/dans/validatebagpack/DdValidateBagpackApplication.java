@@ -44,11 +44,12 @@ public class DdValidateBagpackApplication extends Application<DdValidateBagpackC
 
     @Override
     public void run(final DdValidateBagpackConfig config, final Environment environment) {
-        var ruleSets = new RuleSets(new BagItServiceImpl());
+        var bagItService = new BagItServiceImpl();
+        var ruleSets = new RuleSets(bagItService);
 
         environment.jersey().register(
             new ValidateApiResource(
-                new RuleEngineServiceImpl(new RuleEngineImpl(), ruleSets.getCommonRules())));
+                new RuleEngineServiceImpl(new RuleEngineImpl(), ruleSets.getCommonRules(), bagItService)));
     }
 
 }

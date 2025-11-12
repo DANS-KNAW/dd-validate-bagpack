@@ -24,3 +24,6 @@ logging:
   loggers:
     'nl.knaw.dans': DEBUG
     'org.hibernate.engine.internal.StatisticalLoggingSessionEventListener': 'OFF'
+
+validation:
+  dataCiteSchema: "../dans-schema/lib/src/main/resources/extern/datacite/v4.4/metadata.xsd"

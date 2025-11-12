@@ -35,9 +35,12 @@ import java.util.Map;
 public class RuleEngineServiceImpl implements RuleEngineService {
     private final RuleEngine ruleEngine;
     private final List<NumberedRule> ruleSet;
+    private final BagItService bagItService;
 
     public RuleEngineServiceImpl(RuleEngine ruleEngine,
-        List<NumberedRule> ruleSet) {
+        List<NumberedRule> ruleSet,
+        BagItService bagItService) {
+        this.bagItService = bagItService;
         this.ruleEngine = ruleEngine;
         this.ruleSet = ruleSet;
         this.validateRuleConfiguration();
@@ -61,29 +64,31 @@ public class RuleEngineServiceImpl implements RuleEngineService {
             throw new FileNotFoundException(String.format("Bag on path '%s' could not be found or read", path));
         }
 
-        var results = ruleEngine.validateBag(path, this.ruleSet);
-        var isValid = results.stream().noneMatch(r -> r.getStatus().equals(RuleValidationResult.RuleValidationResultStatus.FAILURE));
+        try(var bagRoot = bagItService.getBagRoot(path)) {
+            var results = ruleEngine.validateBag(bagRoot.getPath(), this.ruleSet);
+            var isValid = results.stream().noneMatch(r -> r.getStatus().equals(RuleValidationResult.RuleValidationResultStatus.FAILURE));
 
-        var result = new ValidationResultDto();
-        result.setBagLocation(bagLocation);
-        result.setIsCompliant(isValid);
-        result.setProfileVersion(RuleSets.PROFILE_VERSION);
-        result.setRuleViolations(results.stream()
-            .filter(r -> r.getStatus().equals(RuleValidationResultStatus.FAILURE))
-            .map(rule -> {
-                var ret = new ValidationResultRuleViolationsInnerDto();
-                ret.setRule(rule.getNumber());
-                var message = new StringBuilder();
-                if (rule.getErrorMessage() != null) {
-                    message.append(rule.getErrorMessage());
-                }
-                ret.setViolation(message.toString());
-                return ret;
-            })
-            .toList());
+            var result = new ValidationResultDto();
+            result.setBagLocation(bagLocation);
+            result.setIsCompliant(isValid);
+            result.setProfileVersion(RuleSets.PROFILE_VERSION);
+            result.setRuleViolations(results.stream()
+                .filter(r -> r.getStatus().equals(RuleValidationResultStatus.FAILURE))
+                .map(rule -> {
+                    var ret = new ValidationResultRuleViolationsInnerDto();
+                    ret.setRule(rule.getNumber());
+                    var message = new StringBuilder();
+                    if (rule.getErrorMessage() != null) {
+                        message.append(rule.getErrorMessage());
+                    }
+                    ret.setViolation(message.toString());
+                    return ret;
+                })
+                .toList());
 
-        log.debug("Validation result: {}", result);
-        return result;
+            log.debug("Validation result: {}", result);
+            return result;
+        }
     }
 
 }

@@ -15,20 +15,29 @@
  */
 package nl.knaw.dans.validatebagpack.core.rules;
 
+import lombok.RequiredArgsConstructor;
 import nl.knaw.dans.lib.util.ruleengine.BagValidatorRule;
 import nl.knaw.dans.lib.util.ruleengine.RuleResult;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
 
-public class TestRule implements BagValidatorRule {
+@RequiredArgsConstructor
+public class BagContainsRegularFile implements BagValidatorRule {
+    private final String relativeFilePath;
+
     @Override
-    public RuleResult validate(Path bagPath) {
-        if (Files.exists(bagPath)) {
-            return RuleResult.ok();
+    public RuleResult validate(Path path) throws Exception {
+        var target = path.resolve(relativeFilePath);
+
+        if (!Files.exists(target)) {
+            return RuleResult.error(String.format("Path '%s' does not exist", relativeFilePath));
         }
-        else {
-            return RuleResult.error("Path does not exist: " + bagPath);
+
+        if (!Files.isRegularFile(target)) {
+            return RuleResult.error(String.format("Path '%s' is not a regular file", relativeFilePath));
         }
+
+        return RuleResult.ok();
     }
 }

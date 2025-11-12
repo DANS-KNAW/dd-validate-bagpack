@@ -47,9 +47,7 @@ public class BagIsValid implements BagValidatorRule {
     public RuleResult validate(Path path) throws Exception {
         try {
             log.debug("Verifying bag {}", path);
-            try (var bagRoot = bagItService.getBagRoot(path)) {
-                verifyBag(bagRoot.getPath());
-            }
+            verifyBag(path);
             log.debug("Bag {} is valid", path);
             return RuleResult.ok();
         }
