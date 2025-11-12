@@ -19,7 +19,12 @@ package nl.knaw.dans.validatebagpack;
 import io.dropwizard.core.Application;
 import io.dropwizard.core.setup.Bootstrap;
 import io.dropwizard.core.setup.Environment;
+import nl.knaw.dans.lib.util.ruleengine.RuleEngineImpl;
 import nl.knaw.dans.validatebagpack.config.DdValidateBagpackConfig;
+import nl.knaw.dans.validatebagpack.core.rules.RuleSets;
+import nl.knaw.dans.validatebagpack.core.service.BagItServiceImpl;
+import nl.knaw.dans.validatebagpack.core.service.RuleEngineServiceImpl;
+import nl.knaw.dans.validatebagpack.resources.ValidateApiResource;
 
 public class DdValidateBagpackApplication extends Application<DdValidateBagpackConfig> {
 
@@ -29,17 +34,21 @@ public class DdValidateBagpackApplication extends Application<DdValidateBagpackC
 
     @Override
     public String getName() {
-        return "Dd Validate Bagpack";
+        return "DD Validate BagPack";
     }
 
     @Override
     public void initialize(final Bootstrap<DdValidateBagpackConfig> bootstrap) {
-        // TODO: application initialization
+
     }
 
     @Override
     public void run(final DdValidateBagpackConfig config, final Environment environment) {
+        var ruleSets = new RuleSets(new BagItServiceImpl());
 
+        environment.jersey().register(
+            new ValidateApiResource(
+                new RuleEngineServiceImpl(new RuleEngineImpl(), ruleSets.getCommonRules())));
     }
 
 }

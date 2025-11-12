@@ -23,18 +23,21 @@ import nl.knaw.dans.lib.util.ruleengine.RuleValidationResult;
 import nl.knaw.dans.lib.util.ruleengine.RuleValidationResult.RuleValidationResultStatus;
 import nl.knaw.dans.validatebagpack.api.ValidationResultDto;
 import nl.knaw.dans.validatebagpack.api.ValidationResultRuleViolationsInnerDto;
+import nl.knaw.dans.validatebagpack.core.rules.RuleSets;
 
 import java.io.FileNotFoundException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.List;
+import java.util.Map;
 
 @Slf4j
 public class RuleEngineServiceImpl implements RuleEngineService {
     private final RuleEngine ruleEngine;
-    private final NumberedRule[] ruleSet;
+    private final List<NumberedRule> ruleSet;
 
     public RuleEngineServiceImpl(RuleEngine ruleEngine,
-        NumberedRule[] ruleSet) {
+        List<NumberedRule> ruleSet) {
         this.ruleEngine = ruleEngine;
         this.ruleSet = ruleSet;
         this.validateRuleConfiguration();
@@ -52,7 +55,7 @@ public class RuleEngineServiceImpl implements RuleEngineService {
     @Override
     public ValidationResultDto validateBag(Path path, String bagLocation) throws Exception {
         log.info("Validating bag on path '{}'", path);
-
+        Map<String, String> env = Map.of("readonly", "true"); // optioneel; veilig weglaten
         if (!Files.isReadable(path)) {
             log.warn("Path {} could not not be found or is not readable", path);
             throw new FileNotFoundException(String.format("Bag on path '%s' could not be found or read", path));
@@ -64,6 +67,7 @@ public class RuleEngineServiceImpl implements RuleEngineService {
         var result = new ValidationResultDto();
         result.setBagLocation(bagLocation);
         result.setIsCompliant(isValid);
+        result.setProfileVersion(RuleSets.PROFILE_VERSION);
         result.setRuleViolations(results.stream()
             .filter(r -> r.getStatus().equals(RuleValidationResultStatus.FAILURE))
             .map(rule -> {

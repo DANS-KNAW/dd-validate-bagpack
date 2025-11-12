@@ -65,6 +65,12 @@
             <artifactId>dd-validate-bagpack-api</artifactId>
             <version>${dd-validate-bagpack-api.version}</version>
         </dependency>
+        <dependency>
+            <groupId>nl.knaw.dans</groupId>
+            <artifactId>dans-bagit-lib</artifactId>
+            <!-- TODO: move to parent pom -->
+            <version>1.2.0</version>
+        </dependency>
     </dependencies>
 
     <build>

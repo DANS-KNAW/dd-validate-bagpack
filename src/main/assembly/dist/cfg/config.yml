@@ -6,12 +6,10 @@ server:
   adminContextPath: /
   applicationConnectors:
     - type: http
-      # Replace with port number unique for this service
-      port: 20000 # TODO: Replace with unique port number
+      port: 20375
   adminConnectors:
     - type: http
-      # Replace with port number unique for this service
-      port: 20001 # TODO: Replace with unique port number
+      port: 20376
   # Logs the requests to the Jetty http server
   requestLog:
     appenders:
