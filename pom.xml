@@ -56,6 +56,12 @@
         </dependency>
         <dependency>
             <groupId>nl.knaw.dans</groupId>
+            <artifactId>dans-java-utils</artifactId>
+            <!-- TODO: revert to released version when available -->
+            <version>2.4.0-SNAPSHOT</version>
+        </dependency>
+        <dependency>
+            <groupId>nl.knaw.dans</groupId>
             <artifactId>dd-validate-bagpack-api</artifactId>
             <version>${dd-validate-bagpack-api.version}</version>
         </dependency>
