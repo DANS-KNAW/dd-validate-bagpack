@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2022 DANS - Data Archiving and Networked Services (info@dans.knaw.nl)
+ * Copyright (C) 2025 DANS - Data Archiving and Networked Services (info@dans.knaw.nl)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,14 +17,11 @@ package nl.knaw.dans.validatebagpack.core.service;
 
 import nl.knaw.dans.lib.util.ruleengine.RuleValidationResult;
 import nl.knaw.dans.validatebagpack.api.ValidationResultDto;
-import nl.knaw.dans.validatedansbag.api.ValidateOkDto;
 
 import java.nio.file.Path;
 import java.util.List;
 
 public interface RuleEngineService {
-
-    List<RuleValidationResult> validateBag(Path path) throws Exception;
 
     ValidationResultDto validateBag(Path path, String bagLocation) throws Exception;
 }

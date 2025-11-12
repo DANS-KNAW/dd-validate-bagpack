@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2022 DANS - Data Archiving and Networked Services (info@dans.knaw.nl)
+ * Copyright (C) 2025 DANS - Data Archiving and Networked Services (info@dans.knaw.nl)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,17 +20,16 @@ import nl.knaw.dans.lib.util.ruleengine.NumberedRule;
 import nl.knaw.dans.lib.util.ruleengine.RuleEngine;
 import nl.knaw.dans.lib.util.ruleengine.RuleEngineConfigurationException;
 import nl.knaw.dans.lib.util.ruleengine.RuleValidationResult;
-import nl.knaw.dans.validatedansbag.api.ValidateOkDto;
-import nl.knaw.dans.validatedansbag.api.ValidateOkRuleViolationsInnerDto;
-import nl.knaw.dans.validatedansbag.core.BagNotFoundException;
+import nl.knaw.dans.lib.util.ruleengine.RuleValidationResult.RuleValidationResultStatus;
+import nl.knaw.dans.validatebagpack.api.ValidationResultDto;
+import nl.knaw.dans.validatebagpack.api.ValidationResultRuleViolationsInnerDto;
 
+import java.io.FileNotFoundException;
+import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.List;
-import java.util.stream.Collectors;
 
 @Slf4j
 public class RuleEngineServiceImpl implements RuleEngineService {
-
     private final RuleEngine ruleEngine;
     private final NumberedRule[] ruleSet;
 
@@ -41,55 +40,7 @@ public class RuleEngineServiceImpl implements RuleEngineService {
         this.validateRuleConfiguration();
     }
 
-    @Override
-    public List<RuleValidationResult> validateBag(Path path) throws Exception {
-        log.info("Validating bag on path '{}'", path);
-
-
-        return ruleEngine.validateBag(path, this.ruleSet);
-    }
-
-    @Override
-    public ValidateOkDto validateBag(Path path, String bagLocation) throws Exception {
-        log.info("Validating bag on path '{}'", path);
-
-        if (!fileService.isReadable(path)) {
-            log.warn("Path {} could not not be found or is not readable", path);
-            throw new BagNotFoundException(String.format("Bag on path '%s' could not be found or read", path));
-        }
-
-        var results = ruleEngine.validateBag(path, this.ruleSet);
-        var isValid = results.stream().noneMatch(r -> r.getStatus().equals(RuleValidationResult.RuleValidationResultStatus.FAILURE));
-
-        var result = new ValidateOkDto();
-        result.setBagLocation(bagLocation);
-        result.setIsCompliant(isValid);
-        result.setName(path.getFileName().toString());
-        result.setProfileVersion("1.2.0");
-        result.setInformationPackageType(ValidateOkDto.InformationPackageTypeEnum.DEPOSIT);
-        result.setRuleViolations(results.stream()
-            .filter(r -> r.getStatus().equals(RuleValidationResult.RuleValidationResultStatus.FAILURE))
-            .map(rule -> {
-                var ret = new ValidateOkRuleViolationsInnerDto();
-                ret.setRule(rule.getNumber());
-
-                var message = new StringBuilder();
-
-                if (rule.getErrorMessage() != null) {
-                    message.append(rule.getErrorMessage());
-                }
-
-                ret.setViolation(message.toString());
-                return ret;
-            })
-            .collect(Collectors.toList()));
-
-        log.debug("Validation result: {}", result);
-
-        return result;
-    }
-
-    public void validateRuleConfiguration() {
+    private void validateRuleConfiguration() {
         try {
             this.ruleEngine.validateRuleSet(this.ruleSet);
         }
@@ -97,4 +48,38 @@ public class RuleEngineServiceImpl implements RuleEngineService {
             throw new RuntimeException("Rule configuration is not valid", e);
         }
     }
+
+    @Override
+    public ValidationResultDto validateBag(Path path, String bagLocation) throws Exception {
+        log.info("Validating bag on path '{}'", path);
+
+        if (!Files.isReadable(path)) {
+            log.warn("Path {} could not not be found or is not readable", path);
+            throw new FileNotFoundException(String.format("Bag on path '%s' could not be found or read", path));
+        }
+
+        var results = ruleEngine.validateBag(path, this.ruleSet);
+        var isValid = results.stream().noneMatch(r -> r.getStatus().equals(RuleValidationResult.RuleValidationResultStatus.FAILURE));
+
+        var result = new ValidationResultDto();
+        result.setBagLocation(bagLocation);
+        result.setIsCompliant(isValid);
+        result.setRuleViolations(results.stream()
+            .filter(r -> r.getStatus().equals(RuleValidationResultStatus.FAILURE))
+            .map(rule -> {
+                var ret = new ValidationResultRuleViolationsInnerDto();
+                ret.setRule(rule.getNumber());
+                var message = new StringBuilder();
+                if (rule.getErrorMessage() != null) {
+                    message.append(rule.getErrorMessage());
+                }
+                ret.setViolation(message.toString());
+                return ret;
+            })
+            .toList());
+
+        log.debug("Validation result: {}", result);
+        return result;
+    }
+
 }
