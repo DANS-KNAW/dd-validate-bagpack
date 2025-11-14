@@ -19,7 +19,7 @@ server:
         currentLogFilename: /var/opt/dans.knaw.nl/log/dd-validate-bagpack/request.log
 
 validation:
-  dataCiteSchema: "file:///var/www/html/schemas.datastations.nl/extern/datacite/v4.4/metadata.xsd"
+  dataCiteSchema: "file:///var/www/html/schemas.datastations.nl/extern/datacite/v4.1/metadata.xsd"
 
 #
 # See https://www.dropwizard.io/en/latest/manual/configuration.html#logging

@@ -16,21 +16,35 @@
 package nl.knaw.dans.validatebagpack.core.rules;
 
 import lombok.AllArgsConstructor;
+import nl.knaw.dans.lib.util.XmlSchemaValidator;
 import nl.knaw.dans.lib.util.ruleengine.NumberedRule;
 import nl.knaw.dans.validatebagpack.core.service.BagItService;
+import nl.knaw.dans.validatebagpack.core.service.FileService;
+import nl.knaw.dans.validatebagpack.core.service.FileServiceImpl;
 
 import java.util.List;
+import java.util.regex.Pattern;
 
 @AllArgsConstructor
 public class RuleSets {
     public static final String PROFILE_VERSION = "1.0.0";
+    public static final String KEY_DATACITE_SCHEMA = "DataCite";
 
     private final BagItService bagItService;
+    private final XmlSchemaValidator xmlSchemaValidator;
+    private final FileService fileService = new FileServiceImpl();
 
     public List<NumberedRule> getCommonRules() {
         return List.of(
             new NumberedRule("1.1", new BagIsValid(bagItService)),
-            new NumberedRule("1.2(a)", new BagContainsRegularFile("metadata/datacite.xml"), List.of("1.1"))
+            new NumberedRule("1.2(a)", new BagContainsRegularFile("metadata/datacite.xml"), List.of("1.1")),
+            new NumberedRule("1.2(b)", new BagFileConformsToXmlSchema("metadata/datacite.xml",
+                fileService, KEY_DATACITE_SCHEMA, xmlSchemaValidator,
+                List.of(
+                    Pattern.compile("^cvc-pattern-valid: Value ':none' is not facet-valid with respect to pattern '.*' for type 'doiType'.*$"),
+                    Pattern.compile("^cvc-complex-type.*Element 'identifier' must have no element \\[children], and the value must be valid.*$"))),
+                List.of("1.2(a)"))
+
             /*
 X 1. A DANS BagPack MUST be valid according to [BagIt v1.0]{:target=_blank}.
 2. A DANS BagPack MUST contain a file `metadata/datacite.xml` (a) this file MUST be valid according to the
