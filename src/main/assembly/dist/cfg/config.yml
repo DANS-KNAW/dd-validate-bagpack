@@ -19,7 +19,17 @@ server:
         currentLogFilename: /var/opt/dans.knaw.nl/log/dd-validate-bagpack/request.log
 
 validation:
+  baseUrl: "http://localhost:20376/validate"
   dataCiteSchema: "file:///etc/opt/dans.knaw.nl/dd-validate-bagpack/datacite/v4.4/metadata.xsd"
+  taskQueue:
+    nameFormat: "validation-worker-%d"
+    maxQueueSize: 5000
+    # Number of threads will be increased when maxQueueSize is exceeded.
+    minThreads: 1
+    # No more than maxThreads will be created though
+    maxThreads: 3
+    # Threads will die after 60 seconds of idleness
+    keepAliveTime: 60 seconds
 
 #
 # See https://www.dropwizard.io/en/latest/manual/configuration.html#logging

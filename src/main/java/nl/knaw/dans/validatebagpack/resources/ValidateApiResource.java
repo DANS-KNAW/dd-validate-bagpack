@@ -17,27 +17,37 @@ package nl.knaw.dans.validatebagpack.resources;
 
 import lombok.RequiredArgsConstructor;
 import nl.knaw.dans.validatebagpack.api.ValidateCommandDto;
-import nl.knaw.dans.validatebagpack.core.service.RuleEngineService;
+import nl.knaw.dans.validatebagpack.core.service.ValidationTaskManager;
 
 import javax.ws.rs.core.Response;
-import javax.ws.rs.core.Response.Status;
-import java.io.FileNotFoundException;
-import java.nio.file.Path;
+import java.net.URI;
+import java.util.UUID;
+import java.util.concurrent.ExecutorService;
 
 @RequiredArgsConstructor
 public class ValidateApiResource implements ValidateApi {
-    private final RuleEngineService ruleEngineService;
+    private final ValidationTaskManager validationTaskManager;
+    private final ExecutorService executorService;
+    private final URI baseUri;
 
+    @Override
+    public Response getValidationStatus(UUID jobId) {
+        try {
+            var task = validationTaskManager.getValidationTask(jobId);
+            return task.map(t -> Response.ok(t.getStatus()).build())
+                .orElse(Response.status(Response.Status.NOT_FOUND).build());
+        }
+        catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
 
     @Override
     public Response validateBagPack(ValidateCommandDto validateCommandDto) {
         try {
-            var result = ruleEngineService.validateBag(Path.of(validateCommandDto.getBagLocation()),
-                validateCommandDto.getBagLocation());
-            return Response.ok(result).build();
-        }
-        catch (FileNotFoundException e) {
-            return Response.status(Status.BAD_REQUEST).entity(e.getMessage()).build();
+            var task = validationTaskManager.createValidationTask(validateCommandDto.getBagLocation());
+            executorService.submit(task);
+            return Response.created(baseUri.resolve(task.getId().toString())).build();
         }
         catch (Exception e) {
             throw new RuntimeException(e);

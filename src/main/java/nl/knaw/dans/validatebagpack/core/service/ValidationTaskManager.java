@@ -13,24 +13,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package nl.knaw.dans.validatebagpack.config;
+package nl.knaw.dans.validatebagpack.core.service;
 
-import lombok.Data;
-import nl.knaw.dans.lib.util.ExecutorServiceFactory;
+import java.util.Optional;
+import java.util.UUID;
 
-import javax.validation.Valid;
-import javax.validation.constraints.NotNull;
-import java.net.URI;
+public interface ValidationTaskManager {
 
-@Data
-public class ValidationConfig {
-    @NotNull
-    private URI baseUrl;
+    ValidationTask createValidationTask(String bagLocation);
 
-    @NotNull
-    private URI dataCiteSchema;
 
-    @Valid
-    @NotNull
-    private ExecutorServiceFactory taskQueue;
+    Optional<ValidationTask> getValidationTask(UUID taskId);
+
 }

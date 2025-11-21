@@ -23,5 +23,5 @@ import java.util.List;
 
 public interface RuleEngineService {
 
-    ValidationResultDto validateBag(Path path, String bagLocation) throws Exception;
+    ValidationResultDto validateBag(String bagLocation) throws Exception;
 }

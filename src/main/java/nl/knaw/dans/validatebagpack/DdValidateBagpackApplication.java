@@ -25,8 +25,10 @@ import nl.knaw.dans.validatebagpack.config.DdValidateBagpackConfig;
 import nl.knaw.dans.validatebagpack.core.rules.RuleSets;
 import nl.knaw.dans.validatebagpack.core.service.BagItServiceImpl;
 import nl.knaw.dans.validatebagpack.core.service.RuleEngineServiceImpl;
+import nl.knaw.dans.validatebagpack.core.service.ValidationTaskManagerImpl;
 import nl.knaw.dans.validatebagpack.resources.ValidateApiResource;
 
+import java.net.URI;
 import java.util.Map;
 
 public class DdValidateBagpackApplication extends Application<DdValidateBagpackConfig> {
@@ -53,9 +55,16 @@ public class DdValidateBagpackApplication extends Application<DdValidateBagpackC
 
         var bagItService = new BagItServiceImpl();
         var ruleSets = new RuleSets(bagItService, xmlSchemaValidator);
-        environment.jersey().register(
-            new ValidateApiResource(
-                new RuleEngineServiceImpl(new RuleEngineImpl(), ruleSets.getCommonRules(), bagItService)));
+        var ruleEngineService = new RuleEngineServiceImpl(new RuleEngineImpl(), ruleSets.getCommonRules(), bagItService);
+        var validationTaskFactory = new ValidationTaskManagerImpl(ruleEngineService);
+        environment.jersey().register(new ValidateApiResource(validationTaskFactory, config.getValidation().getTaskQueue().build(environment),
+            appendEndSlashIfMissing(config.getValidation().getBaseUrl())));
     }
 
+    private URI appendEndSlashIfMissing(URI uri) {
+        if (uri.toString().endsWith("/")) {
+            return uri;
+        }
+        return URI.create(uri + "/");
+    }
 }
