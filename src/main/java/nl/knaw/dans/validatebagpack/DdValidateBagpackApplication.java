@@ -56,7 +56,9 @@ public class DdValidateBagpackApplication extends Application<DdValidateBagpackC
         var bagItService = new BagItServiceImpl();
         var ruleSets = new RuleSets(bagItService, xmlSchemaValidator);
         var ruleEngineService = new RuleEngineServiceImpl(new RuleEngineImpl(), ruleSets.getCommonRules(), bagItService);
-        var validationTaskFactory = new ValidationTaskManagerImpl(ruleEngineService);
+        var validationTaskFactory = new ValidationTaskManagerImpl(
+            ruleEngineService, config.getValidation().getTaskRetentionTime().toJavaDuration(),
+            config.getValidation().getMaxNumberOfTasks());
         environment.jersey().register(new ValidateApiResource(validationTaskFactory, config.getValidation().getTaskQueue().build(environment),
             appendEndSlashIfMissing(config.getValidation().getBaseUrl())));
     }

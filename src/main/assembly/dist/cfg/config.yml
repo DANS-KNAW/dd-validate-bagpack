@@ -30,6 +30,10 @@ validation:
     maxThreads: 3
     # Threads will die after 60 seconds of idleness
     keepAliveTime: 60 seconds
+  # Keep tasks in memory for 1 day. This should be long enough to allow for the client to retrieve the results.
+  taskRetentionTime: 1 day
+  # Maximum number of tasks to keep in memory.
+  maxNumberOfTasks: 1000
 
 #
 # See https://www.dropwizard.io/en/latest/manual/configuration.html#logging

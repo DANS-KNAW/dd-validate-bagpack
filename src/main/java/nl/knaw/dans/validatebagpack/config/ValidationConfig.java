@@ -15,6 +15,7 @@
  */
 package nl.knaw.dans.validatebagpack.config;
 
+import io.dropwizard.util.Duration;
 import lombok.Data;
 import nl.knaw.dans.lib.util.ExecutorServiceFactory;
 
@@ -33,4 +34,9 @@ public class ValidationConfig {
     @Valid
     @NotNull
     private ExecutorServiceFactory taskQueue;
+
+    @Valid
+    private Duration taskRetentionTime = Duration.days(1);
+
+    private long maxNumberOfTasks = 1000;
 }

@@ -15,18 +15,31 @@
  */
 package nl.knaw.dans.validatebagpack.core.service;
 
-import lombok.RequiredArgsConstructor;
+import com.google.common.cache.Cache;
+import com.google.common.cache.CacheBuilder;
+import lombok.extern.slf4j.Slf4j;
 
-import java.util.Map;
+import java.time.Duration;
 import java.util.Optional;
 import java.util.UUID;
-import java.util.concurrent.ConcurrentHashMap;
 
-@RequiredArgsConstructor
+@Slf4j
 public class ValidationTaskManagerImpl implements ValidationTaskManager {
     private final RuleEngineService ruleEngineService;
-    private final Map<UUID, ValidationTask> validationTasks = new ConcurrentHashMap<>();
+    private final Cache<UUID, ValidationTask> validationTasks;
 
+    public ValidationTaskManagerImpl(RuleEngineService ruleEngineService, Duration retentionTime, long maximumNumberOfTasks) {
+        this.ruleEngineService = ruleEngineService;
+        this.validationTasks = CacheBuilder.newBuilder()
+            .expireAfterWrite(retentionTime)
+            .maximumSize(maximumNumberOfTasks)
+            .removalListener(notification -> 
+                log.debug("Removed validation task {} due to {}", 
+                    notification.getKey(), notification.getCause()))
+            .build();
+    }
+
+    @Override
     public ValidationTask createValidationTask(String bagLocation) {
         var validationTask = new ValidationTask(bagLocation, ruleEngineService);
         validationTasks.put(validationTask.getId(), validationTask);
@@ -35,6 +48,6 @@ public class ValidationTaskManagerImpl implements ValidationTaskManager {
 
     @Override
     public Optional<ValidationTask> getValidationTask(UUID taskId) {
-        return Optional.ofNullable(validationTasks.get(taskId));
+        return Optional.ofNullable(validationTasks.getIfPresent(taskId));
     }
 }

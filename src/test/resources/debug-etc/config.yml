@@ -37,3 +37,5 @@ validation:
     maxThreads: 3
     # Threads will die after 60 seconds of idleness
     keepAliveTime: 60 seconds
+  taskRetentionTime: 1 day
+  maxNumberOfTasks: 1000
