@@ -56,7 +56,8 @@ public class RuleEngineServiceImpl implements RuleEngineService {
     }
 
     @Override
-    public ValidationResultDto validateBag(Path path, String bagLocation) throws Exception {
+    public ValidationResultDto validateBag(String bagLocation) throws Exception {
+        var path = Path.of(bagLocation);
         log.info("Validating bag on path '{}'", path);
         Map<String, String> env = Map.of("readonly", "true"); // optioneel; veilig weglaten
         if (!Files.isReadable(path)) {
