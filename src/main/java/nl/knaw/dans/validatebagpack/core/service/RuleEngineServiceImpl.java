@@ -36,13 +36,16 @@ public class RuleEngineServiceImpl implements RuleEngineService {
     private final RuleEngine ruleEngine;
     private final List<NumberedRule> ruleSet;
     private final BagItService bagItService;
+    private final Path baseFolder;
 
     public RuleEngineServiceImpl(RuleEngine ruleEngine,
         List<NumberedRule> ruleSet,
-        BagItService bagItService) {
+        BagItService bagItService,
+        Path baseFolder) {
         this.bagItService = bagItService;
         this.ruleEngine = ruleEngine;
         this.ruleSet = ruleSet;
+        this.baseFolder = baseFolder;
         this.validateRuleConfiguration();
     }
 
@@ -57,9 +60,17 @@ public class RuleEngineServiceImpl implements RuleEngineService {
 
     @Override
     public ValidationResultDto validateBag(String bagLocation) throws Exception {
-        var path = Path.of(bagLocation);
+        var path = Path.of(bagLocation).normalize().toAbsolutePath();
+
+        if (this.baseFolder != null) {
+            var absoluteBase = this.baseFolder.normalize().toAbsolutePath();
+            if (!path.startsWith(absoluteBase)) {
+                throw new IllegalArgumentException(String.format("Path '%s' is outside the allowed base folder.", path));
+            }
+        }
+
         log.info("Validating bag on path '{}'", path);
-        Map<String, String> env = Map.of("readonly", "true"); // optioneel; veilig weglaten
+        Map<String, String> env = Map.of("readonly", "true");
         if (!Files.isReadable(path)) {
             log.warn("Path {} could not not be found or is not readable", path);
             throw new FileNotFoundException(String.format("Bag on path '%s' could not be found or read", path));

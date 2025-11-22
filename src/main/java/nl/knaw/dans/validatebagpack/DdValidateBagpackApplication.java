@@ -55,7 +55,7 @@ public class DdValidateBagpackApplication extends Application<DdValidateBagpackC
 
         var bagItService = new BagItServiceImpl();
         var ruleSets = new RuleSets(bagItService, xmlSchemaValidator);
-        var ruleEngineService = new RuleEngineServiceImpl(new RuleEngineImpl(), ruleSets.getCommonRules(), bagItService);
+        var ruleEngineService = new RuleEngineServiceImpl(new RuleEngineImpl(), ruleSets.getCommonRules(), bagItService, config.getValidation().getBaseFolder());
         var validationTaskFactory = new ValidationTaskManagerImpl(
             ruleEngineService, config.getValidation().getTaskRetentionTime().toJavaDuration(),
             config.getValidation().getMaxNumberOfTasks());

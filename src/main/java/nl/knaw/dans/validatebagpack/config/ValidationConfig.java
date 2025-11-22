@@ -22,9 +22,13 @@ import nl.knaw.dans.lib.util.ExecutorServiceFactory;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import java.net.URI;
+import java.nio.file.Path;
 
 @Data
 public class ValidationConfig {
+    @NotNull
+    private Path baseFolder;
+
     @NotNull
     private URI baseUrl;
 

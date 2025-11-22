@@ -19,6 +19,8 @@ server:
         currentLogFilename: /var/opt/dans.knaw.nl/log/dd-validate-bagpack/request.log
 
 validation:
+  # The base folder under which the bags to be validated must be placed.
+  baseFolder: "/var/opt/dans.knaw.nl/tmp"
   baseUrl: "http://localhost:20376/validate"
   dataCiteSchema: "file:///etc/opt/dans.knaw.nl/dd-validate-bagpack/datacite/v4.4/metadata.xsd"
   taskQueue:
