@@ -32,6 +32,7 @@ public class RuleSets {
 
     private final BagItService bagItService;
     private final XmlSchemaValidator xmlSchemaValidator;
+    private final String dansBagPackBagItProfile;
     private final FileService fileService = new FileServiceImpl();
 
     public List<NumberedRule> getCommonRules() {
@@ -43,31 +44,8 @@ public class RuleSets {
                 List.of(
                     Pattern.compile("^cvc-pattern-valid: Value ':none' is not facet-valid with respect to pattern '.*' for type 'doiType'.*$"),
                     Pattern.compile("^cvc-complex-type.*Element 'identifier' must have no element \\[children], and the value must be valid.*$"))),
-                List.of("1.2(a)"))
-
-            /*
-X 1. A DANS BagPack MUST be valid according to [BagIt v1.0]{:target=_blank}.
-2. A DANS BagPack MUST contain a file `metadata/datacite.xml` (a) this file MUST be valid according to the
-   [DataCite schema version 4.0 or later]{:target=_blank}, except for the requirement that there MUST be a DOI present: a DOI is not required for a DANS
-   BagPack; (b) [DataCite's recommended properties]{:target=_blank} SHOULD be present.
-3. Other files besides `datacite.xml` MAY be present in the `metadata` folder.
-4. The files in the `metadata` folder MUST be mentioned in the `tag-manifest` (this is optional in BagIt, but required by RDA BagPack).
-5. `BagIt-Profile-Identifier` MUST be provided.
-
-### 2. Extra Requirements for DANS BagPack
-
-The following items are required by the DANS BagPack Profile, in addition to the requirements of RDA BagPack:
-
-1. `BagIt-Profile-Identifier` MUST contain `https://doi.org/10.17026/e948-0r32`.
-2. The bag must be valid according to the [DANS BagPack BagIt Profile]{:target=_blank}.
-3. There MUST be a file called `metadata/pid-mapping.txt`: the structure of this file MUST be rows of `<identifier>  <referenced object>`, where `<identifier>`
-   is a unique URI and `<referenced object>` is the path to the file relative to the root of the bag, and both are separated by one or more spaces.
-4. (a) There MUST be a file called `metadata/oai-ore.jsonld`; (b) this file MUST be well-formed JSON.
-5. There MUST be a one-to-one mapping between the files in the `data` folder and the files described in the Aggregation contained in  `oai-ore.jsonld` file: (a)
-   all identifiers mentioned in the `oai-ore.jsonld` that refer to files in the `data` folder MUST be present in `pid-mapping.txt`; (b) all file objects
-   mentioned in the `pid-mapping.txt` MUST be present in the `oai-ore.jsonld`.
-
-             */
+                List.of("1.2(a)")),
+            new NumberedRule("2(a)", new BagMustConformToDansBagPackBagItProfile(dansBagPackBagItProfile), List.of("1.1"))
         );
     }
 }

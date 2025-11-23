@@ -23,6 +23,7 @@ validation:
   baseFolder: "/var/opt/dans.knaw.nl/tmp"
   baseUrl: "http://localhost:20376/validate"
   dataCiteSchema: "file:///etc/opt/dans.knaw.nl/dd-validate-bagpack/datacite/v4.4/metadata.xsd"
+  dansBagPackBagItProfile: "file:///etc/opt/dans.knaw.nl/dd-validate-bagpack/bagit/dans-bagpack-profile-1.0.0.json"
   taskQueue:
     nameFormat: "validation-worker-%d"
     maxQueueSize: 5000

@@ -35,6 +35,9 @@ public class ValidationConfig {
     @NotNull
     private URI dataCiteSchema;
 
+    @NotNull
+    private URI dansBagPackBagItProfile;
+
     @Valid
     @NotNull
     private ExecutorServiceFactory taskQueue;
