@@ -45,7 +45,8 @@ public class RuleSets {
                     Pattern.compile("^cvc-pattern-valid: Value ':none' is not facet-valid with respect to pattern '.*' for type 'doiType'.*$"),
                     Pattern.compile("^cvc-complex-type.*Element 'identifier' must have no element \\[children], and the value must be valid.*$"))),
                 List.of("1.2(a)")),
-            new NumberedRule("2(a)", new BagMustConformToDansBagPackBagItProfile(dansBagPackBagItProfile), List.of("1.1"))
+            new NumberedRule("2.2(a)", new BagMustConformToDansBagPackBagItProfile(dansBagPackBagItProfile), List.of("1.1")),
+            new NumberedRule("2.3", new BagMustContainWellformedPidMapping(), List.of("2.2(a)"))
         );
     }
 }

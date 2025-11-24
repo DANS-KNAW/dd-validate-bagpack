@@ -13,15 +13,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package nl.knaw.dans.validatebagpack.core.service;
+package nl.knaw.dans.validatebagpack;
 
-import java.io.IOException;
-import java.net.URI;
+import org.apache.commons.io.FileUtils;
+import org.junit.jupiter.api.BeforeEach;
+
+import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.Map;
 
-public interface FileService {
-    byte[] readFileContents(Path path) throws IOException;
+public abstract class AbstractTestFixture {
+    protected final Path testDir = Path.of("target/test")
+        .resolve(getClass().getSimpleName());
 
-    Map<URI, String> parsePidMapping(Path pidMappingPath) throws IOException;
+    @BeforeEach
+    public void setUp() throws Exception {
+        FileUtils.deleteDirectory(testDir.toFile());
+        Files.createDirectories(testDir);
+    }
 }
