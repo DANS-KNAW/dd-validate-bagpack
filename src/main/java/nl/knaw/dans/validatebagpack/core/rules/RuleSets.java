@@ -47,6 +47,7 @@ public class RuleSets {
                 List.of("1.2(a)")),
             new NumberedRule("2.2(a)", new BagMustConformToDansBagPackBagItProfile(dansBagPackBagItProfile), List.of("1.1")),
             new NumberedRule("2.3", new BagMustContainWellformedPidMapping(), List.of("2.2(a)"))
+//            new NumberedRule("2.4(a)", new DocumentMustBeValidJsonLd(), List.of("2.2(a)")) // Disable until https://drivenbydata.atlassian.net/browse/DD-1608 is resolved
         );
     }
 }
