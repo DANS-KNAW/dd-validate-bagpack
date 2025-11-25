@@ -29,6 +29,7 @@ validation:
   baseUrl: "http://localhost:20376/validate"
   dataCiteSchema: "file:./src/main/assembly/dist/cfg/datacite/v4.4/metadata.xsd"
   dansBagPackBagItProfile: "file:./src/main/assembly/dist/cfg/dans-bagpack-profile-1.0.0.json"
+  enableJsonLdValidation: false
   taskQueue:
     nameFormat: "validation-worker-%d"
     maxQueueSize: 5000

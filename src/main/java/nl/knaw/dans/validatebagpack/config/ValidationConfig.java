@@ -46,4 +46,7 @@ public class ValidationConfig {
     private Duration taskRetentionTime = Duration.days(1);
 
     private long maxNumberOfTasks = 1000;
+
+    // Disable until https://drivenbydata.atlassian.net/browse/DD-1608 is resolved
+    private boolean enableJsonLdValidation = true;
 }

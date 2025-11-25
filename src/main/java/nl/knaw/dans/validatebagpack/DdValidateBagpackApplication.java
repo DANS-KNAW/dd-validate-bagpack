@@ -30,12 +30,9 @@ import nl.knaw.dans.validatebagpack.resources.ValidateApiResource;
 import org.apache.commons.lang3.StringUtils;
 
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.net.URI;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.util.Map;
 
 public class DdValidateBagpackApplication extends Application<DdValidateBagpackConfig> {
@@ -61,7 +58,8 @@ public class DdValidateBagpackApplication extends Application<DdValidateBagpackC
         ));
 
         var bagItService = new BagItServiceImpl();
-        var ruleSets = new RuleSets(bagItService, xmlSchemaValidator, getContentsAsString(config.getValidation().getDansBagPackBagItProfile(), StandardCharsets.UTF_8));
+        var ruleSets = new RuleSets(bagItService, xmlSchemaValidator, getContentsAsString(config.getValidation().getDansBagPackBagItProfile(), StandardCharsets.UTF_8),
+            config.getValidation().isEnableJsonLdValidation());
         var ruleEngineService = new RuleEngineServiceImpl(new RuleEngineImpl(), ruleSets.getCommonRules(), bagItService, config.getValidation().getBaseFolder());
         var validationTaskFactory = new ValidationTaskManagerImpl(
             ruleEngineService, config.getValidation().getTaskRetentionTime().toJavaDuration(),
@@ -78,10 +76,10 @@ public class DdValidateBagpackApplication extends Application<DdValidateBagpackC
     }
 
     private String getContentsAsString(URI uri, Charset charset) {
-        try(var is = uri.toURL().openStream()) {
-            var s  = StringUtils.toString(is.readAllBytes(), charset.toString());
-            return s;
-        } catch (IOException e) {
+        try (var is = uri.toURL().openStream()) {
+            return StringUtils.toEncodedString(is.readAllBytes(), charset);
+        }
+        catch (IOException e) {
             throw new RuntimeException(e);
         }
 

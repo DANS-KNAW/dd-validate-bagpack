@@ -16,19 +16,23 @@
 package nl.knaw.dans.validatebagpack.core.rules;
 
 import com.github.jsonldjava.core.JsonLdError;
-import com.github.jsonldjava.core.JsonLdOptions;
 import com.github.jsonldjava.core.JsonLdProcessor;
 import com.github.jsonldjava.utils.JsonUtils;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import nl.knaw.dans.lib.util.ruleengine.BagValidatorRule;
 import nl.knaw.dans.lib.util.ruleengine.RuleResult;
 
-import java.io.FileReader;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
-public class DocumentMustBeValidJsonLd implements BagValidatorRule {
-    private static final String OAI_ORE_PATH = "metadata/oai-ore.jsonld";
+import static nl.knaw.dans.validatebagpack.core.rules.Constants.OAI_ORE_PATH;
+
+@RequiredArgsConstructor
+@Slf4j
+public class OaiOreJsonLdMustBeValidJsonLd implements BagValidatorRule {
+    private final boolean enableJsonLdValidation;
 
     @Override
     public RuleResult validate(Path path) throws Exception {
@@ -39,14 +43,19 @@ public class DocumentMustBeValidJsonLd implements BagValidatorRule {
 
         String error = getJsonLdValidationError(oaiOrePath);
         if (error != null) {
-            return RuleResult.error(String.format("File is not valid JSON-LD: '%s'. Error: %s", oaiOrePath, error));
+            if (enableJsonLdValidation) {
+                return RuleResult.error(String.format("File is not valid JSON-LD: '%s'. Error: %s", oaiOrePath, error));
+            }
+            else {
+                log.warn("File is not valid JSON-LD, but validation is disabled: '{}'. Error: {}", oaiOrePath, error);
+            }
         }
 
         return RuleResult.ok();
     }
 
     private String getJsonLdValidationError(Path filePath) {
-        try (FileReader reader = new FileReader(filePath.toFile())) {
+        try (var reader = Files.newBufferedReader(filePath)) {
             Object jsonObject = JsonUtils.fromReader(reader);
             JsonLdProcessor.expand(jsonObject);
             return null;

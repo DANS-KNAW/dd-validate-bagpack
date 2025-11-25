@@ -18,6 +18,7 @@ package nl.knaw.dans.validatebagpack.core.rules;
 import lombok.AllArgsConstructor;
 import nl.knaw.dans.lib.util.XmlSchemaValidator;
 import nl.knaw.dans.lib.util.ruleengine.NumberedRule;
+import nl.knaw.dans.validatebagpack.core.oaiore.OaiOreMetadataReader;
 import nl.knaw.dans.validatebagpack.core.service.BagItService;
 import nl.knaw.dans.validatebagpack.core.service.FileService;
 import nl.knaw.dans.validatebagpack.core.service.FileServiceImpl;
@@ -33,6 +34,7 @@ public class RuleSets {
     private final BagItService bagItService;
     private final XmlSchemaValidator xmlSchemaValidator;
     private final String dansBagPackBagItProfile;
+    private final boolean enableJsonLdValidation;
     private final FileService fileService = new FileServiceImpl();
 
     public List<NumberedRule> getCommonRules() {
@@ -46,8 +48,9 @@ public class RuleSets {
                     Pattern.compile("^cvc-complex-type.*Element 'identifier' must have no element \\[children], and the value must be valid.*$"))),
                 List.of("1.2(a)")),
             new NumberedRule("2.2(a)", new BagMustConformToDansBagPackBagItProfile(dansBagPackBagItProfile), List.of("1.1")),
-            new NumberedRule("2.3", new BagMustContainWellformedPidMapping(), List.of("2.2(a)"))
-//            new NumberedRule("2.4(a)", new DocumentMustBeValidJsonLd(), List.of("2.2(a)")) // Disable until https://drivenbydata.atlassian.net/browse/DD-1608 is resolved
+            new NumberedRule("2.3", new BagMustContainWellformedPidMapping(), List.of("2.2(a)")),
+            new NumberedRule("2.4(a)", new OaiOreJsonLdMustBeValidJsonLd(enableJsonLdValidation), List.of("2.2(a)")),
+            new NumberedRule("2.4(b)", new OaiOreJsonLdMustContainRequiredElements(new OaiOreMetadataReader()), List.of("2.4(a)"))
         );
     }
 }
