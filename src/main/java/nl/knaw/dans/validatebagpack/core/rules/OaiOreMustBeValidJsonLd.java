@@ -31,7 +31,7 @@ import static nl.knaw.dans.validatebagpack.core.rules.Constants.OAI_ORE_PATH;
 
 @RequiredArgsConstructor
 @Slf4j
-public class OaiOreJsonLdMustBeValidJsonLd implements BagValidatorRule {
+public class OaiOreMustBeValidJsonLd implements BagValidatorRule {
     private final boolean enableJsonLdValidation;
 
     @Override

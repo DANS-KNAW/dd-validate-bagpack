@@ -22,18 +22,16 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 
 public class BagMustContainWellformedPidMapping implements BagValidatorRule {
-    private static final String PID_MAPPING_FILENAME = "metadata/pid-mapping.txt";
-
     @Override
     public RuleResult validate(Path path) throws Exception {
         try {
-            var pidMappingPath = path.resolve(PID_MAPPING_FILENAME);
-            if (Files.notExists(pidMappingPath)) {
-                return RuleResult.error("PID mapping file is missing: " + PID_MAPPING_FILENAME);
+            var pidMapping = path.resolve(Constants.PID_MAPPING_PATH);
+            if (Files.notExists(pidMapping)) {
+                return RuleResult.error("PID mapping file is missing: " + Constants.PID_MAPPING_PATH);
             }
 
             var fileService = new nl.knaw.dans.validatebagpack.core.service.FileServiceImpl();
-            fileService.parsePidMapping(pidMappingPath);
+            fileService.parsePidMapping(pidMapping);
 
             return RuleResult.ok();
         } catch (IllegalArgumentException e) {

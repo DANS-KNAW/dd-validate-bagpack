@@ -32,6 +32,8 @@ validation:
   enableJsonLdValidation: false
   sparqlQueries:
     findBagId: "src/main/assembly/dist/cfg/find-bagId.sparql"
+    findAggregatedResourceProps: "src/main/assembly/dist/cfg/find-aggregated-resource-props.sparql"
+    findAggregatedResourceIds: "src/main/assembly/dist/cfg/find-aggregated-resource-ids.sparql"
   taskQueue:
     nameFormat: "validation-worker-%d"
     maxQueueSize: 5000

@@ -1,0 +1,9 @@
+PREFIX ore: <http://www.openarchives.org/ore/terms/>
+PREFIX schema: <http://schema.org/>
+PREFIX dvcore: <https://dataverse.org/schema/core#>
+
+SELECT ?id
+WHERE {
+  ?aggregation ore:aggregates ?res .
+  BIND(str(?res) AS ?id)
+}

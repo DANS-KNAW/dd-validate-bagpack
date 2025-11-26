@@ -20,7 +20,6 @@ import nl.knaw.dans.lib.util.XmlSchemaValidator;
 import nl.knaw.dans.lib.util.ruleengine.NumberedRule;
 import nl.knaw.dans.validatebagpack.core.service.BagItService;
 import nl.knaw.dans.validatebagpack.core.service.FileService;
-import nl.knaw.dans.validatebagpack.core.service.FileServiceImpl;
 
 import java.util.List;
 import java.util.regex.Pattern;
@@ -48,8 +47,10 @@ public class RuleSets {
                 List.of("1.2(a)")),
             new NumberedRule("2.2(a)", new BagMustConformToDansBagPackBagItProfile(dansBagPackBagItProfile), List.of("1.1")),
             new NumberedRule("2.3", new BagMustContainWellformedPidMapping(), List.of("2.2(a)")),
-            new NumberedRule("2.4(a)", new OaiOreJsonLdMustBeValidJsonLd(enableJsonLdValidation), List.of("2.2(a)")),
-            new NumberedRule("2.4(b)", new OaiOreMustHaveOneAggregationWithOneBagId(fileService), List.of("2.4(a)"))
+            new NumberedRule("2.4(a)", new OaiOreMustBeValidJsonLd(enableJsonLdValidation), List.of("2.2(a)")),
+            new NumberedRule("2.4(b)", new OaiOreMustHaveOneAggregationWithOneBagId(fileService), List.of("2.4(a)")),
+            new NumberedRule("2.4(c)", new OaiOreAggregatedResourcesMustHaveRequiredProps(fileService), List.of("2.4(a)")),
+            new NumberedRule("2.5(a)", new OaireAggregatedResourceIdsMustBeInPidMapping(fileService), List.of("2.4(c)"))
         );
     }
 }
