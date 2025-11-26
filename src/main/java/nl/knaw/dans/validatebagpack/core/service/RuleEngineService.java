@@ -15,11 +15,7 @@
  */
 package nl.knaw.dans.validatebagpack.core.service;
 
-import nl.knaw.dans.lib.util.ruleengine.RuleValidationResult;
 import nl.knaw.dans.validatebagpack.api.ValidationResultDto;
-
-import java.nio.file.Path;
-import java.util.List;
 
 public interface RuleEngineService {
 

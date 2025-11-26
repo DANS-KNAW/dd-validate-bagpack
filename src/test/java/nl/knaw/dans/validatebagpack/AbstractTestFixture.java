@@ -13,15 +13,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package nl.knaw.dans.validatebagpack.core.service;
+package nl.knaw.dans.validatebagpack;
 
-import java.util.Optional;
-import java.util.UUID;
+import org.apache.commons.io.FileUtils;
+import org.junit.jupiter.api.BeforeEach;
 
-public interface ValidationTaskManager {
+import java.nio.file.Files;
+import java.nio.file.Path;
 
-    ValidationTask createValidationTask(String bagLocation);
+public abstract class AbstractTestFixture {
+    protected final Path testDir = Path.of("target/test")
+        .resolve(getClass().getSimpleName());
 
-    Optional<ValidationTask> getValidationTask(UUID taskId);
-
+    @BeforeEach
+    public void setUp() throws Exception {
+        FileUtils.deleteDirectory(testDir.toFile());
+        Files.createDirectories(testDir);
+    }
 }

@@ -27,7 +27,13 @@ logging:
 
 validation:
   baseUrl: "http://localhost:20376/validate"
-  dataCiteSchema: "../dans-schema/lib/src/main/resources/extern/datacite/v4.4/metadata.xsd"
+  dataCiteSchema: "file:./src/main/assembly/dist/cfg/datacite/v4.4/metadata.xsd"
+  dansBagPackBagItProfile: "file:./src/main/assembly/dist/cfg/dans-bagpack-profile-1.0.0.json"
+  enableJsonLdValidation: false
+  sparqlQueries:
+    findBagId: "src/main/assembly/dist/cfg/find-bagId.sparql"
+    findAggregatedResourceProps: "src/main/assembly/dist/cfg/find-aggregated-resource-props.sparql"
+    findAggregatedResourceIds: "src/main/assembly/dist/cfg/find-aggregated-resource-ids.sparql"
   taskQueue:
     nameFormat: "validation-worker-%d"
     maxQueueSize: 5000

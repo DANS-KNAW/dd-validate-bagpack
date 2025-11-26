@@ -24,11 +24,16 @@ import nl.knaw.dans.lib.util.ruleengine.RuleEngineImpl;
 import nl.knaw.dans.validatebagpack.config.DdValidateBagpackConfig;
 import nl.knaw.dans.validatebagpack.core.rules.RuleSets;
 import nl.knaw.dans.validatebagpack.core.service.BagItServiceImpl;
+import nl.knaw.dans.validatebagpack.core.service.FileServiceImpl;
 import nl.knaw.dans.validatebagpack.core.service.RuleEngineServiceImpl;
 import nl.knaw.dans.validatebagpack.core.service.ValidationTaskManagerImpl;
 import nl.knaw.dans.validatebagpack.resources.ValidateApiResource;
+import org.apache.commons.lang3.StringUtils;
 
+import java.io.IOException;
 import java.net.URI;
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.util.Map;
 
 public class DdValidateBagpackApplication extends Application<DdValidateBagpackConfig> {
@@ -54,7 +59,15 @@ public class DdValidateBagpackApplication extends Application<DdValidateBagpackC
         ));
 
         var bagItService = new BagItServiceImpl();
-        var ruleSets = new RuleSets(bagItService, xmlSchemaValidator);
+        var fileService = new FileServiceImpl();
+        try {
+            fileService.loadNamedSparqlQueries(config.getValidation().getSparqlQueries());
+        }
+        catch (IOException e) {
+            throw new RuntimeException("Failed to load SPARQL queries", e);
+        }
+        var ruleSets = new RuleSets(bagItService, xmlSchemaValidator, getContentsAsString(config.getValidation().getDansBagPackBagItProfile(), StandardCharsets.UTF_8),
+            config.getValidation().isEnableJsonLdValidation(), fileService);
         var ruleEngineService = new RuleEngineServiceImpl(new RuleEngineImpl(), ruleSets.getCommonRules(), bagItService, config.getValidation().getBaseFolder());
         var validationTaskFactory = new ValidationTaskManagerImpl(
             ruleEngineService, config.getValidation().getTaskRetentionTime().toJavaDuration(),
@@ -68,5 +81,15 @@ public class DdValidateBagpackApplication extends Application<DdValidateBagpackC
             return uri;
         }
         return URI.create(uri + "/");
+    }
+
+    private String getContentsAsString(URI uri, Charset charset) {
+        try (var is = uri.toURL().openStream()) {
+            return StringUtils.toEncodedString(is.readAllBytes(), charset);
+        }
+        catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+
     }
 }

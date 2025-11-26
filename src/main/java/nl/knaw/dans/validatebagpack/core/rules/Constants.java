@@ -13,15 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package nl.knaw.dans.validatebagpack.core.service;
+package nl.knaw.dans.validatebagpack.core.rules;
 
-import java.util.Optional;
-import java.util.UUID;
+public interface Constants {
+    String OAI_ORE_PATH = "metadata/oai-ore.jsonld";
+    String PID_MAPPING_PATH = "metadata/pid-mapping.txt";
 
-public interface ValidationTaskManager {
-
-    ValidationTask createValidationTask(String bagLocation);
-
-    Optional<ValidationTask> getValidationTask(UUID taskId);
-
+    String XML_SCHEMA_BOOLEAN = "http://www.w3.org/2001/XMLSchema#boolean";
 }

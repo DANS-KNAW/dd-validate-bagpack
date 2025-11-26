@@ -33,8 +33,8 @@ public class ValidationTaskManagerImpl implements ValidationTaskManager {
         this.validationTasks = CacheBuilder.newBuilder()
             .expireAfterWrite(retentionTime)
             .maximumSize(maximumNumberOfTasks)
-            .removalListener(notification -> 
-                log.debug("Removed validation task {} due to {}", 
+            .removalListener(notification ->
+                log.debug("Removed validation task {} due to {}",
                     notification.getKey(), notification.getCause()))
             .build();
     }

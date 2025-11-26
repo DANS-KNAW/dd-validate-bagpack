@@ -15,9 +15,23 @@
  */
 package nl.knaw.dans.validatebagpack.core.service;
 
+import org.apache.jena.query.QueryExecution;
+import org.apache.jena.rdf.model.Model;
+
 import java.io.IOException;
+import java.net.URI;
 import java.nio.file.Path;
+import java.util.Map;
 
 public interface FileService {
     byte[] readFileContents(Path path) throws IOException;
+
+    Map<URI, String> parsePidMapping(Path pidMappingPath) throws IOException;
+
+    Model readJsonLdAsRdfModel(Path jsonLdPath) throws IOException;
+
+    void loadNamedSparqlQueries(Map<String, Path> namedQueries) throws IOException;
+
+    QueryExecution executeNamedQuery(String queryName, Model model) throws IllegalArgumentException;
+
 }

@@ -23,6 +23,14 @@ validation:
   baseFolder: "/var/opt/dans.knaw.nl/tmp"
   baseUrl: "http://localhost:20376/validate"
   dataCiteSchema: "file:///etc/opt/dans.knaw.nl/dd-validate-bagpack/datacite/v4.4/metadata.xsd"
+  dansBagPackBagItProfile: "file:///etc/opt/dans.knaw.nl/dd-validate-bagpack/bagit/dans-bagpack-profile-1.0.0.json"
+  sparqlQueries:
+    findBagId: "/etc/opt/dans.knaw.nl/dd-validate-bagpack/find-bagId.sparql"
+    findAggregatedResourceProps: "/etc/opt/dans.knaw.nl/dd-validate-bagpack/find-aggregated-resource-props.sparql"
+    findAggregatedResourceIds: "/etc/opt/dans.knaw.nl/dd-validate-bagpack/find-aggregated-resource-ids.sparql"
+
+  # Disable until https://drivenbydata.atlassian.net/browse/DD-1608 is resolved
+  enableJsonLdValidation: false
   taskQueue:
     nameFormat: "validation-worker-%d"
     maxQueueSize: 5000
@@ -47,8 +55,8 @@ logging:
       archive: false
       timeZone: system
       currentLogFilename: /var/opt/dans.knaw.nl/log/dd-validate-bagpack/dd-validate-bagpack.log
-    - type:  console
+    - type: console
       # Used in combination with journald, which already adds the timestamp
       logFormat: "%-5p %c{0}: %m%n%dwREx"
   loggers:
-      'org.hibernate.engine.internal.StatisticalLoggingSessionEventListener': 'OFF'
+    'org.hibernate.engine.internal.StatisticalLoggingSessionEventListener': 'OFF'
