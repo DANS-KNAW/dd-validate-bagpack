@@ -15,9 +15,16 @@
  */
 package nl.knaw.dans.validatebagpack.core.service;
 
+import lombok.extern.slf4j.Slf4j;
+import nl.knaw.dans.bagit.reader.BagReader;
+import nl.knaw.dans.bagit.verify.BagVerifier;
+
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Set;
+import java.util.stream.Collectors;
 
+@Slf4j
 public class BagItServiceImpl implements BagItService {
     @Override
     public BagRoot getBagRoot(Path bagPath) throws Exception {
@@ -41,7 +48,28 @@ public class BagItServiceImpl implements BagItService {
     }
 
     @Override
-    public void verifyBag(BagRoot bagRoot) throws Exception {
+    public void verifyBag(Path path) throws Exception {
+        var bag = new BagReader().read(path);
 
+        try (var verifier = new BagVerifier()) {
+            var ignoreHiddenFiles = false;
+
+            log.debug("Verifying bag is complete on path {}", path);
+            verifier.isComplete(bag, ignoreHiddenFiles);
+
+            log.debug("Verifying bag is valid on path {}", path);
+            verifier.isValid(bag, ignoreHiddenFiles);
+        }
     }
+
+    @Override
+    public Set<String> listPayloadFiles(Path bagRoot) throws Exception {
+        var bag = new BagReader().read(bagRoot);
+        return bag.getPayLoadManifests().stream()
+            .flatMap(manifest -> manifest.getFileToChecksumMap().keySet().stream())
+            .map(bagRoot::relativize)
+            .map(Path::toString)
+            .collect(Collectors.toSet());
+    }
+
 }

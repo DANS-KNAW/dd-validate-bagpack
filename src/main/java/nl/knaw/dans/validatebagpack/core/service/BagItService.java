@@ -16,6 +16,7 @@
 package nl.knaw.dans.validatebagpack.core.service;
 
 import java.nio.file.Path;
+import java.util.Set;
 
 public interface BagItService {
 
@@ -31,8 +32,12 @@ public interface BagItService {
     /**
      * Verifies whether the bag at the given path is valid, according to BagIt specifications.
      *
-     * @param bagRoot the root directory of the bag
+     * @param path the root directory of the bag
      * @throws Exception if the bag is not valid or an error occurs during verification
      */
-    void verifyBag(BagRoot bagRoot) throws Exception;
+    void verifyBag(Path path) throws Exception;
+
+
+
+    Set<String> listPayloadFiles(Path bagRoot) throws Exception;
 }

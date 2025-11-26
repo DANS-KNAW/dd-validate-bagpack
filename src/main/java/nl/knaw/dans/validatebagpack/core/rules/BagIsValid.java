@@ -21,20 +21,14 @@ import nl.knaw.dans.bagit.exceptions.CorruptChecksumException;
 import nl.knaw.dans.bagit.exceptions.FileNotInManifestException;
 import nl.knaw.dans.bagit.exceptions.FileNotInPayloadDirectoryException;
 import nl.knaw.dans.bagit.exceptions.InvalidBagitFileFormatException;
-import nl.knaw.dans.bagit.exceptions.MaliciousPathException;
 import nl.knaw.dans.bagit.exceptions.MissingBagitFileException;
 import nl.knaw.dans.bagit.exceptions.MissingPayloadDirectoryException;
 import nl.knaw.dans.bagit.exceptions.MissingPayloadManifestException;
-import nl.knaw.dans.bagit.exceptions.UnparsableVersionException;
-import nl.knaw.dans.bagit.exceptions.UnsupportedAlgorithmException;
 import nl.knaw.dans.bagit.exceptions.VerificationException;
-import nl.knaw.dans.bagit.reader.BagReader;
-import nl.knaw.dans.bagit.verify.BagVerifier;
 import nl.knaw.dans.lib.util.ruleengine.BagValidatorRule;
 import nl.knaw.dans.lib.util.ruleengine.RuleResult;
 import nl.knaw.dans.validatebagpack.core.service.BagItService;
 
-import java.io.IOException;
 import java.nio.file.NoSuchFileException;
 import java.nio.file.Path;
 
@@ -47,7 +41,7 @@ public class BagIsValid implements BagValidatorRule {
     public RuleResult validate(Path path) throws Exception {
         try {
             log.debug("Verifying bag {}", path);
-            verifyBag(path);
+            bagItService.verifyBag(path);
             log.debug("Bag {} is valid", path);
             return RuleResult.ok();
         }
@@ -61,24 +55,6 @@ public class BagIsValid implements BagValidatorRule {
             return RuleResult.error(String.format(
                 "Bag is not valid: %s", e.getMessage()
             ), e);
-        }
-    }
-
-    private void verifyBag(Path path)
-        throws MaliciousPathException, UnsupportedAlgorithmException, InvalidBagitFileFormatException, IOException, MissingPayloadManifestException,
-        MissingPayloadDirectoryException, FileNotInPayloadDirectoryException, InterruptedException, MissingBagitFileException, CorruptChecksumException, VerificationException,
-        UnparsableVersionException {
-
-        var bag = new BagReader().read(path);
-
-        try (var verifier = new BagVerifier()) {
-            var ignoreHiddenFiles = false;
-
-            log.debug("Verifying bag is complete on path {}", path);
-            verifier.isComplete(bag, ignoreHiddenFiles);
-
-            log.debug("Verifying bag is valid on path {}", path);
-            verifier.isValid(bag, ignoreHiddenFiles);
         }
     }
 }
