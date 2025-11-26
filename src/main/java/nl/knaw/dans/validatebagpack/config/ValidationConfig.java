@@ -23,6 +23,7 @@ import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import java.net.URI;
 import java.nio.file.Path;
+import java.util.Map;
 
 @Data
 public class ValidationConfig {
@@ -49,4 +50,9 @@ public class ValidationConfig {
 
     // Disable until https://drivenbydata.atlassian.net/browse/DD-1608 is resolved
     private boolean enableJsonLdValidation = true;
+
+    @Valid
+    @NotNull
+    private Map<String, Path> sparqlQueries;
+
 }

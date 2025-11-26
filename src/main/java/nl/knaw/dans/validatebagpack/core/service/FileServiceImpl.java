@@ -15,15 +15,27 @@
  */
 package nl.knaw.dans.validatebagpack.core.service;
 
+import lombok.extern.slf4j.Slf4j;
+import org.apache.jena.query.Query;
+import org.apache.jena.query.QueryExecution;
+import org.apache.jena.query.QueryExecutionFactory;
+import org.apache.jena.query.QueryFactory;
+import org.apache.jena.rdf.model.Model;
+import org.apache.jena.rdf.model.ModelFactory;
+
 import java.io.IOException;
 import java.net.URI;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+@Slf4j
 public class FileServiceImpl implements FileService {
+    private final Map<String, Query> queryMap = new HashMap<>();
+
     @Override
     public byte[] readFileContents(Path path) throws IOException {
         return java.nio.file.Files.readAllBytes(path);
@@ -48,5 +60,32 @@ public class FileServiceImpl implements FileService {
                     parts -> parts[1]
                 ));
         }
+    }
+
+    @Override
+    public Model readJsonLdAsRdfModel(Path jsonLdPath) throws IOException {
+        var model = ModelFactory.createDefaultModel();
+        model.read(Files.newInputStream(jsonLdPath), null, "JSON-LD");
+        return model;
+    }
+
+    @Override
+    public void loadNamedSparqlQueries(Map<String, Path> namedQueries) throws IOException {
+        for (var entry : namedQueries.entrySet()) {
+            var queryText = Files.readString(entry.getValue(), StandardCharsets.UTF_8);
+            var query = QueryFactory.create(queryText);
+            this.queryMap.put(entry.getKey(), query);
+            log.info("Loaded SPARQL query '{}' from {}", entry.getKey(), entry.getValue());
+        }
+    }
+
+    @Override
+    public QueryExecution executeNamedQuery(String queryName, Model model) throws IllegalArgumentException {
+        var query = this.queryMap.get(queryName);
+        if (query == null) {
+            throw new IllegalArgumentException("No query found with name: " + queryName);
+        }
+
+        return QueryExecutionFactory.create(query, model);
     }
 }

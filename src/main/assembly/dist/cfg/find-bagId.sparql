@@ -1,0 +1,8 @@
+PREFIX ore: <http://www.openarchives.org/ore/terms/>
+PREFIX vaultMd: <https://schemas.dans.knaw.nl/metadatablock/dansDataVaultMetadata#>
+
+SELECT ?resource ?bagId
+WHERE {
+    ?resource a ore:Aggregation .
+    OPTIONAL { ?resource vaultMd:dansBagId ?bagId }
+}

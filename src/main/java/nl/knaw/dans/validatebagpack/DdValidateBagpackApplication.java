@@ -24,6 +24,7 @@ import nl.knaw.dans.lib.util.ruleengine.RuleEngineImpl;
 import nl.knaw.dans.validatebagpack.config.DdValidateBagpackConfig;
 import nl.knaw.dans.validatebagpack.core.rules.RuleSets;
 import nl.knaw.dans.validatebagpack.core.service.BagItServiceImpl;
+import nl.knaw.dans.validatebagpack.core.service.FileServiceImpl;
 import nl.knaw.dans.validatebagpack.core.service.RuleEngineServiceImpl;
 import nl.knaw.dans.validatebagpack.core.service.ValidationTaskManagerImpl;
 import nl.knaw.dans.validatebagpack.resources.ValidateApiResource;
@@ -58,8 +59,15 @@ public class DdValidateBagpackApplication extends Application<DdValidateBagpackC
         ));
 
         var bagItService = new BagItServiceImpl();
+        var fileService = new FileServiceImpl();
+        try {
+            fileService.loadNamedSparqlQueries(config.getValidation().getSparqlQueries());
+        }
+        catch (IOException e) {
+            throw new RuntimeException("Failed to load SPARQL queries", e);
+        }
         var ruleSets = new RuleSets(bagItService, xmlSchemaValidator, getContentsAsString(config.getValidation().getDansBagPackBagItProfile(), StandardCharsets.UTF_8),
-            config.getValidation().isEnableJsonLdValidation());
+            config.getValidation().isEnableJsonLdValidation(), fileService);
         var ruleEngineService = new RuleEngineServiceImpl(new RuleEngineImpl(), ruleSets.getCommonRules(), bagItService, config.getValidation().getBaseFolder());
         var validationTaskFactory = new ValidationTaskManagerImpl(
             ruleEngineService, config.getValidation().getTaskRetentionTime().toJavaDuration(),
