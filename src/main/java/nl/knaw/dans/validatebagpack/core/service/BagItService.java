@@ -37,7 +37,5 @@ public interface BagItService {
      */
     void verifyBag(Path path) throws Exception;
 
-
-
     Set<String> listPayloadFiles(Path bagRoot) throws Exception;
 }

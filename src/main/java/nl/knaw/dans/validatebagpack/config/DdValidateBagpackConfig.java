@@ -16,15 +16,12 @@
 
 package nl.knaw.dans.validatebagpack.config;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
 import io.dropwizard.core.Configuration;
-
-import javax.validation.Valid;
-import javax.validation.constraints.NotEmpty;
-import javax.validation.constraints.NotNull;
-
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+
+import javax.validation.Valid;
+import javax.validation.constraints.NotNull;
 
 @Data
 @EqualsAndHashCode(callSuper = true)

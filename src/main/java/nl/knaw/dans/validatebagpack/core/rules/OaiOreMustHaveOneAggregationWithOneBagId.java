@@ -20,8 +20,6 @@ import lombok.extern.slf4j.Slf4j;
 import nl.knaw.dans.lib.util.ruleengine.BagValidatorRule;
 import nl.knaw.dans.lib.util.ruleengine.RuleResult;
 import nl.knaw.dans.validatebagpack.core.service.FileService;
-import org.apache.jena.query.QueryExecutionFactory;
-import org.apache.jena.query.QueryFactory;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -56,7 +54,7 @@ public class OaiOreMustHaveOneAggregationWithOneBagId implements BagValidatorRul
                 if (resource != null) {
                     aggregations.add(resource.toString());
                 }
-                
+
                 var node = solution.get("bagId");
                 if (node != null && node.isLiteral()) {
                     bagIds.add(node.asLiteral().getString());
@@ -92,6 +90,5 @@ public class OaiOreMustHaveOneAggregationWithOneBagId implements BagValidatorRul
             return false;
         }
     }
-
 
 }

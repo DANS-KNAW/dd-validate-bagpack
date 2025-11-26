@@ -16,7 +16,6 @@
 package nl.knaw.dans.validatebagpack.core.service;
 
 import org.apache.jena.query.QueryExecution;
-import org.apache.jena.query.ResultSet;
 import org.apache.jena.rdf.model.Model;
 
 import java.io.IOException;
@@ -34,6 +33,5 @@ public interface FileService {
     void loadNamedSparqlQueries(Map<String, Path> namedQueries) throws IOException;
 
     QueryExecution executeNamedQuery(String queryName, Model model) throws IllegalArgumentException;
-
 
 }

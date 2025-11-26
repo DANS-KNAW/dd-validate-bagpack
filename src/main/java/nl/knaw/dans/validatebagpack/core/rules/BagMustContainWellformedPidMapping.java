@@ -34,7 +34,8 @@ public class BagMustContainWellformedPidMapping implements BagValidatorRule {
             fileService.parsePidMapping(pidMapping);
 
             return RuleResult.ok();
-        } catch (IllegalArgumentException e) {
+        }
+        catch (IllegalArgumentException e) {
             return RuleResult.error(e.getMessage());
         }
 

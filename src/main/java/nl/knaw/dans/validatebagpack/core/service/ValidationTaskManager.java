@@ -22,7 +22,6 @@ public interface ValidationTaskManager {
 
     ValidationTask createValidationTask(String bagLocation);
 
-
     Optional<ValidationTask> getValidationTask(UUID taskId);
 
 }

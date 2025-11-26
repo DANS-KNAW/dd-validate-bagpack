@@ -76,7 +76,7 @@ public class RuleEngineServiceImpl implements RuleEngineService {
             throw new FileNotFoundException(String.format("Bag on path '%s' could not be found or read", path));
         }
 
-        try(var bagRoot = bagItService.getBagRoot(path)) {
+        try (var bagRoot = bagItService.getBagRoot(path)) {
             var results = ruleEngine.validateBag(bagRoot.getPath(), this.ruleSet);
             var isValid = results.stream().noneMatch(r -> r.getStatus().equals(RuleValidationResult.RuleValidationResultStatus.FAILURE));
 

@@ -16,8 +16,8 @@
 package nl.knaw.dans.validatebagpack.core.rules;
 
 public interface Constants {
-   String OAI_ORE_PATH = "metadata/oai-ore.jsonld";
-   String PID_MAPPING_PATH = "metadata/pid-mapping.txt";
+    String OAI_ORE_PATH = "metadata/oai-ore.jsonld";
+    String PID_MAPPING_PATH = "metadata/pid-mapping.txt";
 
-   String XML_SCHEMA_BOOLEAN = "http://www.w3.org/2001/XMLSchema#boolean";
+    String XML_SCHEMA_BOOLEAN = "http://www.w3.org/2001/XMLSchema#boolean";
 }

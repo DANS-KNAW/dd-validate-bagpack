@@ -16,7 +16,6 @@
 package nl.knaw.dans.validatebagpack.core.service;
 
 import nl.knaw.dans.validatebagpack.AbstractTestFixture;
-import nl.knaw.dans.validatebagpack.core.service.FileServiceImpl;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
@@ -131,6 +130,5 @@ public class FileServiceTest extends AbstractTestFixture {
             .isInstanceOf(IllegalArgumentException.class)
             .hasMessageContaining("Illegal character in scheme name at index 2: ht!tp://example.com/12345");
     }
-
 
 }
