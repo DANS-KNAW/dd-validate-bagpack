@@ -31,6 +31,11 @@ nav:
   - Development:
       - Overview: dev.md
 
+extra:
+  transfer_to_vault_url: https://dans-knaw.github.io/dans-datastation-architecture/dans-microservices/#dd-transfer-to-vault
+  bagpack_profile_url: https://dans-knaw.github.io/dans-bagpack-profile/
+  config_source_url: https://github.com/DANS-KNAW/dd-validate-bagpack/blob/master/src/main/assembly/dist/cfg/config.yml
+
 plugins:
   - markdownextradata
   - search
