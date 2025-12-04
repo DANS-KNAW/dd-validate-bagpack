@@ -40,6 +40,7 @@
         <dans-build-resources-maven-plugin.version>0.8.0</dans-build-resources-maven-plugin.version>
         <dans-java-utils.version>2.5.0</dans-java-utils.version>
         <dans-bagit-lib.version>1.2.0</dans-bagit-lib.version>
+        <dans-java-utils.version>2.5.0</dans-java-utils.version>
     </properties>
 
     <scm>
