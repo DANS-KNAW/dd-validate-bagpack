@@ -23,7 +23,7 @@ validation:
   baseFolder: "/var/opt/dans.knaw.nl/tmp"
   baseUrl: "http://localhost:20376/validate"
   dataCiteSchema: "file:///etc/opt/dans.knaw.nl/dd-validate-bagpack/datacite/v4.4/metadata.xsd"
-  dansBagPackBagItProfile: "file:///etc/opt/dans.knaw.nl/dd-validate-bagpack/bagit/dans-bagpack-profile-1.0.0.json"
+  dansBagPackBagItProfile: "file:///etc/opt/dans.knaw.nl/dd-validate-bagpack/dans-bagpack-profile-1.0.0.json"
   sparqlQueries:
     findBagId: "/etc/opt/dans.knaw.nl/dd-validate-bagpack/find-bagId.sparql"
     findAggregatedResourceProps: "/etc/opt/dans.knaw.nl/dd-validate-bagpack/find-aggregated-resource-props.sparql"
