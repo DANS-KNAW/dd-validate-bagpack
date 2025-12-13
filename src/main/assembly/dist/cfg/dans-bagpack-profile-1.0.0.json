@@ -52,6 +52,7 @@
     "application/zip"
   ],
   "Accept-BagIt-Version": [
+    "0.97",
     "1.0"
   ],
   "Tag-Manifests-Required": [],

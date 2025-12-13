@@ -1,5 +1,6 @@
 PREFIX ore: <http://www.openarchives.org/ore/terms/>
-PREFIX schema: <http://schema.org/>
+PREFIX schemaOld: <http://schema.org/>
+PREFIX schema: <https://schema.org/>
 PREFIX dvcore: <https://dataverse.org/schema/core#>
 
 SELECT ?id ?restricted ?name
@@ -8,4 +9,5 @@ WHERE {
   BIND(str(?res) AS ?id)
   OPTIONAL { ?res dvcore:restricted ?restricted }
   OPTIONAL { ?res schema:name ?name }
+  OPTIONAL { ?res schemaOld:name ?name }
 }
