@@ -22,7 +22,7 @@
     <parent>
         <groupId>nl.knaw.dans</groupId>
         <artifactId>dd-parent</artifactId>
-        <version>1.10.0</version>
+        <version>1.11.0</version>
     </parent>
 
     <artifactId>dd-validate-bagpack</artifactId>
@@ -35,9 +35,6 @@
 
     <properties>
         <main-class>nl.knaw.dans.validatebagpack.DdValidateBagpackApplication</main-class>
-        <dd-validate-bagpack-api.version>0.2.0</dd-validate-bagpack-api.version>
-        <dans-build-resources-maven-plugin.version>0.8.0</dans-build-resources-maven-plugin.version>
-        <dans-java-utils.version>2.5.0</dans-java-utils.version>
     </properties>
 
     <scm>
@@ -61,12 +58,10 @@
         <dependency>
             <groupId>nl.knaw.dans</groupId>
             <artifactId>dd-validate-bagpack-api</artifactId>
-            <version>${dd-validate-bagpack-api.version}</version>
         </dependency>
         <dependency>
             <groupId>nl.knaw.dans</groupId>
             <artifactId>dans-bagit-lib</artifactId>
-            <version>${dans-bagit-lib.version}</version>
         </dependency>
         <dependency>
             <groupId>com.google.guava</groupId>
@@ -79,7 +74,6 @@
         <dependency>
             <groupId>com.github.jsonld-java</groupId>
             <artifactId>jsonld-java</artifactId>
-            <version>0.13.5</version>
         </dependency>
         <dependency>
             <groupId>org.apache.jena</groupId>
