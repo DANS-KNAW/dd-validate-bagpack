@@ -29,10 +29,8 @@ import java.nio.file.Path;
 
 import static nl.knaw.dans.validatebagpack.core.rules.Constants.OAI_ORE_PATH;
 
-@RequiredArgsConstructor
 @Slf4j
 public class OaiOreMustBeValidJsonLd implements BagValidatorRule {
-    private final boolean enableJsonLdValidation;
 
     @Override
     public RuleResult validate(Path path) throws Exception {
@@ -43,12 +41,7 @@ public class OaiOreMustBeValidJsonLd implements BagValidatorRule {
 
         String error = getJsonLdValidationError(oaiOrePath);
         if (error != null) {
-            if (enableJsonLdValidation) {
-                return RuleResult.error(String.format("File is not valid JSON-LD: '%s'. Error: %s", oaiOrePath, error));
-            }
-            else {
-                log.warn("File is not valid JSON-LD, but validation is disabled: '{}'. Error: {}", oaiOrePath, error);
-            }
+            return RuleResult.error(String.format("File is not valid JSON-LD: '%s'. Error: %s", oaiOrePath, error));
         }
 
         return RuleResult.ok();

@@ -29,7 +29,6 @@ validation:
   baseUrl: "http://localhost:20376/validate"
   dataCiteSchema: "file:./src/main/assembly/dist/cfg/datacite/v4.4/metadata.xsd"
   dansBagPackBagItProfile: "https://doi.org/10.17026/E948-0R32"
-  enableJsonLdValidation: false
   sparqlQueries:
     findBagId: "src/main/assembly/dist/cfg/find-bagId.sparql"
     findAggregatedResourceProps: "src/main/assembly/dist/cfg/find-aggregated-resource-props.sparql"

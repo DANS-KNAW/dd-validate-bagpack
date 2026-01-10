@@ -32,7 +32,6 @@ public class RuleSets {
     private final BagItService bagItService;
     private final XmlSchemaValidator xmlSchemaValidator;
     private final String dansBagPackBagItProfile;
-    private final boolean enableJsonLdValidation;
     private final FileService fileService;
 
     public List<NumberedRule> getCommonRules() {
@@ -47,7 +46,7 @@ public class RuleSets {
                 List.of("1.2(a)")),
             new NumberedRule("2.2(a)", new BagMustConformToDansBagPackBagItProfile(dansBagPackBagItProfile), List.of("1.1")),
             new NumberedRule("2.3", new BagMustContainWellformedPidMapping(), List.of("2.2(a)")),
-            new NumberedRule("2.4(a)", new OaiOreMustBeValidJsonLd(enableJsonLdValidation), List.of("2.2(a)")),
+            new NumberedRule("2.4(a)", new OaiOreMustBeValidJsonLd(), List.of("2.2(a)")),
             new NumberedRule("2.4(b)", new OaiOreMustHaveOneAggregationWithOneBagId(fileService), List.of("2.4(a)")),
             new NumberedRule("2.4(c)", new OaiOreAggregatedResourcesMustHaveRequiredProps(fileService), List.of("2.4(a)")),
             new NumberedRule("2.5(a)", new OaireAggregatedResourceIdsMustBeInPidMapping(fileService), List.of("2.4(c)")),
