@@ -60,10 +60,10 @@ public class RuleEngineServiceImpl implements RuleEngineService {
 
     @Override
     public ValidationResultDto validateBag(String bagLocation) throws Exception {
-        var path = Path.of(bagLocation).normalize().toAbsolutePath();
+        var path = Path.of(bagLocation).normalize().toAbsolutePath().toRealPath();
 
         if (this.baseFolder != null) {
-            var absoluteBase = this.baseFolder.normalize().toAbsolutePath();
+            var absoluteBase = this.baseFolder.normalize().toAbsolutePath().toRealPath();
             if (!path.startsWith(absoluteBase)) {
                 throw new IllegalArgumentException(String.format("Path '%s' is outside the allowed base folder.", path));
             }
