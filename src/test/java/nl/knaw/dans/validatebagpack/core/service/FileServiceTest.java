@@ -17,7 +17,6 @@ package nl.knaw.dans.validatebagpack.core.service;
 
 import nl.knaw.dans.validatebagpack.AbstractTestFixture;
 import org.apache.jena.rdf.model.ModelFactory;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
@@ -140,12 +139,12 @@ public class FileServiceTest extends AbstractTestFixture {
     void readJsonLdAsRdfModel_should_parse_simple_jsonld() throws Exception {
         // Given
         String jsonld = """
-        {
-          "@context": { "ex": "http://example.org/" },
-          "@id": "ex:subject",
-          "ex:predicate": "object"
-        }
-        """;
+            {
+              "@context": { "ex": "http://example.org/" },
+              "@id": "ex:subject",
+              "ex:predicate": "object"
+            }
+            """;
         Path jsonldFile = testDir.resolve("test.jsonld");
         Files.writeString(jsonldFile, jsonld);
 
@@ -183,10 +182,10 @@ public class FileServiceTest extends AbstractTestFixture {
         try (var qe = fileService.executeNamedQuery("testQuery", model)) {
             assertThat(qe.getQuery().toString()).contains(
                 """
-                SELECT  *
-                WHERE
-                  { ?s  ?p  ?o }
-                """);
+                    SELECT  *
+                    WHERE
+                      { ?s  ?p  ?o }
+                    """);
         }
     }
 
@@ -221,9 +220,9 @@ public class FileServiceTest extends AbstractTestFixture {
     void parsePidMapping_should_throw_on_duplicate_uri() throws Exception {
         // Given
         Files.writeString(testDir.resolve("duplicate.txt"), """
-        http://example.com/1 path/one
-        http://example.com/1 path/two
-        """);
+            http://example.com/1 path/one
+            http://example.com/1 path/two
+            """);
 
         // When / Then
         assertThatThrownBy(() -> new FileServiceImpl().parsePidMapping(testDir.resolve("duplicate.txt")))
