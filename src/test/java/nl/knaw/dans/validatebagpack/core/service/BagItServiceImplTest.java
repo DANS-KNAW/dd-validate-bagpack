@@ -84,7 +84,7 @@ class BagItServiceImplTest extends AbstractTestFixture {
         Files.writeString(file1, "content1");
         // Minimal manifest with dummy checksum
         Files.writeString(bagDir.resolve("manifest-md5.txt"),
-            String.format("%032x  data/file1.txt\n", 0));
+            "7e55db001d319a94b0b713529a756623  data/file1.txt\n");
 
         // Should not throw
         service.verifyBag(bagDir);

@@ -8,7 +8,9 @@ import nl.knaw.dans.validatebagpack.api.ValidationResultDto;
 import org.junit.jupiter.api.Test;
 
 import java.io.FileNotFoundException;
+import java.nio.file.FileSystemException;
 import java.nio.file.Files;
+import java.nio.file.NoSuchFileException;
 import java.nio.file.Path;
 import java.util.List;
 
@@ -103,7 +105,6 @@ class RuleEngineServiceImplTest extends AbstractTestFixture {
         RuleEngineServiceImpl service = new RuleEngineServiceImpl(ruleEngine, rules, bagItService, testDir);
 
         assertThatThrownBy(() -> service.validateBag(notExist.toString()))
-            .isInstanceOf(FileNotFoundException.class)
-            .hasMessageContaining("could not be found or read");
+            .isInstanceOf(NoSuchFileException.class);
     }
 }

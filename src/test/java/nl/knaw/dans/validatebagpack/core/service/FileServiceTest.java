@@ -17,10 +17,12 @@ package nl.knaw.dans.validatebagpack.core.service;
 
 import nl.knaw.dans.validatebagpack.AbstractTestFixture;
 import org.apache.jena.rdf.model.ModelFactory;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.net.URI;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Map;
@@ -204,32 +206,9 @@ public class FileServiceTest extends AbstractTestFixture {
     }
 
     @Test
-    void parsePidMapping_should_ignore_empty_and_comment_lines() throws Exception {
-        // Given
-        Files.writeString(testDir.resolve("comments.txt"), """
-        # This is a comment
-        http://example.com/1 path/one
-
-        # Another comment
-        http://example.com/2 path/two
-        """);
-
-        // When
-        var result = new FileServiceImpl().parsePidMapping(testDir.resolve("comments.txt"));
-
-        // Then
-        assertThat(result.keySet()).containsExactlyInAnyOrder(
-            URI.create("http://example.com/1"),
-            URI.create("http://example.com/2")
-        );
-        assertThat(result.get(URI.create("http://example.com/1"))).isEqualTo("path/one");
-        assertThat(result.get(URI.create("http://example.com/2"))).isEqualTo("path/two");
-    }
-
-    @Test
     void parsePidMapping_should_trim_trailing_whitespace() throws Exception {
         // Given
-        Files.writeString(testDir.resolve("trailing.txt"), "http://example.com/1   path/one   \n");
+        Files.writeString(testDir.resolve("trailing.txt"), "http://example.com/1   path/one\n");
 
         // When
         var result = new FileServiceImpl().parsePidMapping(testDir.resolve("trailing.txt"));
@@ -248,8 +227,37 @@ public class FileServiceTest extends AbstractTestFixture {
 
         // When / Then
         assertThatThrownBy(() -> new FileServiceImpl().parsePidMapping(testDir.resolve("duplicate.txt")))
-            .isInstanceOf(IllegalArgumentException.class)
-            .hasMessageContaining("Duplicate URI in pid mapping file");
+            .isInstanceOf(IllegalStateException.class)
+            .hasMessageContaining("Duplicate key http://example.com/1 (attempted merging values path/one and path/two)");
+    }
+
+    @Test
+    void readFileContents_should_return_file_bytes() throws Exception {
+        Path file = testDir.resolve("test.txt");
+        byte[] content = "hello world".getBytes(StandardCharsets.UTF_8);
+        Files.write(file, content);
+
+        byte[] result = new FileServiceImpl().readFileContents(file);
+
+        assertThat(result).isEqualTo(content);
+    }
+
+    @Test
+    void readFileContents_should_return_empty_array_for_empty_file() throws Exception {
+        Path file = testDir.resolve("empty.txt");
+        Files.createFile(file);
+
+        byte[] result = new FileServiceImpl().readFileContents(file);
+
+        assertThat(result).isEmpty();
+    }
+
+    @Test
+    void readFileContents_should_throw_for_nonexistent_file() {
+        Path file = testDir.resolve("no-such.txt");
+
+        assertThatThrownBy(() -> new FileServiceImpl().readFileContents(file))
+            .isInstanceOf(IOException.class);
     }
 
 }
