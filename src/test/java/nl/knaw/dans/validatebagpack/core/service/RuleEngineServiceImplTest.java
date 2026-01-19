@@ -26,7 +26,13 @@ class RuleEngineServiceImplTest extends AbstractTestFixture {
         RuleEngine ruleEngine = mock(RuleEngine.class);
         BagItService bagItService = mock(BagItService.class);
         List<NumberedRule> rules = List.of();
-        when(bagItService.getBagRoot(bagDir)).thenReturn(new DirectoryBagRoot(bagDir));
+        when(bagItService.getBagRoot(any())).thenAnswer(invocation -> {
+            Path arg = invocation.getArgument(0);
+            if (arg.toAbsolutePath().normalize().equals(bagDir.toAbsolutePath().normalize())) {
+                return new DirectoryBagRoot(bagDir);
+            }
+            throw new IllegalArgumentException("Unknown bag path: " + arg);
+        });
         when(ruleEngine.validateBag(eq(bagDir), any())).thenReturn(List.of(
             new RuleValidationResult("1", RuleValidationResult.RuleValidationResultStatus.SUCCESS, null)
         ));
@@ -48,7 +54,13 @@ class RuleEngineServiceImplTest extends AbstractTestFixture {
         RuleEngine ruleEngine = mock(RuleEngine.class);
         BagItService bagItService = mock(BagItService.class);
         List<NumberedRule> rules = List.of();
-        when(bagItService.getBagRoot(bagDir)).thenReturn(new DirectoryBagRoot(bagDir));
+        when(bagItService.getBagRoot(any())).thenAnswer(invocation -> {
+            Path arg = invocation.getArgument(0);
+            if (arg.toAbsolutePath().normalize().equals(bagDir.toAbsolutePath().normalize())) {
+                return new DirectoryBagRoot(bagDir);
+            }
+            throw new IllegalArgumentException("Unknown bag path: " + arg);
+        });
         when(ruleEngine.validateBag(eq(bagDir), any())).thenReturn(List.of(
             new RuleValidationResult("2", RuleValidationResult.RuleValidationResultStatus.FAILURE, "error message")
         ));
