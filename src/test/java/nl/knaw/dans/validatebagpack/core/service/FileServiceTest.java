@@ -16,11 +16,14 @@
 package nl.knaw.dans.validatebagpack.core.service;
 
 import nl.knaw.dans.validatebagpack.AbstractTestFixture;
+import org.apache.jena.rdf.model.ModelFactory;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.net.URI;
 import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -129,6 +132,124 @@ public class FileServiceTest extends AbstractTestFixture {
         assertThatThrownBy(() -> new FileServiceImpl().parsePidMapping(testDir.resolve("invalid-uri.txt")))
             .isInstanceOf(IllegalArgumentException.class)
             .hasMessageContaining("Illegal character in scheme name at index 2: ht!tp://example.com/12345");
+    }
+
+    @Test
+    void readJsonLdAsRdfModel_should_parse_simple_jsonld() throws Exception {
+        // Given
+        String jsonld = """
+        {
+          "@context": { "ex": "http://example.org/" },
+          "@id": "ex:subject",
+          "ex:predicate": "object"
+        }
+        """;
+        Path jsonldFile = testDir.resolve("test.jsonld");
+        Files.writeString(jsonldFile, jsonld);
+
+        // When
+        var model = new FileServiceImpl().readJsonLdAsRdfModel(jsonldFile);
+
+        // Then
+        var subject = model.createResource("http://example.org/subject");
+        var predicate = model.createProperty("http://example.org/predicate");
+        assertThat(model.contains(subject, predicate, "object")).isTrue();
+    }
+
+    @Test
+    void readJsonLdAsRdfModel_should_throw_for_nonexistent_file() {
+        Path nonExistent = testDir.resolve("no-such.jsonld");
+        assertThatThrownBy(() -> new FileServiceImpl().readJsonLdAsRdfModel(nonExistent))
+            .isInstanceOf(IOException.class);
+    }
+
+    @Test
+    void loadNamedSparqlQueries_should_load_and_store_queries() throws Exception {
+        // Given
+        String sparql = "SELECT * WHERE { ?s ?p ?o }";
+        Path queryFile = testDir.resolve("query1.sparql");
+        Files.writeString(queryFile, sparql);
+
+        Map<String, Path> namedQueries = Map.of("testQuery", queryFile);
+        FileServiceImpl fileService = new FileServiceImpl();
+
+        // When
+        fileService.loadNamedSparqlQueries(namedQueries);
+
+        // Then
+        var model = ModelFactory.createDefaultModel();
+        try (var qe = fileService.executeNamedQuery("testQuery", model)) {
+            assertThat(qe.getQuery().toString()).contains(
+                """
+                SELECT  *
+                WHERE
+                  { ?s  ?p  ?o }
+                """);
+        }
+    }
+
+    @Test
+    void loadNamedSparqlQueries_should_throw_for_invalid_query() throws Exception {
+        // Given
+        String invalidSparql = "NOT A QUERY";
+        Path queryFile = testDir.resolve("invalid.sparql");
+        Files.writeString(queryFile, invalidSparql);
+
+        Map<String, Path> namedQueries = Map.of("badQuery", queryFile);
+        FileServiceImpl fileService = new FileServiceImpl();
+
+        // When / Then
+        assertThatThrownBy(() -> fileService.loadNamedSparqlQueries(namedQueries))
+            .isInstanceOf(org.apache.jena.query.QueryParseException.class);
+    }
+
+    @Test
+    void parsePidMapping_should_ignore_empty_and_comment_lines() throws Exception {
+        // Given
+        Files.writeString(testDir.resolve("comments.txt"), """
+        # This is a comment
+        http://example.com/1 path/one
+
+        # Another comment
+        http://example.com/2 path/two
+        """);
+
+        // When
+        var result = new FileServiceImpl().parsePidMapping(testDir.resolve("comments.txt"));
+
+        // Then
+        assertThat(result.keySet()).containsExactlyInAnyOrder(
+            URI.create("http://example.com/1"),
+            URI.create("http://example.com/2")
+        );
+        assertThat(result.get(URI.create("http://example.com/1"))).isEqualTo("path/one");
+        assertThat(result.get(URI.create("http://example.com/2"))).isEqualTo("path/two");
+    }
+
+    @Test
+    void parsePidMapping_should_trim_trailing_whitespace() throws Exception {
+        // Given
+        Files.writeString(testDir.resolve("trailing.txt"), "http://example.com/1   path/one   \n");
+
+        // When
+        var result = new FileServiceImpl().parsePidMapping(testDir.resolve("trailing.txt"));
+
+        // Then
+        assertThat(result.get(URI.create("http://example.com/1"))).isEqualTo("path/one");
+    }
+
+    @Test
+    void parsePidMapping_should_throw_on_duplicate_uri() throws Exception {
+        // Given
+        Files.writeString(testDir.resolve("duplicate.txt"), """
+        http://example.com/1 path/one
+        http://example.com/1 path/two
+        """);
+
+        // When / Then
+        assertThatThrownBy(() -> new FileServiceImpl().parsePidMapping(testDir.resolve("duplicate.txt")))
+            .isInstanceOf(IllegalArgumentException.class)
+            .hasMessageContaining("Duplicate URI in pid mapping file");
     }
 
 }
