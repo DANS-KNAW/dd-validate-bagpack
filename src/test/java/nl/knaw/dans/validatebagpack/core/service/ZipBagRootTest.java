@@ -21,8 +21,7 @@ import java.io.IOException;
 import java.net.URI;
 import java.nio.file.*;
 import java.util.Map;
-import java.util.zip.ZipOutputStream;
-import java.io.OutputStream;
+
 import static org.assertj.core.api.Assertions.*;
 
 class ZipBagRootTest extends AbstractTestFixture {
@@ -35,52 +34,68 @@ class ZipBagRootTest extends AbstractTestFixture {
         Files.deleteIfExists(tempZip);
     }
 
-    private void createZipWithBagStructure(boolean withBagit, boolean extraRootEntry) throws IOException {
+    private void createZipWithEntries(String... entries) throws IOException {
         try (FileSystem zipFs = FileSystems.newFileSystem(
             URI.create("jar:" + tempZip.toUri()),
             Map.of("create", "true"))) {
-            Path bagDir = zipFs.getPath("/bag");
-            Files.createDirectory(bagDir);
-            if (withBagit) {
-                Files.createFile(bagDir.resolve("bagit.txt"));
-            }
-            if (extraRootEntry) {
-                Files.createDirectory(zipFs.getPath("/extra"));
+            for (String entry : entries) {
+                Path path = zipFs.getPath(entry);
+                if (entry.endsWith("/")) {
+                    Files.createDirectory(path);
+                } else {
+                    // Ensure parent directory exists
+                    Path parent = path.getParent();
+                    if (parent != null && !Files.exists(parent)) {
+                        Files.createDirectories(parent);
+                    }
+                    Files.createFile(path);
+                }
             }
         }
     }
 
     @Test
     void should_find_bag_root_when_zip_is_valid() throws Exception {
-        createZipWithBagStructure(true, false);
+        createZipWithEntries("/bag/bagit.txt");
         try (ZipBagRoot bagRoot = new ZipBagRoot(tempZip, true)) {
             assertThat(bagRoot.getPath().getFileName().toString()).isEqualTo("bag");
             assertThat(Files.exists(bagRoot.getPath().resolve("bagit.txt"))).isTrue();
+            Path newFile = bagRoot.getPath().resolve("data.txt");
+            Files.createFile(newFile);
+            assertThat(Files.exists(newFile)).isTrue();
+            assertThat(bagRoot.getPath().getFileName().toString()).isEqualTo("bag");
+            assertThat(Files.exists(bagRoot.getPath().resolve("bagit.txt"))).isTrue();
+        }
+        try (FileSystem zipFs = FileSystems.newFileSystem(
+            URI.create("jar:" + tempZip.toUri()),
+            Map.of("create", "false"))) {
+            Path addedFile = zipFs.getPath("/bag/data.txt");
+            assertThat(Files.exists(addedFile)).isTrue();
         }
     }
+
+    @Test
+    void should_open_existing_zip_for_writing() throws Exception {
+        createZipWithEntries("/bag/bagit.txt");
+        try (ZipBagRoot bagRoot = new ZipBagRoot(tempZip, false)) {
+            Path newFile = bagRoot.getPath().resolve("data.txt");
+            Files.createFile(newFile);
+            assertThat(Files.exists(newFile)).isTrue();
+            assertThat(bagRoot.getPath().getFileName().toString()).isEqualTo("bag");
+            assertThat(Files.exists(bagRoot.getPath().resolve("bagit.txt"))).isTrue();
+        }
+        try (FileSystem zipFs = FileSystems.newFileSystem(
+            URI.create("jar:" + tempZip.toUri()),
+            Map.of("create", "false"))) {
+            Path addedFile = zipFs.getPath("/bag/data.txt");
+            assertThat(Files.exists(addedFile)).isTrue();
+        }
+    }
+
 
     @Test
     void should_throw_when_zip_has_no_root_directory() throws IOException {
-        try (OutputStream os = Files.newOutputStream(tempZip);
-            ZipOutputStream zos = new ZipOutputStream(os)) {
-            // no entries
-            zos.flush();
-        }
-        assertThatThrownBy(() -> new ZipBagRoot(tempZip, true))
-            .isInstanceOf(IllegalStateException.class)
-            .hasMessageContaining("Zip root must contain exactly one directory");
-    }
-
-    @Test
-    void should_throw_when_zip_has_multiple_root_directories() throws IOException {
-        // Create a zip with two root directories: /bag and /extra
-        try (FileSystem zipFs = FileSystems.newFileSystem(
-            URI.create("jar:" + tempZip.toUri()),
-            Map.of("create", "true"))) {
-            Files.createDirectory(zipFs.getPath("/bag"));
-            Files.createFile(zipFs.getPath("/bag/bagit.txt"));
-            Files.createDirectory(zipFs.getPath("/extra"));
-        }
+        createZipWithEntries();
         assertThatThrownBy(() -> new ZipBagRoot(tempZip, true))
             .isInstanceOf(IllegalStateException.class)
             .hasMessageContaining("Zip root must contain exactly one directory");
@@ -88,7 +103,7 @@ class ZipBagRootTest extends AbstractTestFixture {
 
     @Test
     void should_throw_when_zip_root_has_multiple_entries() throws IOException {
-        createZipWithBagStructure(true, true);
+        createZipWithEntries("/bag/", "/extra/");
         assertThatThrownBy(() -> new ZipBagRoot(tempZip, true))
             .isInstanceOf(IllegalStateException.class)
             .hasMessageContaining("Zip root must contain exactly one directory");
@@ -96,7 +111,7 @@ class ZipBagRootTest extends AbstractTestFixture {
 
     @Test
     void should_throw_when_bag_directory_missing_bagit_txt() throws IOException {
-        createZipWithBagStructure(false, false);
+        createZipWithEntries("/bag/");
         assertThatThrownBy(() -> new ZipBagRoot(tempZip, true))
             .isInstanceOf(IllegalStateException.class)
             .hasMessageContaining("Directory does not contain bagit.txt");
