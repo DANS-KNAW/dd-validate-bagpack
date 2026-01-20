@@ -15,12 +15,14 @@
  */
 package nl.knaw.dans.validatebagpack.core.service;
 
+import nl.knaw.dans.bagit.exceptions.MissingPayloadDirectoryException;
 import nl.knaw.dans.validatebagpack.AbstractTestFixture;
 import org.junit.jupiter.api.Test;
 
 import java.io.OutputStream;
 import java.net.URI;
 import java.nio.file.Files;
+import java.nio.file.NoSuchFileException;
 import java.nio.file.Path;
 import java.util.Map;
 import java.util.zip.ZipOutputStream;
@@ -114,7 +116,7 @@ class BagItServiceImplTest extends AbstractTestFixture {
         // No manifest or data
 
         assertThatThrownBy(() -> service.verifyBag(bagDir))
-            .isInstanceOf(Exception.class);
+            .isInstanceOf(MissingPayloadDirectoryException.class);
     }
 
     @Test
@@ -153,6 +155,6 @@ class BagItServiceImplTest extends AbstractTestFixture {
     void listPayloadFiles_should_throw_for_non_bag_path() {
         Path notABag = testDir.resolve("notabag");
         assertThatThrownBy(() -> service.listPayloadFiles(notABag))
-            .isInstanceOf(Exception.class);
+            .isInstanceOf(NoSuchFileException.class);
     }
 }
