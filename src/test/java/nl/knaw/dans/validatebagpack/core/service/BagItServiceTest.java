@@ -30,13 +30,13 @@ import java.util.zip.ZipOutputStream;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
-class BagItServiceImplTest extends AbstractTestFixture {
+class BagItServiceTest extends AbstractTestFixture {
 
     private final BagItServiceImpl service = new BagItServiceImpl();
 
     @Test
     void getBagRoot_should_return_DirectoryBagRoot_for_directory_bag() throws Exception {
-        Path bagDir = testDir.resolve("bagdir");
+        Path bagDir = testDir.resolve("bagDir");
         Files.createDirectory(bagDir);
         Files.createFile(bagDir.resolve("bagit.txt"));
 
@@ -72,7 +72,7 @@ class BagItServiceImplTest extends AbstractTestFixture {
 
     @Test
     void getBagRoot_should_throw_for_directory_without_bagit_txt() throws Exception {
-        Path bagDir = testDir.resolve("emptydir");
+        Path bagDir = testDir.resolve("emptyDir");
         Files.createDirectory(bagDir);
 
         assertThatThrownBy(() -> service.getBagRoot(bagDir))
@@ -86,6 +86,7 @@ class BagItServiceImplTest extends AbstractTestFixture {
         try (OutputStream os = Files.newOutputStream(zipFile);
             ZipOutputStream zos = new ZipOutputStream(os)) {
             // no entries
+            zos.flush();
         }
         assertThatThrownBy(() -> service.getBagRoot(zipFile))
             .isInstanceOf(IllegalStateException.class);
@@ -93,7 +94,7 @@ class BagItServiceImplTest extends AbstractTestFixture {
 
     @Test
     void verifyBag_should_succeed_for_valid_bag() throws Exception {
-        Path bagDir = testDir.resolve("validbag");
+        Path bagDir = testDir.resolve("validBag");
         Files.createDirectory(bagDir);
         Files.writeString(bagDir.resolve("bagit.txt"), "BagIt-Version: 0.97\nTag-File-Character-Encoding: UTF-8\n");
         Path dataDir = bagDir.resolve("data");
@@ -110,7 +111,7 @@ class BagItServiceImplTest extends AbstractTestFixture {
 
     @Test
     void verifyBag_should_throw_for_incomplete_bag() throws Exception {
-        Path bagDir = testDir.resolve("incompletebag");
+        Path bagDir = testDir.resolve("incompleteBag");
         Files.createDirectory(bagDir);
         Files.writeString(bagDir.resolve("bagit.txt"), "BagIt-Version: 0.97\nTag-File-Character-Encoding: UTF-8\n");
         // No manifest or data
@@ -121,7 +122,7 @@ class BagItServiceImplTest extends AbstractTestFixture {
 
     @Test
     void listPayloadFiles_should_return_all_payload_files() throws Exception {
-        Path bagDir = testDir.resolve("bagdir");
+        Path bagDir = testDir.resolve("bagDir");
         Files.createDirectory(bagDir);
         Files.writeString(bagDir.resolve("bagit.txt"), "BagIt-Version: 0.97\nTag-File-Character-Encoding: UTF-8\n");
         Path dataDir = bagDir.resolve("data");
@@ -141,7 +142,7 @@ class BagItServiceImplTest extends AbstractTestFixture {
 
     @Test
     void listPayloadFiles_should_return_empty_set_when_no_payload_files() throws Exception {
-        Path bagDir = testDir.resolve("emptybag");
+        Path bagDir = testDir.resolve("emptyBag");
         Files.createDirectory(bagDir);
         Files.writeString(bagDir.resolve("bagit.txt"), "BagIt-Version: 0.97\nTag-File-Character-Encoding: UTF-8\n");
         Files.writeString(bagDir.resolve("manifest-md5.txt"), "");
@@ -153,7 +154,7 @@ class BagItServiceImplTest extends AbstractTestFixture {
 
     @Test
     void listPayloadFiles_should_throw_for_non_bag_path() {
-        Path notABag = testDir.resolve("notabag");
+        Path notABag = testDir.resolve("notaBag");
         assertThatThrownBy(() -> service.listPayloadFiles(notABag))
             .isInstanceOf(NoSuchFileException.class);
     }

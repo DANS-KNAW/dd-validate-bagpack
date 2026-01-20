@@ -64,6 +64,7 @@ class ZipBagRootTest extends AbstractTestFixture {
         try (OutputStream os = Files.newOutputStream(tempZip);
             ZipOutputStream zos = new ZipOutputStream(os)) {
             // no entries
+            zos.flush();
         }
         assertThatThrownBy(() -> new ZipBagRoot(tempZip, true))
             .isInstanceOf(IllegalStateException.class)

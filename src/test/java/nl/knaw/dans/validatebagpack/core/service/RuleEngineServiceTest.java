@@ -34,11 +34,11 @@ import static org.mockito.Mockito.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-class RuleEngineServiceImplTest extends AbstractTestFixture {
+class RuleEngineServiceTest extends AbstractTestFixture {
 
     @Test
     void validateBag_should_return_compliant_result_when_no_failures() throws Exception {
-        Path bagDir = testDir.resolve("bagdir");
+        Path bagDir = testDir.resolve("bagDir");
         Files.createDirectory(bagDir);
         Files.createFile(bagDir.resolve("bagit.txt"));
 
@@ -66,7 +66,7 @@ class RuleEngineServiceImplTest extends AbstractTestFixture {
 
     @Test
     void validateBag_should_return_noncompliant_result_with_violations() throws Exception {
-        Path bagDir = testDir.resolve("bagdir2");
+        Path bagDir = testDir.resolve("bagDir2");
         Files.createDirectory(bagDir);
         Files.createFile(bagDir.resolve("bagit.txt"));
 
@@ -115,7 +115,7 @@ class RuleEngineServiceImplTest extends AbstractTestFixture {
 
     @Test
     void validateBag_should_throw_if_path_not_readable() {
-        Path notExist = testDir.resolve("doesnotexist");
+        Path notExist = testDir.resolve("doesNotExist");
         RuleEngine ruleEngine = mock(RuleEngine.class);
         BagItService bagItService = mock(BagItService.class);
         List<NumberedRule> rules = List.of();

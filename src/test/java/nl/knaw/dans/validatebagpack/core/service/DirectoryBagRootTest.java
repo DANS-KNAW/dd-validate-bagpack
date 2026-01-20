@@ -27,17 +27,17 @@ class DirectoryBagRootTest extends AbstractTestFixture {
 
     @Test
     void should_store_and_return_path() throws Exception {
-        Path bagDir = testDir.resolve("bagdir");
+        Path bagDir = testDir.resolve("bagDir");
         Files.createDirectory(bagDir);
 
-        DirectoryBagRoot bagRoot = new DirectoryBagRoot(bagDir);
-
-        assertThat(bagRoot.getPath()).isEqualTo(bagDir);
+        try (DirectoryBagRoot bagRoot = new DirectoryBagRoot(bagDir)) {
+            assertThat(bagRoot.getPath()).isEqualTo(bagDir);
+        }
     }
 
     @Test
     void close_should_do_nothing() throws Exception {
-        Path bagDir = testDir.resolve("bagdir");
+        Path bagDir = testDir.resolve("bagDir");
         Files.createDirectory(bagDir);
 
         DirectoryBagRoot bagRoot = new DirectoryBagRoot(bagDir);
