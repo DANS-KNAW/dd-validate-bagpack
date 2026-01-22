@@ -29,7 +29,7 @@ import java.util.List;
 
 @RequiredArgsConstructor
 @Slf4j
-public class OaireAggregatedResourceIdsMustBeInPidMapping implements BagValidatorRule {
+public class OaiOreAggregatedResourceIdsMustBeInPidMapping implements BagValidatorRule {
     private final FileService fileService;
 
     @Override
