@@ -106,7 +106,7 @@ class RuleEngineServiceTest extends AbstractTestFixture {
 
             assertThatThrownBy(() -> service.validateBag(outside.toString()))
                 .isInstanceOf(IllegalArgumentException.class)
-                .hasMessageContaining("outside the allowed base folder");
+                .hasMessage(String.format( "Path '%s' is outside the allowed base folder.", outside));
         }
         finally {
             Files.deleteIfExists(outside);
@@ -123,6 +123,7 @@ class RuleEngineServiceTest extends AbstractTestFixture {
         RuleEngineServiceImpl service = new RuleEngineServiceImpl(ruleEngine, rules, bagItService, testDir);
 
         assertThatThrownBy(() -> service.validateBag(notExist.toString()))
-            .isInstanceOf(NoSuchFileException.class);
+            .isInstanceOf(NoSuchFileException.class)
+            .hasMessage("" + notExist.toAbsolutePath());
     }
 }

@@ -35,7 +35,7 @@ public class ZipBagRoot implements BagRoot {
             this.fileSystem = FileSystems.newFileSystem(path, Map.of("create", "false"));
         }
         else {
-            this.fileSystem = FileSystems.newFileSystem(path);
+            this.fileSystem = FileSystems.newFileSystem(path, Map.of("create", "true"));
         }
         this.path = findBagRoot();
     }

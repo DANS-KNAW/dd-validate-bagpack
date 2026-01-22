@@ -24,7 +24,7 @@ import java.util.UUID;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 
-class ValidationTaskManagerImplTest extends AbstractTestFixture {
+class ValidationTaskManagerTest extends AbstractTestFixture {
 
     @Test
     void getValidationTask_should_return_empty_for_unknown_id() {

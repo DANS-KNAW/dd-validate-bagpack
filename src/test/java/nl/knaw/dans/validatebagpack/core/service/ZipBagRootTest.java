@@ -60,36 +60,16 @@ class ZipBagRootTest extends AbstractTestFixture {
         try (ZipBagRoot bagRoot = new ZipBagRoot(tempZip, true)) {
             assertThat(bagRoot.getPath().getFileName().toString()).isEqualTo("bag");
             assertThat(Files.exists(bagRoot.getPath().resolve("bagit.txt"))).isTrue();
-            Path newFile = bagRoot.getPath().resolve("data.txt");
-            Files.createFile(newFile);
-            assertThat(Files.exists(newFile)).isTrue();
-            assertThat(bagRoot.getPath().getFileName().toString()).isEqualTo("bag");
-            assertThat(Files.exists(bagRoot.getPath().resolve("bagit.txt"))).isTrue();
-        }
-        try (FileSystem zipFs = FileSystems.newFileSystem(
-            URI.create("jar:" + tempZip.toUri()),
-            Map.of("create", "false"))) {
-            Path addedFile = zipFs.getPath("/bag/data.txt");
-            assertThat(Files.exists(addedFile)).isTrue();
         }
     }
 
     @Test
-    void should_open_existing_zip_for_writing() throws Exception {
-        createZipWithEntries("/bag/bagit.txt");
-        try (ZipBagRoot bagRoot = new ZipBagRoot(tempZip, false)) {
-            Path newFile = bagRoot.getPath().resolve("data.txt");
-            Files.createFile(newFile);
-            assertThat(Files.exists(newFile)).isTrue();
-            assertThat(bagRoot.getPath().getFileName().toString()).isEqualTo("bag");
-            assertThat(Files.exists(bagRoot.getPath().resolve("bagit.txt"))).isTrue();
-        }
-        try (FileSystem zipFs = FileSystems.newFileSystem(
-            URI.create("jar:" + tempZip.toUri()),
-            Map.of("create", "false"))) {
-            Path addedFile = zipFs.getPath("/bag/data.txt");
-            assertThat(Files.exists(addedFile)).isTrue();
-        }
+    void open_not_existing_zip_for_writing_fails() throws Exception {
+        assertThat(Files.exists(tempZip)).isFalse();
+        assertThatThrownBy(() -> new ZipBagRoot(tempZip, false))
+            .isInstanceOf(IllegalStateException.class)
+            .hasMessage("Zip root must contain exactly one directory");
+        assertThat(Files.exists(tempZip)).isTrue();
     }
 
 
