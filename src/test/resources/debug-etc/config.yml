@@ -16,7 +16,7 @@ logging:
   level: INFO
   appenders:
     - type: console
-      logFormat: "%-5p [%d{ISO8601}] [%t] %c: %m%n%rEx"
+      logFormat: "%-5p %c{0}: %m%n%dwREx"
 
     - type: file
       archive: false
@@ -26,7 +26,8 @@ logging:
     'org.hibernate.engine.internal.StatisticalLoggingSessionEventListener': 'OFF'
 
 validation:
-  baseUrl: "http://localhost:20376/validate"
+  baseUrl: "http://localhost:20375/validate"
+  baseFolder: "../dd-transfer-to-vault/"
   dataCiteSchema: "file:./src/main/assembly/dist/cfg/datacite/v4.4/metadata.xsd"
   dansBagPackBagItProfile: "https://doi.org/10.17026/E948-0R32"
   sparqlQueries:
