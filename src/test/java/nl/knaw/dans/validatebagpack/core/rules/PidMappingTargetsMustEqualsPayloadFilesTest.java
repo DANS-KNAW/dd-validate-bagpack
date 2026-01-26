@@ -30,33 +30,37 @@ import static org.assertj.core.api.Assertions.assertThat;
 class PidMappingTargetsMustEqualsPayloadFilesTest extends AbstractTestFixture {
 
     private void createBagItTxt() throws IOException {
-        Files.writeString(testDir.resolve("bag").resolve("bagit.txt"), "BagIt-Version: 0.97\nTag-File-Character-Encoding: UTF-8\n");
+        var bagItTxtPath = testDir.resolve("bag").resolve("bagit.txt");
+        Files.writeString(bagItTxtPath, """
+            BagIt-Version: 0.97
+            Tag-File-Character-Encoding: UTF-8
+            """);
     }
 
-    private void createPidMapping(String s) throws IOException {
+    private void createPidMapping(String pidMappingFileContent) throws IOException {
         var metadataDir = testDir.resolve("bag").resolve("metadata");
         Files.createDirectory(metadataDir);
-        Files.writeString(metadataDir.resolve("pid-mapping.txt"), s);
+        Files.writeString(metadataDir.resolve("pid-mapping.txt"), pidMappingFileContent);
     }
 
-    private Path createBagWithPidMapping(String s) throws IOException {
+    private Path createBagWithPidMapping(String pidMappingFileContent) throws IOException {
         Path bagDir = testDir.resolve("bag");
         Files.createDirectory(bagDir);
         createBagItTxt();
-        createPidMapping(s);
+        createPidMapping(pidMappingFileContent);
         return bagDir;
     }
 
     @Test
     void validate_returns_ok_when_targets_and_payload_files_match() throws Exception {
-        var s = "urn:1 data/file1.txt\nurn:2 data/file2.txt\n";
-        var bagDir = createBagWithPidMapping(s);
+        var bagDir = createBagWithPidMapping("""
+            urn:1 data/file1.txt
+            urn:2 data/file2.txt
+            """);
         Path dataDir = bagDir.resolve("data");
         Files.createDirectory(dataDir);
-        Path file1 = dataDir.resolve("file1.txt");
-        Path file2 = dataDir.resolve("file2.txt");
-        Files.writeString(file1, "abc");
-        Files.writeString(file2, "def");
+        Files.writeString(dataDir.resolve("file1.txt"), "abc");
+        Files.writeString(dataDir.resolve("file2.txt"), "def");
         Files.writeString(bagDir.resolve("manifest-md5.txt"),
             """
                 900150983cd24fb0d6963f7d28e17f72  data/file1.txt
@@ -72,31 +76,32 @@ class PidMappingTargetsMustEqualsPayloadFilesTest extends AbstractTestFixture {
 
     @Test
     void validate_returns_error_when_pid_targets_missing_payload_file() throws Exception {
-        var bagDir = createBagWithPidMapping("urn:1 data/file1.txt\nurn:2 data/file2.txt\n");
+        var bagDir = createBagWithPidMapping("""
+            urn:1 data/file1.txt
+            urn:2 data/file2.txt
+            """);
         Path dataDir = bagDir.resolve("data");
         Files.createDirectory(dataDir);
-        Path file1 = dataDir.resolve("file1.txt");
-        Files.writeString(file1, "abc");
+        Files.writeString(dataDir.resolve("file1.txt"), "abc");
         Files.writeString(bagDir.resolve("manifest-md5.txt"),
-            "900150983cd24fb0d6963f7d28e17f72  data/file1.txt\n");
+            "900150983cd24fb0d6963f7d28e17f72  data/file1.txt");
 
         var rule = new PidMappingTargetsMustEqualsPayloadFiles(
             new FileServiceImpl(), new BagItServiceImpl());
         RuleResult result = rule.validate(bagDir);
 
         assertThat(result.getStatus()).isEqualTo(RuleResult.Status.ERROR);
-        assertThat(result.getErrorMessages().get(0)).contains("Targets not in payload files");
+        assertThat(result.getErrorMessages().get(0))
+            .isEqualTo("PID mapping targets and payload files do not match. Targets not in payload files: [data/file2.txt]");
     }
 
     @Test
     void validate_returns_error_when_payload_file_missing_pid_target() throws Exception {
-        var bagDir = createBagWithPidMapping("urn:1 data/file1.txt\n");
+        var bagDir = createBagWithPidMapping("urn:1 data/file1.txt");
         Path dataDir = bagDir.resolve("data");
         Files.createDirectory(dataDir);
-        Path file1 = dataDir.resolve("file1.txt");
-        Path file2 = dataDir.resolve("file2.txt");
-        Files.writeString(file1, "abc");
-        Files.writeString(file2, "def");
+        Files.writeString(dataDir.resolve("file1.txt"), "abc");
+        Files.writeString(dataDir.resolve("file2.txt"), "def");
         Files.writeString(bagDir.resolve("manifest-md5.txt"),
             """
                 900150983cd24fb0d6963f7d28e17f72  data/file1.txt
@@ -108,7 +113,8 @@ class PidMappingTargetsMustEqualsPayloadFilesTest extends AbstractTestFixture {
         RuleResult result = rule.validate(bagDir);
 
         assertThat(result.getStatus()).isEqualTo(RuleResult.Status.ERROR);
-        assertThat(result.getErrorMessages().get(0)).contains("Payload files not in targets");
+        assertThat(result.getErrorMessages().get(0))
+            .isEqualTo("PID mapping targets and payload files do not match. Payload files not in targets: [data/file2.txt]");
     }
 
     @Test
@@ -121,6 +127,7 @@ class PidMappingTargetsMustEqualsPayloadFilesTest extends AbstractTestFixture {
         RuleResult result = rule.validate(bagDir);
 
         assertThat(result.getStatus()).isEqualTo(RuleResult.Status.ERROR);
-        assertThat(result.getErrorMessages().get(0)).contains("PID mapping file does not exist");
+        assertThat(result.getErrorMessages().get(0))
+            .startsWith("PID mapping file does not exist: ");
     }
 }
