@@ -57,26 +57,26 @@ class ZipBagRootTest extends AbstractTestFixture {
     @Test
     void should_find_bag_root_when_zip_is_valid() throws Exception {
         createZipWithEntries("/bag/bagit.txt");
-        try (ZipBagRoot bagRoot = new ZipBagRoot(tempZip, true)) {
+        try (ZipBagRoot bagRoot = new ZipBagRoot(tempZip)) {
             assertThat(bagRoot.getPath().getFileName().toString()).isEqualTo("bag");
             assertThat(Files.exists(bagRoot.getPath().resolve("bagit.txt"))).isTrue();
         }
     }
 
     @Test
-    void open_not_existing_zip_for_writing_fails() throws Exception {
+    void open_not_existing_zip_fails() throws Exception {
         assertThat(Files.exists(tempZip)).isFalse();
-        assertThatThrownBy(() -> new ZipBagRoot(tempZip, false))
-            .isInstanceOf(IllegalStateException.class)
-            .hasMessage("Zip root must contain exactly one directory");
-        assertThat(Files.exists(tempZip)).isTrue();
+        assertThatThrownBy(() -> new ZipBagRoot(tempZip))
+            .isInstanceOf(NoSuchFileException.class)
+            .hasMessage(tempZip.toString());
+        assertThat(Files.exists(tempZip)).isFalse();
     }
 
 
     @Test
     void should_throw_when_zip_has_no_root_directory() throws IOException {
         createZipWithEntries();
-        assertThatThrownBy(() -> new ZipBagRoot(tempZip, true))
+        assertThatThrownBy(() -> new ZipBagRoot(tempZip))
             .isInstanceOf(IllegalStateException.class)
             .hasMessageContaining("Zip root must contain exactly one directory");
     }
@@ -84,7 +84,7 @@ class ZipBagRootTest extends AbstractTestFixture {
     @Test
     void should_throw_when_zip_root_has_multiple_entries() throws IOException {
         createZipWithEntries("/bag/", "/extra/");
-        assertThatThrownBy(() -> new ZipBagRoot(tempZip, true))
+        assertThatThrownBy(() -> new ZipBagRoot(tempZip))
             .isInstanceOf(IllegalStateException.class)
             .hasMessageContaining("Zip root must contain exactly one directory");
     }
@@ -92,7 +92,7 @@ class ZipBagRootTest extends AbstractTestFixture {
     @Test
     void should_throw_when_bag_directory_missing_bagit_txt() throws IOException {
         createZipWithEntries("/bag/");
-        assertThatThrownBy(() -> new ZipBagRoot(tempZip, true))
+        assertThatThrownBy(() -> new ZipBagRoot(tempZip))
             .isInstanceOf(IllegalStateException.class)
             .hasMessageContaining("Directory does not contain bagit.txt");
     }

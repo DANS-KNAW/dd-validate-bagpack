@@ -32,7 +32,7 @@ public class BagItServiceImpl implements BagItService {
             return new DirectoryBagRoot(bagPath);
         }
         else if (isZipBag(bagPath)) {
-            return new ZipBagRoot(bagPath, true);
+            return new ZipBagRoot(bagPath);
         }
         else {
             throw new IllegalArgumentException("The provided path is neither a directory bag nor a zip bag: " + bagPath);
