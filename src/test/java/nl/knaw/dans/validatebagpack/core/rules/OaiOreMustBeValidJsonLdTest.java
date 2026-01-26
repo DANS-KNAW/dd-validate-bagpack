@@ -31,7 +31,7 @@ class OaiOreMustBeValidJsonLdTest extends AbstractTestFixture {
     @Test
     void validate_returns_error_when_oai_ore_file_missing() throws Exception {
         var rule = new OaiOreMustBeValidJsonLd();
-        RuleResult result = rule.validate(testDir);
+        var result = rule.validate(testDir);
 
         assertThat(result.getStatus()).isEqualTo(RuleResult.Status.ERROR);
         assertThat(result.getErrorMessages().size()).isEqualTo(1);
@@ -42,12 +42,12 @@ class OaiOreMustBeValidJsonLdTest extends AbstractTestFixture {
 
     @Test
     void validate_returns_error_when_oai_ore_file_is_invalid_json() throws Exception {
-        Path oaiOre = testDir.resolve(OAI_ORE_PATH);
+        var oaiOre = testDir.resolve(OAI_ORE_PATH);
         Files.createDirectories(oaiOre.getParent());
         Files.writeString(oaiOre, "{ invalid json }");
 
         var rule = new OaiOreMustBeValidJsonLd();
-        RuleResult result = rule.validate(testDir);
+        var result = rule.validate(testDir);
 
         assertThat(result.getStatus()).isEqualTo(RuleResult.Status.ERROR);
         assertThat(result.getErrorMessages().size()).isEqualTo(1);
@@ -60,7 +60,7 @@ class OaiOreMustBeValidJsonLdTest extends AbstractTestFixture {
 
     @Test
     void validate_returns_ok_when_oai_ore_file_is_valid_jsonld() throws Exception {
-        Path oaiOre = testDir.resolve(OAI_ORE_PATH);
+        var oaiOre = testDir.resolve(OAI_ORE_PATH);
         Files.createDirectories(oaiOre.getParent());
         // Minimal valid JSON-LD
         String validJsonLd = """
@@ -73,7 +73,7 @@ class OaiOreMustBeValidJsonLdTest extends AbstractTestFixture {
         Files.writeString(oaiOre, validJsonLd);
 
         var rule = new OaiOreMustBeValidJsonLd();
-        RuleResult result = rule.validate(testDir);
+        var result = rule.validate(testDir);
 
         assertThat(result.getStatus()).isEqualTo(RuleResult.Status.SUCCESS);
     }

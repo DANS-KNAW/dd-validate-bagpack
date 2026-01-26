@@ -44,7 +44,7 @@ class PidMappingTargetsMustEqualsPayloadFilesTest extends AbstractTestFixture {
     }
 
     private Path createBagWithPidMapping(String pidMappingFileContent) throws IOException {
-        Path bagDir = testDir.resolve("bag");
+        var bagDir = testDir.resolve("bag");
         Files.createDirectory(bagDir);
         createBagItTxt();
         createPidMapping(pidMappingFileContent);
@@ -57,7 +57,7 @@ class PidMappingTargetsMustEqualsPayloadFilesTest extends AbstractTestFixture {
             urn:1 data/file1.txt
             urn:2 data/file2.txt
             """);
-        Path dataDir = bagDir.resolve("data");
+        var dataDir = bagDir.resolve("data");
         Files.createDirectory(dataDir);
         Files.writeString(dataDir.resolve("file1.txt"), "abc");
         Files.writeString(dataDir.resolve("file2.txt"), "def");
@@ -69,7 +69,7 @@ class PidMappingTargetsMustEqualsPayloadFilesTest extends AbstractTestFixture {
 
         var rule = new PidMappingTargetsMustEqualsPayloadFiles(
             new FileServiceImpl(), new BagItServiceImpl());
-        RuleResult result = rule.validate(bagDir);
+        var result = rule.validate(bagDir);
 
         assertThat(result.getStatus()).isEqualTo(RuleResult.Status.SUCCESS);
     }
@@ -80,7 +80,7 @@ class PidMappingTargetsMustEqualsPayloadFilesTest extends AbstractTestFixture {
             urn:1 data/file1.txt
             urn:2 data/file2.txt
             """);
-        Path dataDir = bagDir.resolve("data");
+        var dataDir = bagDir.resolve("data");
         Files.createDirectory(dataDir);
         Files.writeString(dataDir.resolve("file1.txt"), "abc");
         Files.writeString(bagDir.resolve("manifest-md5.txt"),
@@ -88,7 +88,7 @@ class PidMappingTargetsMustEqualsPayloadFilesTest extends AbstractTestFixture {
 
         var rule = new PidMappingTargetsMustEqualsPayloadFiles(
             new FileServiceImpl(), new BagItServiceImpl());
-        RuleResult result = rule.validate(bagDir);
+        var result = rule.validate(bagDir);
 
         assertThat(result.getStatus()).isEqualTo(RuleResult.Status.ERROR);
         assertThat(result.getErrorMessages().get(0))
@@ -98,7 +98,7 @@ class PidMappingTargetsMustEqualsPayloadFilesTest extends AbstractTestFixture {
     @Test
     void validate_returns_error_when_payload_file_missing_pid_target() throws Exception {
         var bagDir = createBagWithPidMapping("urn:1 data/file1.txt");
-        Path dataDir = bagDir.resolve("data");
+        var dataDir = bagDir.resolve("data");
         Files.createDirectory(dataDir);
         Files.writeString(dataDir.resolve("file1.txt"), "abc");
         Files.writeString(dataDir.resolve("file2.txt"), "def");
@@ -110,7 +110,7 @@ class PidMappingTargetsMustEqualsPayloadFilesTest extends AbstractTestFixture {
 
         var rule = new PidMappingTargetsMustEqualsPayloadFiles(
             new FileServiceImpl(), new BagItServiceImpl());
-        RuleResult result = rule.validate(bagDir);
+        var result = rule.validate(bagDir);
 
         assertThat(result.getStatus()).isEqualTo(RuleResult.Status.ERROR);
         assertThat(result.getErrorMessages().get(0))
@@ -119,12 +119,12 @@ class PidMappingTargetsMustEqualsPayloadFilesTest extends AbstractTestFixture {
 
     @Test
     void validate_returns_error_when_pid_mapping_file_missing() throws Exception {
-        Path bagDir = testDir.resolve("bag");
+        var bagDir = testDir.resolve("bag");
         Files.createDirectory(bagDir);
 
         var rule = new PidMappingTargetsMustEqualsPayloadFiles(
             new FileServiceImpl(), new BagItServiceImpl());
-        RuleResult result = rule.validate(bagDir);
+        var result = rule.validate(bagDir);
 
         assertThat(result.getStatus()).isEqualTo(RuleResult.Status.ERROR);
         assertThat(result.getErrorMessages().get(0))

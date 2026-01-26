@@ -145,7 +145,7 @@ public class FileServiceTest extends AbstractTestFixture {
               "ex:predicate": "object"
             }
             """;
-        Path jsonldFile = testDir.resolve("test.jsonld");
+        var jsonldFile = testDir.resolve("test.jsonld");
         Files.writeString(jsonldFile, jsonld);
 
         // When
@@ -159,7 +159,7 @@ public class FileServiceTest extends AbstractTestFixture {
 
     @Test
     void readJsonLdAsRdfModel_should_throw_for_nonexistent_file() {
-        Path nonExistent = testDir.resolve("no-such.jsonld");
+        var nonExistent = testDir.resolve("no-such.jsonld");
         assertThatThrownBy(() -> new FileServiceImpl().readJsonLdAsRdfModel(nonExistent))
             .isInstanceOf(IOException.class);
     }
@@ -168,7 +168,7 @@ public class FileServiceTest extends AbstractTestFixture {
     void loadNamedSparqlQueries_should_load_and_store_queries() throws Exception {
         // Given
         String sparql = "SELECT * WHERE { ?s ?p ?o }";
-        Path queryFile = testDir.resolve("query1.sparql");
+        var queryFile = testDir.resolve("query1.sparql");
         Files.writeString(queryFile, sparql);
 
         Map<String, Path> namedQueries = Map.of("testQuery", queryFile);
@@ -193,7 +193,7 @@ public class FileServiceTest extends AbstractTestFixture {
     void loadNamedSparqlQueries_should_throw_for_invalid_query() throws Exception {
         // Given
         String invalidSparql = "NOT A QUERY";
-        Path queryFile = testDir.resolve("invalid.sparql");
+        var queryFile = testDir.resolve("invalid.sparql");
         Files.writeString(queryFile, invalidSparql);
 
         Map<String, Path> namedQueries = Map.of("badQuery", queryFile);
@@ -232,7 +232,7 @@ public class FileServiceTest extends AbstractTestFixture {
 
     @Test
     void readFileContents_should_return_file_bytes() throws Exception {
-        Path file = testDir.resolve("test.txt");
+        var file = testDir.resolve("test.txt");
         byte[] content = "hello world".getBytes(StandardCharsets.UTF_8);
         Files.write(file, content);
 
@@ -243,7 +243,7 @@ public class FileServiceTest extends AbstractTestFixture {
 
     @Test
     void readFileContents_should_return_empty_array_for_empty_file() throws Exception {
-        Path file = testDir.resolve("empty.txt");
+        var file = testDir.resolve("empty.txt");
         Files.createFile(file);
 
         byte[] result = new FileServiceImpl().readFileContents(file);
@@ -253,7 +253,7 @@ public class FileServiceTest extends AbstractTestFixture {
 
     @Test
     void readFileContents_should_throw_for_nonexistent_file() {
-        Path file = testDir.resolve("no-such.txt");
+        var file = testDir.resolve("no-such.txt");
 
         assertThatThrownBy(() -> new FileServiceImpl().readFileContents(file))
             .isInstanceOf(IOException.class);

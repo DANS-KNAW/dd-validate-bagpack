@@ -36,29 +36,29 @@ class BagIsValidTest extends AbstractTestFixture {
 
     @Test
     void validate_returns_success_for_valid_bag() throws Exception {
-        Path bagDir = testDir.resolve("validBag");
+        var bagDir = testDir.resolve("validBag");
         Files.createDirectory(bagDir);
         Files.writeString(bagDir.resolve("bagit.txt"), "BagIt-Version: 0.97\nTag-File-Character-Encoding: UTF-8\n");
-        Path dataDir = bagDir.resolve("data");
+        var dataDir = bagDir.resolve("data");
         Files.createDirectory(dataDir);
-        Path file1 = dataDir.resolve("file1.txt");
+        var file1 = dataDir.resolve("file1.txt");
         Files.writeString(file1, "content1");
         Files.writeString(bagDir.resolve("manifest-md5.txt"),
             "7e55db001d319a94b0b713529a756623  data/file1.txt\n");
 
-        RuleResult result = bagIsValid.validate(bagDir);
+        var result = bagIsValid.validate(bagDir);
 
         assertThat(result.getStatus()).isEqualTo(RuleResult.Status.SUCCESS);
     }
 
     @Test
     void validate_returns_error_for_missing_payload_directory() throws Exception {
-        Path bagDir = testDir.resolve("noPayload");
+        var bagDir = testDir.resolve("noPayload");
         Files.createDirectory(bagDir);
         Files.writeString(bagDir.resolve("bagit.txt"), "BagIt-Version: 0.97\nTag-File-Character-Encoding: UTF-8\n");
         Files.writeString(bagDir.resolve("manifest-md5.txt"), "");
 
-        RuleResult result = bagIsValid.validate(bagDir);
+        var result = bagIsValid.validate(bagDir);
 
         assertThat(result.getStatus()).isEqualTo(RuleResult.Status.ERROR);
         assertThat(result.getErrorMessages().size()).isEqualTo(1);
@@ -67,10 +67,10 @@ class BagIsValidTest extends AbstractTestFixture {
 
     @Test
     void validate_returns_error_for_missing_bagit_txt() throws Exception {
-        Path bagDir = testDir.resolve("noBagitTxt");
+        var bagDir = testDir.resolve("noBagitTxt");
         Files.createDirectory(bagDir);
 
-        RuleResult result = bagIsValid.validate(bagDir);
+        var result = bagIsValid.validate(bagDir);
 
         assertThat(result.getStatus()).isEqualTo(RuleResult.Status.ERROR);
         assertThat(result.getErrorMessages().size()).isEqualTo(1);
@@ -79,13 +79,13 @@ class BagIsValidTest extends AbstractTestFixture {
 
     @Test
     void validate_returns_error_for_missing_manifest() throws Exception {
-        Path bagDir = testDir.resolve("noManifest");
+        var bagDir = testDir.resolve("noManifest");
         Files.createDirectory(bagDir);
         Files.writeString(bagDir.resolve("bagit.txt"), "BagIt-Version: 0.97\nTag-File-Character-Encoding: UTF-8\n");
-        Path dataDir = bagDir.resolve("data");
+        var dataDir = bagDir.resolve("data");
         Files.createDirectory(dataDir);
 
-        RuleResult result = bagIsValid.validate(bagDir);
+        var result = bagIsValid.validate(bagDir);
 
         assertThat(result.getStatus()).isEqualTo(RuleResult.Status.ERROR);
         assertThat(result.getErrorMessages().size()).isEqualTo(1);

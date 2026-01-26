@@ -25,6 +25,7 @@ import org.junit.jupiter.api.Test;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.List;
 import java.util.Map;
 
 import static nl.knaw.dans.validatebagpack.core.rules.Constants.OAI_ORE_PATH;
@@ -36,7 +37,7 @@ class OaiOreAggregatedResourcesMustHaveRequiredPropsTest extends AbstractTestFix
     @Test
     void validate_returns_error_when_oai_ore_file_missing() throws Exception {
         var rule = new OaiOreAggregatedResourcesMustHaveRequiredProps(new FileServiceImpl());
-        RuleResult result = rule.validate(testDir);
+        var result = rule.validate(testDir);
 
         assertThat(result.getStatus()).isEqualTo(RuleResult.Status.ERROR);
         assertThat(result.getErrorMessages().size()).isEqualTo(1);
@@ -47,33 +48,42 @@ class OaiOreAggregatedResourcesMustHaveRequiredPropsTest extends AbstractTestFix
 
     @Test
     void validate_returns_error_when_aggregated_resource_missing_required_props() throws Exception {
-        Path oaiOre = testDir.resolve(OAI_ORE_PATH);
+        var oaiOre = testDir.resolve(OAI_ORE_PATH);
         Files.createDirectories(oaiOre.getParent());
-        // Aggregated resource missing 'name' and 'restricted'
-        String jsonLd = """
+        Files.writeString(oaiOre, """
             {
-              "@context": "https://schema.org/",
+              "@context": {
+                "ore": "http://www.openarchives.org/ore/terms/",
+                "schema": "https://schema.org/"
+              },
               "@type": "ResourceMap",
-              "ore:aggregates": [
+              "ore:aggregates": [ { "@id": "urn:example:xx" } ],
+              "@graph": [
                 {
-                  "id": " "
+                  "@id": "urn:example:xx",
+                  "schema:name": "Valid Name"
                 }
               ]
             }
-            """;
-        Files.writeString(oaiOre, jsonLd);
+            """);
 
         var rule = new OaiOreAggregatedResourcesMustHaveRequiredProps(getFileService());
-        RuleResult result = rule.validate(testDir);
+        var result = rule.validate(testDir);
 
         assertThat(result.getStatus()).isEqualTo(RuleResult.Status.ERROR);
+        assertThat(result.getErrorMessages().size()).isEqualTo(2);
+        assertThat(result.getErrorMessages().get(0)).isEqualTo("(ii) Aggregated resource has missing 'name' property");
+        assertThat(result.getErrorMessages()).hasSameElementsAs(List.of(
+            "(ii) Aggregated resource has missing 'name' property",
+            "(iii) Aggregated resource has missing 'restricted' property"));
     }
 
     @Test
     void validate_returns_ok_when_all_required_props_present_and_valid() throws Exception {
-        Path oaiOre = testDir.resolve(OAI_ORE_PATH);
+        var oaiOre = testDir.resolve(OAI_ORE_PATH);
         Files.createDirectories(oaiOre.getParent());
-        String jsonLd = """
+
+        Files.writeString(oaiOre, """
             {
               "@context": "https://schema.org/",
               "@type": "ResourceMap",
@@ -85,12 +95,11 @@ class OaiOreAggregatedResourcesMustHaveRequiredPropsTest extends AbstractTestFix
                 }
               ]
             }
-            """;
-        Files.writeString(oaiOre, jsonLd);
+            """);
 
         var fileService = getFileService();
         var rule = new OaiOreAggregatedResourcesMustHaveRequiredProps(fileService);
-        RuleResult result = rule.validate(testDir);
+        var result = rule.validate(testDir);
 
         assertEquals(RuleResult.Status.SUCCESS, result.getStatus());
     }

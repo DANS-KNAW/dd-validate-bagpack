@@ -39,12 +39,12 @@ class ZipBagRootTest extends AbstractTestFixture {
             URI.create("jar:" + tempZip.toUri()),
             Map.of("create", "true"))) {
             for (String entry : entries) {
-                Path path = zipFs.getPath(entry);
+                var path = zipFs.getPath(entry);
                 if (entry.endsWith("/")) {
                     Files.createDirectory(path);
                 } else {
                     // Ensure parent directory exists
-                    Path parent = path.getParent();
+                    var parent = path.getParent();
                     if (parent != null && !Files.exists(parent)) {
                         Files.createDirectories(parent);
                     }

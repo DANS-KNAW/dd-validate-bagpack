@@ -27,7 +27,7 @@ class DirectoryBagRootTest extends AbstractTestFixture {
 
     @Test
     void should_store_and_return_path() throws Exception {
-        Path bagDir = testDir.resolve("bagDir");
+        var bagDir = testDir.resolve("bagDir");
         Files.createDirectory(bagDir);
 
         try (DirectoryBagRoot bagRoot = new DirectoryBagRoot(bagDir)) {
@@ -37,7 +37,7 @@ class DirectoryBagRootTest extends AbstractTestFixture {
 
     @Test
     void close_should_do_nothing() throws Exception {
-        Path bagDir = testDir.resolve("bagDir");
+        var bagDir = testDir.resolve("bagDir");
         Files.createDirectory(bagDir);
 
         DirectoryBagRoot bagRoot = new DirectoryBagRoot(bagDir);

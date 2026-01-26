@@ -30,12 +30,12 @@ class BagMustContainWellformedPidMappingTest extends AbstractTestFixture {
 
     @Test
     void should_return_ok_when_pid_mapping_is_valid() throws Exception {
-        Path pidMapping = testDir.resolve(Constants.PID_MAPPING_PATH);
+        var pidMapping = testDir.resolve(Constants.PID_MAPPING_PATH);
         Files.createDirectories(pidMapping.getParent());
         Files.writeString(pidMapping, "1234 urn:nbn:nl:ui:13-1234\n");
         BagMustContainWellformedPidMapping rule = new BagMustContainWellformedPidMapping();
 
-        RuleResult result = rule.validate(testDir);
+        var result = rule.validate(testDir);
 
         assertThat(result.getStatus()).isEqualTo(RuleResult.Status.SUCCESS);
     }
@@ -44,7 +44,7 @@ class BagMustContainWellformedPidMappingTest extends AbstractTestFixture {
     void should_return_error_when_pid_mapping_is_missing() throws Exception {
         BagMustContainWellformedPidMapping rule = new BagMustContainWellformedPidMapping();
 
-        RuleResult result = rule.validate(testDir);
+        var result = rule.validate(testDir);
 
         assertThat(result.getStatus()).isEqualTo(RuleResult.Status.ERROR);
         assertThat(result.getErrorMessages().size()).isEqualTo(1);
@@ -55,12 +55,12 @@ class BagMustContainWellformedPidMappingTest extends AbstractTestFixture {
 
     @Test
     void returns_ok_when_pid_mapping_is_empty() throws Exception {
-        Path pidMapping = testDir.resolve(Constants.PID_MAPPING_PATH);
+        var pidMapping = testDir.resolve(Constants.PID_MAPPING_PATH);
         Files.createDirectories(pidMapping.getParent());
         Files.writeString(pidMapping, "");
         BagMustContainWellformedPidMapping rule = new BagMustContainWellformedPidMapping();
 
-        RuleResult result = rule.validate(testDir);
+        var result = rule.validate(testDir);
 
         assertThat(result.getStatus()).isEqualTo(RuleResult.Status.SUCCESS);
     }

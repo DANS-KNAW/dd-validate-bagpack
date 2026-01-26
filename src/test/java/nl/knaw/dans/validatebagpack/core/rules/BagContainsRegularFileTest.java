@@ -31,7 +31,7 @@ class BagContainsRegularFileTest extends AbstractTestFixture {
     @Test
     void validate_returnsError_whenFileDoesNotExist() throws Exception {
         var rule = new BagContainsRegularFile("missing.txt");
-        RuleResult result = rule.validate(testDir);
+        var result = rule.validate(testDir);
 
         assertThat(result.getStatus()).isEqualTo(RuleResult.Status.ERROR);
         assertThat(result.getErrorMessages().size()).isEqualTo(1);
@@ -40,11 +40,11 @@ class BagContainsRegularFileTest extends AbstractTestFixture {
 
     @Test
     void validate_returnsError_whenPathIsNotRegularFile() throws Exception {
-        Path dir = testDir.resolve("subdir");
+        var dir = testDir.resolve("subdir");
         Files.createDirectory(dir);
 
         var rule = new BagContainsRegularFile("subdir");
-        RuleResult result = rule.validate(testDir);
+        var result = rule.validate(testDir);
 
         assertThat(result.getStatus()).isEqualTo(RuleResult.Status.ERROR);
         assertThat(result.getErrorMessages().size()).isEqualTo(1);
@@ -53,11 +53,11 @@ class BagContainsRegularFileTest extends AbstractTestFixture {
 
     @Test
     void validate_returnsOk_whenRegularFileExists() throws Exception {
-        Path file = testDir.resolve("file.txt");
+        var file = testDir.resolve("file.txt");
         Files.createFile(file);
 
         var rule = new BagContainsRegularFile("file.txt");
-        RuleResult result = rule.validate(testDir);
+        var result = rule.validate(testDir);
 
         assertThat(result.getStatus()).isEqualTo(RuleResult.Status.SUCCESS);
     }
