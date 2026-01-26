@@ -15,6 +15,7 @@
  */
 package nl.knaw.dans.validatebagpack.resources;
 
+import nl.knaw.dans.lib.util.ruleengine.RuleResult;
 import nl.knaw.dans.validatebagpack.api.ValidateCommandDto;
 import nl.knaw.dans.validatebagpack.api.ValidationJobStatusDto;
 import nl.knaw.dans.validatebagpack.core.service.ValidationTaskManager;
@@ -27,6 +28,7 @@ import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.ExecutorService;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
@@ -52,10 +54,10 @@ class ValidateApiResourceTest {
         var jobStatusDto = new ValidationJobStatusDto().status(ValidationJobStatusDto.StatusEnum.DONE).jobId(jobId);
         when(task.getStatus()).thenReturn(jobStatusDto);
 
-        Response response = resource.getValidationStatus(jobId);
+        var response = resource.getValidationStatus(jobId);
 
-        assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
-        assertEquals(jobStatusDto, response.getEntity());
+        assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
+        assertThat(response.getEntity()).isEqualTo(jobStatusDto);
     }
 
     @Test
@@ -63,9 +65,9 @@ class ValidateApiResourceTest {
         var jobId = UUID.randomUUID();
         when(validationTaskManager.getValidationTask(jobId)).thenReturn(Optional.empty());
 
-        Response response = resource.getValidationStatus(jobId);
+        var response = resource.getValidationStatus(jobId);
 
-        assertEquals(Response.Status.NOT_FOUND.getStatusCode(), response.getStatus());
+        assertThat(response.getStatus()).isEqualTo(Response.Status.NOT_FOUND.getStatusCode());
     }
 
     @Test
@@ -78,10 +80,10 @@ class ValidateApiResourceTest {
         when(validationTaskManager.createValidationTask("bag-location")).thenReturn(task);
         when(task.getId()).thenReturn(jobId);
 
-        try (Response response = resource.validateBagPack(dto)) {
+        try (var response = resource.validateBagPack(dto)) {
+            assertThat(response.getStatus()).isEqualTo(Response.Status.CREATED.getStatusCode());
+            assertThat(response.getLocation()).isEqualTo(baseUri.resolve(jobId.toString()));
             verify(executorService).submit(task);
-            assertEquals(Response.Status.CREATED.getStatusCode(), response.getStatus());
-            assertEquals(baseUri.resolve(jobId.toString()), response.getLocation());
         }
     }
 }

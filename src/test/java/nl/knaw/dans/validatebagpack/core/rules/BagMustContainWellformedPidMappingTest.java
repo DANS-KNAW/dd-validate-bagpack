@@ -23,6 +23,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class BagMustContainWellformedPidMappingTest extends AbstractTestFixture {
@@ -36,7 +37,7 @@ class BagMustContainWellformedPidMappingTest extends AbstractTestFixture {
 
         RuleResult result = rule.validate(testDir);
 
-        assertEquals(RuleResult.Status.SUCCESS, result.getStatus());
+        assertThat(result.getStatus()).isEqualTo(RuleResult.Status.SUCCESS);
     }
 
     @Test
@@ -45,8 +46,11 @@ class BagMustContainWellformedPidMappingTest extends AbstractTestFixture {
 
         RuleResult result = rule.validate(testDir);
 
-        assertEquals(RuleResult.Status.ERROR, result.getStatus());
-        assertEquals(List.of("PID mapping file is missing: metadata/pid-mapping.txt"), result.getErrorMessages());
+        assertThat(result.getStatus()).isEqualTo(RuleResult.Status.ERROR);
+        assertThat(result.getErrorMessages().size()).isEqualTo(1);
+        assertThat(result.getErrorMessages().get(0)).isEqualTo(
+            "PID mapping file is missing: metadata/pid-mapping.txt"
+        );
     }
 
     @Test
@@ -58,6 +62,6 @@ class BagMustContainWellformedPidMappingTest extends AbstractTestFixture {
 
         RuleResult result = rule.validate(testDir);
 
-        assertEquals(RuleResult.Status.SUCCESS, result.getStatus());
+        assertThat(result.getStatus()).isEqualTo(RuleResult.Status.SUCCESS);
     }
 }

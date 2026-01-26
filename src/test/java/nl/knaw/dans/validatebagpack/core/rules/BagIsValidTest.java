@@ -61,6 +61,7 @@ class BagIsValidTest extends AbstractTestFixture {
         RuleResult result = bagIsValid.validate(bagDir);
 
         assertThat(result.getStatus()).isEqualTo(RuleResult.Status.ERROR);
+        assertThat(result.getErrorMessages().size()).isEqualTo(1);
         assertThat(result.getErrorMessages().get(0)).contains("Bag is not valid");
     }
 
@@ -72,6 +73,7 @@ class BagIsValidTest extends AbstractTestFixture {
         RuleResult result = bagIsValid.validate(bagDir);
 
         assertThat(result.getStatus()).isEqualTo(RuleResult.Status.ERROR);
+        assertThat(result.getErrorMessages().size()).isEqualTo(1);
         assertThat(result.getErrorMessages().get(0)).contains("Bag is not valid");
     }
 
@@ -86,6 +88,7 @@ class BagIsValidTest extends AbstractTestFixture {
         RuleResult result = bagIsValid.validate(bagDir);
 
         assertThat(result.getStatus()).isEqualTo(RuleResult.Status.ERROR);
+        assertThat(result.getErrorMessages().size()).isEqualTo(1);
         assertThat(result.getErrorMessages().get(0)).contains("Bag is not valid");
     }
 }

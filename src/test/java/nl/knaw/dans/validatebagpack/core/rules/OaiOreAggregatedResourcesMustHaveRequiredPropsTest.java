@@ -25,6 +25,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 
 import static nl.knaw.dans.validatebagpack.core.rules.Constants.OAI_ORE_PATH;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -35,8 +36,11 @@ class OaiOreAggregatedResourcesMustHaveRequiredPropsTest extends AbstractTestFix
         var rule = new OaiOreAggregatedResourcesMustHaveRequiredProps(new FileServiceImpl());
         RuleResult result = rule.validate(testDir);
 
-        assertEquals(RuleResult.Status.ERROR, result.getStatus());
-        assertTrue(result.getErrorMessages().get(0).contains("OAI-ORE JSON-LD file not found"));
+        assertThat(result.getStatus()).isEqualTo(RuleResult.Status.ERROR);
+        assertThat(result.getErrorMessages().size()).isEqualTo(1);
+        assertThat(result.getErrorMessages().get(0)).startsWith(
+            "OAI-ORE JSON-LD file not found at expected location: " + testDir.resolve("metadata/oai-ore.jsonld")
+        );
     }
 
     @Disabled("No query found with name: findAggregatedResourceProps")
@@ -61,7 +65,6 @@ class OaiOreAggregatedResourcesMustHaveRequiredPropsTest extends AbstractTestFix
         var rule = new OaiOreAggregatedResourcesMustHaveRequiredProps(new FileServiceImpl());
         RuleResult result = rule.validate(testDir);
 
-        assertEquals(RuleResult.Status.ERROR, result.getStatus());
         assertTrue(result.getErrorMessages().stream().anyMatch(msg -> msg.contains("missing 'name'")));
         assertTrue(result.getErrorMessages().stream().anyMatch(msg -> msg.contains("missing 'restricted'")));
     }

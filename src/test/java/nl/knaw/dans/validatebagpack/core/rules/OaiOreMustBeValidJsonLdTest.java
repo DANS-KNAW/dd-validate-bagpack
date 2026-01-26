@@ -21,10 +21,10 @@ import org.junit.jupiter.api.Test;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.text.MessageFormat;
 
 import static nl.knaw.dans.validatebagpack.core.rules.Constants.OAI_ORE_PATH;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.assertj.core.api.Assertions.assertThat;
 
 class OaiOreMustBeValidJsonLdTest extends AbstractTestFixture {
 
@@ -33,8 +33,11 @@ class OaiOreMustBeValidJsonLdTest extends AbstractTestFixture {
         var rule = new OaiOreMustBeValidJsonLd();
         RuleResult result = rule.validate(testDir);
 
-        assertEquals(RuleResult.Status.ERROR, result.getStatus());
-        assertTrue(result.getErrorMessages().get(0).contains("File does not exist"));
+        assertThat(result.getStatus()).isEqualTo(RuleResult.Status.ERROR);
+        assertThat(result.getErrorMessages().size()).isEqualTo(1);
+        assertThat(result.getErrorMessages().get(0)).isEqualTo(
+            "File does not exist: " + testDir
+        );
     }
 
     @Test
@@ -46,8 +49,13 @@ class OaiOreMustBeValidJsonLdTest extends AbstractTestFixture {
         var rule = new OaiOreMustBeValidJsonLd();
         RuleResult result = rule.validate(testDir);
 
-        assertEquals(RuleResult.Status.ERROR, result.getStatus());
-        assertTrue(result.getErrorMessages().get(0).contains("File is not valid JSON-LD"));
+        assertThat(result.getStatus()).isEqualTo(RuleResult.Status.ERROR);
+        assertThat(result.getErrorMessages().size()).isEqualTo(1);
+        assertThat(result.getErrorMessages().get(0)).isEqualTo(
+            MessageFormat.format("""
+                File is not valid JSON-LD: ''{0}''. Error: Unexpected character (''i'' (code 105)): was expecting double-quote to start field name
+                 at [Source: REDACTED (`StreamReadFeature.INCLUDE_SOURCE_IN_LOCATION` disabled); line: 1, column: 3]""", oaiOre
+            ));
     }
 
     @Test
@@ -67,6 +75,6 @@ class OaiOreMustBeValidJsonLdTest extends AbstractTestFixture {
         var rule = new OaiOreMustBeValidJsonLd();
         RuleResult result = rule.validate(testDir);
 
-        assertEquals(RuleResult.Status.SUCCESS, result.getStatus());
+        assertThat(result.getStatus()).isEqualTo(RuleResult.Status.SUCCESS);
     }
 }

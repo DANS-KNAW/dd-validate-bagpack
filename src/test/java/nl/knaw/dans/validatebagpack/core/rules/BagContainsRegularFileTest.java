@@ -23,6 +23,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class BagContainsRegularFileTest extends AbstractTestFixture {
@@ -32,7 +33,8 @@ class BagContainsRegularFileTest extends AbstractTestFixture {
         var rule = new BagContainsRegularFile("missing.txt");
         RuleResult result = rule.validate(testDir);
 
-        assertEquals(RuleResult.Status.ERROR, result.getStatus());
+        assertThat(result.getStatus()).isEqualTo(RuleResult.Status.ERROR);
+        assertThat(result.getErrorMessages().size()).isEqualTo(1);
         assertEquals(List.of("Path 'missing.txt' does not exist"), result.getErrorMessages());
     }
 
@@ -44,7 +46,8 @@ class BagContainsRegularFileTest extends AbstractTestFixture {
         var rule = new BagContainsRegularFile("subdir");
         RuleResult result = rule.validate(testDir);
 
-        assertEquals(RuleResult.Status.ERROR, result.getStatus());
+        assertThat(result.getStatus()).isEqualTo(RuleResult.Status.ERROR);
+        assertThat(result.getErrorMessages().size()).isEqualTo(1);
         assertEquals(List.of("Path 'subdir' is not a regular file"), result.getErrorMessages());
     }
 
@@ -56,6 +59,6 @@ class BagContainsRegularFileTest extends AbstractTestFixture {
         var rule = new BagContainsRegularFile("file.txt");
         RuleResult result = rule.validate(testDir);
 
-        assertEquals(RuleResult.Status.SUCCESS, result.getStatus());
+        assertThat(result.getStatus()).isEqualTo(RuleResult.Status.SUCCESS);
     }
 }
