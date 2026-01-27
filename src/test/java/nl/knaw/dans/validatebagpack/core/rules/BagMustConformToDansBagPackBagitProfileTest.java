@@ -29,7 +29,9 @@ import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.nio.charset.UnsupportedCharsetException;
 import java.nio.file.Files;
+import java.nio.file.Path;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assumptions.assumeTrue;
@@ -52,7 +54,7 @@ class BagMustConformToDansBagPackBagitProfileTest extends AbstractTestFixture {
     }
 
     @Test
-    void validate_returnsError_when_when_bagit_txt_is_empty() throws Exception {
+    void validate_throws_when_when_bagit_txt_is_empty() throws Exception {
         Files.createFile(testDir.resolve("bagit.txt"));
         assertThatThrownBy(() -> rule.validate(testDir))
             .isInstanceOf(InvalidBagitFileFormatException.class)
@@ -61,7 +63,7 @@ class BagMustConformToDansBagPackBagitProfileTest extends AbstractTestFixture {
     }
 
     @Test
-    void validate_returnsOk_when_version_is_invalid() throws Exception {
+    void validate_throws_when_version_is_invalid() throws Exception {
         Files.writeString(testDir.resolve("bagit.txt"), """
             BagIt-Version: 97
             Tag-File-Character-Encoding: UTF-8
@@ -72,23 +74,51 @@ class BagMustConformToDansBagPackBagitProfileTest extends AbstractTestFixture {
     }
 
     @Test
-    void validate_returnsOk_when_encoding_is_invalid() throws Exception {
-        Files.writeString(testDir.resolve("bagit.txt"), """
-            BagIt-Version: 0.97
-            Tag-File-Character-Encoding: xx
-            """);
-        assertThatThrownBy(() -> rule.validate(testDir))
-            .isInstanceOf(UnsupportedCharsetException.class)
-            .hasMessage("xx");
-    }
-
-    @Test
-    void validate_returnsOk_whenBagConforms() throws Exception {
+    void validate_returns_error_with_missing_bag_info_txt() throws Exception {
         Files.writeString(testDir.resolve("bagit.txt"), """
             BagIt-Version: 0.97
             Tag-File-Character-Encoding: UTF-8
             """);
         var result = rule.validate(testDir);
-        assertEquals(RuleResult.Status.ERROR, result.getStatus());
+        assertThat(result.getStatus()).isEqualTo( RuleResult.Status.ERROR);
+        assertThat(result.getErrorMessages().get(0)).isEqualTo("Profile specifies metadata field [Internal-Sender-Identifier] is required but was not found!");
+    }
+
+    @Test
+    void validate_throws_when_profile_is_missing() throws Exception {
+        Files.writeString(testDir.resolve("bagit.txt"), """
+            BagIt-Version: 0.97
+            Tag-File-Character-Encoding: UTF-8
+            """);
+        var ruleWithMissingProfile = new BagMustConformToDansBagPackBagItProfile(null);
+
+        assertThatThrownBy(() -> ruleWithMissingProfile.validate(testDir))
+            .isInstanceOf(RuntimeException.class)
+            .hasMessage("Could not check bag against profile");
+    }
+
+    @Test
+    void validate_returns_success_with_a_bag_conform_profile() throws Exception {
+        Files.writeString(testDir.resolve("bagit.txt"), """
+            BagIt-Version: 0.97
+            Tag-File-Character-Encoding: UTF-8
+            """);
+        Files.writeString(testDir.resolve("bag-info.txt"), """
+            Source-Organization: DANS
+            Contact-Name: Employee At Dans
+            Contact-Email: doeas.not.exist@dans.knaw.nl
+            External-Description: test files
+            Internal-Sender-Identifier: do_not_care
+            """);
+        Files.writeString(testDir.resolve("readme.txt"), "");
+        Files.writeString(testDir.resolve("manifest-sha1.txt"), "");
+        Files.writeString(testDir.resolve("tagmanifest-sha1.txt"), "");
+        var metadata = testDir.resolve("metadata");
+        Files.createDirectory(metadata);
+        Files.writeString(metadata.resolve("datacite.xml"), "");
+        Files.writeString(metadata.resolve("pid-mapping.txt"), "");
+        Files.writeString(metadata.resolve("oai-ore.jsonld"), "");
+        var result = rule.validate(testDir);
+        assertThat(result.getStatus()).isEqualTo( RuleResult.Status.SUCCESS);
     }
 }

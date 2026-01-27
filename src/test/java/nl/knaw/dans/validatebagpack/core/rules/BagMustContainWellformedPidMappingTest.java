@@ -19,11 +19,14 @@ import nl.knaw.dans.lib.util.ruleengine.RuleResult;
 import nl.knaw.dans.validatebagpack.AbstractTestFixture;
 import org.junit.jupiter.api.Test;
 
+import java.io.IOException;
+import java.io.UncheckedIOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class BagMustContainWellformedPidMappingTest extends AbstractTestFixture {
@@ -33,7 +36,7 @@ class BagMustContainWellformedPidMappingTest extends AbstractTestFixture {
         var pidMapping = testDir.resolve(Constants.PID_MAPPING_PATH);
         Files.createDirectories(pidMapping.getParent());
         Files.writeString(pidMapping, "1234 urn:nbn:nl:ui:13-1234\n");
-        BagMustContainWellformedPidMapping rule = new BagMustContainWellformedPidMapping();
+        var rule = new BagMustContainWellformedPidMapping();
 
         var result = rule.validate(testDir);
 
@@ -41,8 +44,19 @@ class BagMustContainWellformedPidMappingTest extends AbstractTestFixture {
     }
 
     @Test
+    void should_throw_when_pid_mapping_is_a_directory() throws Exception {
+        Files.createDirectories(testDir.resolve(Constants.PID_MAPPING_PATH));
+        var rule = new BagMustContainWellformedPidMapping();
+
+        assertThatThrownBy(() ->  rule.validate(testDir))
+            .isInstanceOf(UncheckedIOException.class)
+            .hasMessageContaining("Is a directory");
+        // TODO this does not tell which file is a directory
+    }
+
+    @Test
     void should_return_error_when_pid_mapping_is_missing() throws Exception {
-        BagMustContainWellformedPidMapping rule = new BagMustContainWellformedPidMapping();
+        var rule = new BagMustContainWellformedPidMapping();
 
         var result = rule.validate(testDir);
 
@@ -58,7 +72,7 @@ class BagMustContainWellformedPidMappingTest extends AbstractTestFixture {
         var pidMapping = testDir.resolve(Constants.PID_MAPPING_PATH);
         Files.createDirectories(pidMapping.getParent());
         Files.writeString(pidMapping, "");
-        BagMustContainWellformedPidMapping rule = new BagMustContainWellformedPidMapping();
+        var rule = new BagMustContainWellformedPidMapping();
 
         var result = rule.validate(testDir);
 
