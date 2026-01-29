@@ -89,7 +89,7 @@ class OaiOreAggregatedResourceIdsMustBeInPidMappingTest extends AbstractTestFixt
         // Write OAI-ORE file with one aggregated resource
         var oaiOre = testDir.resolve(OAI_ORE_PATH);
         Files.createDirectories(oaiOre.getParent());
-        String jsonLd = """
+        var jsonLd = """
             {
               "@context": "https://schema.org/",
               "@type": "ResourceMap",
@@ -117,7 +117,7 @@ class OaiOreAggregatedResourceIdsMustBeInPidMappingTest extends AbstractTestFixt
         // Write OAI-ORE file with no aggregates
         var oaiOre = testDir.resolve(OAI_ORE_PATH);
         Files.createDirectories(oaiOre.getParent());
-        String jsonLd = """
+        var jsonLd = """
             {
               "@context": "https://schema.org/",
               "@type": "ResourceMap"

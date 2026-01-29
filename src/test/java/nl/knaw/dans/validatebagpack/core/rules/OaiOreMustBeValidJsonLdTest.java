@@ -63,7 +63,7 @@ class OaiOreMustBeValidJsonLdTest extends AbstractTestFixture {
         var oaiOre = testDir.resolve(OAI_ORE_PATH);
         Files.createDirectories(oaiOre.getParent());
         // Minimal valid JSON-LD
-        String validJsonLd = """
+        var validJsonLd = """
             {
               "@context": "https://schema.org/",
               "@type": "Dataset",

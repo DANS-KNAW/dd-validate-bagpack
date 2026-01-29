@@ -30,7 +30,7 @@ class DirectoryBagRootTest extends AbstractTestFixture {
         var bagDir = testDir.resolve("bagDir");
         Files.createDirectory(bagDir);
 
-        try (DirectoryBagRoot bagRoot = new DirectoryBagRoot(bagDir)) {
+        try (var bagRoot = new DirectoryBagRoot(bagDir)) {
             assertThat(bagRoot.getPath()).isEqualTo(bagDir);
         }
     }
@@ -40,7 +40,7 @@ class DirectoryBagRootTest extends AbstractTestFixture {
         var bagDir = testDir.resolve("bagDir");
         Files.createDirectory(bagDir);
 
-        DirectoryBagRoot bagRoot = new DirectoryBagRoot(bagDir);
+        var bagRoot = new DirectoryBagRoot(bagDir);
 
         // Should not throw
         bagRoot.close();

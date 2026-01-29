@@ -28,20 +28,20 @@ class ValidationTaskManagerTest extends AbstractTestFixture {
 
     @Test
     void getValidationTask_should_return_empty_for_unknown_id() {
-        RuleEngineService ruleEngineService = mock(RuleEngineService.class);
-        ValidationTaskManagerImpl manager = new ValidationTaskManagerImpl(ruleEngineService, Duration.ofMinutes(1), 10);
+        var ruleEngineService = mock(RuleEngineService.class);
+        var manager = new ValidationTaskManagerImpl(ruleEngineService, Duration.ofMinutes(1), 10);
 
         assertThat(manager.getValidationTask(UUID.randomUUID())).isEmpty();
     }
 
     @Test
     void getValidationTask_should_expire_tasks_after_retention_time() throws InterruptedException {
-        RuleEngineService ruleEngineService = mock(RuleEngineService.class);
+        var ruleEngineService = mock(RuleEngineService.class);
         // Set retention time to 100 ms for quick expiration
-        ValidationTaskManagerImpl manager = new ValidationTaskManagerImpl(ruleEngineService, Duration.ofMillis(100), 10);
+        var manager = new ValidationTaskManagerImpl(ruleEngineService, Duration.ofMillis(100), 10);
 
-        ValidationTask task = manager.createValidationTask("bag/location");
-        UUID id = task.getId();
+        var task = manager.createValidationTask("bag/location");
+        var id = task.getId();
 
         assertThat(manager.getValidationTask(id)).isPresent();
 
@@ -54,12 +54,12 @@ class ValidationTaskManagerTest extends AbstractTestFixture {
 
     @Test
     void getValidationTask_should_remove_oldest_task_when_maximum_size_exceeded() {
-        RuleEngineService ruleEngineService = mock(RuleEngineService.class);
-        ValidationTaskManagerImpl manager = new ValidationTaskManagerImpl(ruleEngineService, Duration.ofMinutes(1), 2);
+        var ruleEngineService = mock(RuleEngineService.class);
+        var manager = new ValidationTaskManagerImpl(ruleEngineService, Duration.ofMinutes(1), 2);
 
-        ValidationTask task1 = manager.createValidationTask("bag/1");
-        ValidationTask task2 = manager.createValidationTask("bag/2");
-        ValidationTask task3 = manager.createValidationTask("bag/3");
+        var task1 = manager.createValidationTask("bag/1");
+        var task2 = manager.createValidationTask("bag/2");
+        var task3 = manager.createValidationTask("bag/3");
 
         // Only two most recent tasks should remain
         assertThat(manager.getValidationTask(task1.getId())).isEmpty();

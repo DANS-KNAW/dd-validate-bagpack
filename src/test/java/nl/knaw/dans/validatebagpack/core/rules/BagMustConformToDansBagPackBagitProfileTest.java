@@ -43,7 +43,7 @@ class BagMustConformToDansBagPackBagitProfileTest extends AbstractTestFixture {
     @BeforeAll
     static void createRule() {
         var uri = URI.create("https://dans-knaw.github.io/dans-bagpack-profile/versions/dans-bagpack-profile-1.0.0.json");
-        HttpRequest request = HttpRequest.newBuilder().uri(uri).build();
+        var request = HttpRequest.newBuilder().uri(uri).build();
         try {
             var response = HttpClient.newHttpClient().send(request, HttpResponse.BodyHandlers.ofString());
             rule = new BagMustConformToDansBagPackBagItProfile(response.body());

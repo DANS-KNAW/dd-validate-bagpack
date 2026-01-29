@@ -35,10 +35,10 @@ class ZipBagRootTest extends AbstractTestFixture {
     }
 
     private void createZipWithEntries(String... entries) throws IOException {
-        try (FileSystem zipFs = FileSystems.newFileSystem(
+        try (var zipFs = FileSystems.newFileSystem(
             URI.create("jar:" + testZip.toUri()),
             Map.of("create", "true"))) {
-            for (String entry : entries) {
+            for (var entry : entries) {
                 var path = zipFs.getPath(entry);
                 if (entry.endsWith("/")) {
                     Files.createDirectory(path);

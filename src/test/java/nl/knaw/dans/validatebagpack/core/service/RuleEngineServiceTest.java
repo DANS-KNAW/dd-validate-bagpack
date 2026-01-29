@@ -42,9 +42,8 @@ class RuleEngineServiceTest extends AbstractTestFixture {
         Files.createDirectory(bagDir);
         Files.createFile(bagDir.resolve("bagit.txt"));
 
-        RuleEngine ruleEngine = mock(RuleEngine.class);
-        BagItService bagItService = mock(BagItService.class);
-        List<NumberedRule> rules = List.of();
+        var ruleEngine = mock(RuleEngine.class);
+        var bagItService = mock(BagItService.class);
         when(bagItService.getBagRoot(any())).thenAnswer(invocation -> {
             Path arg = invocation.getArgument(0);
             if (arg.toAbsolutePath().normalize().equals(bagDir.toAbsolutePath().normalize())) {
@@ -56,9 +55,9 @@ class RuleEngineServiceTest extends AbstractTestFixture {
             new RuleValidationResult("1", RuleValidationResult.RuleValidationResultStatus.SUCCESS, null)
         ));
 
-        RuleEngineServiceImpl service = new RuleEngineServiceImpl(ruleEngine, rules, bagItService, testDir);
+        var service = new RuleEngineServiceImpl(ruleEngine, List.of(), bagItService, testDir);
 
-        ValidationResultDto result = service.validateBag(bagDir.toString());
+        var result = service.validateBag(bagDir.toString());
 
         assertThat(result.getIsCompliant()).isTrue();
         assertThat(result.getRuleViolations()).isEmpty();
@@ -70,9 +69,8 @@ class RuleEngineServiceTest extends AbstractTestFixture {
         Files.createDirectory(bagDir);
         Files.createFile(bagDir.resolve("bagit.txt"));
 
-        RuleEngine ruleEngine = mock(RuleEngine.class);
-        BagItService bagItService = mock(BagItService.class);
-        List<NumberedRule> rules = List.of();
+        var ruleEngine = mock(RuleEngine.class);
+        var bagItService = mock(BagItService.class);
         when(bagItService.getBagRoot(any())).thenAnswer(invocation -> {
             Path arg = invocation.getArgument(0);
             if (arg.toAbsolutePath().normalize().equals(bagDir.toAbsolutePath().normalize())) {
@@ -84,9 +82,9 @@ class RuleEngineServiceTest extends AbstractTestFixture {
             new RuleValidationResult("2", RuleValidationResult.RuleValidationResultStatus.FAILURE, "error message")
         ));
 
-        RuleEngineServiceImpl service = new RuleEngineServiceImpl(ruleEngine, rules, bagItService, testDir);
+        var service = new RuleEngineServiceImpl(ruleEngine, List.of(), bagItService, testDir);
 
-        ValidationResultDto result = service.validateBag(bagDir.toString());
+        var result = service.validateBag(bagDir.toString());
 
         assertThat(result.getIsCompliant()).isFalse();
         assertThat(result.getRuleViolations()).hasSize(1);
@@ -98,11 +96,10 @@ class RuleEngineServiceTest extends AbstractTestFixture {
     void validateBag_should_throw_if_path_outside_base_folder() throws Exception {
         var outside = Files.createTempDirectory("outside");
         try {
-            RuleEngine ruleEngine = mock(RuleEngine.class);
-            BagItService bagItService = mock(BagItService.class);
-            List<NumberedRule> rules = List.of();
+            var ruleEngine = mock(RuleEngine.class);
+            var bagItService = mock(BagItService.class);
 
-            RuleEngineServiceImpl service = new RuleEngineServiceImpl(ruleEngine, rules, bagItService, testDir);
+            var service = new RuleEngineServiceImpl(ruleEngine, List.of(), bagItService, testDir);
 
             assertThatThrownBy(() -> service.validateBag(outside.toString()))
                 .isInstanceOf(IllegalArgumentException.class)
@@ -116,11 +113,10 @@ class RuleEngineServiceTest extends AbstractTestFixture {
     @Test
     void validateBag_should_throw_if_path_not_readable() {
         var notExist = testDir.resolve("doesNotExist");
-        RuleEngine ruleEngine = mock(RuleEngine.class);
-        BagItService bagItService = mock(BagItService.class);
-        List<NumberedRule> rules = List.of();
+        var ruleEngine = mock(RuleEngine.class);
+        var bagItService = mock(BagItService.class);
 
-        RuleEngineServiceImpl service = new RuleEngineServiceImpl(ruleEngine, rules, bagItService, testDir);
+        var service = new RuleEngineServiceImpl(ruleEngine, List.of(), bagItService, testDir);
 
         assertThatThrownBy(() -> service.validateBag(notExist.toString()))
             .isInstanceOf(NoSuchFileException.class)

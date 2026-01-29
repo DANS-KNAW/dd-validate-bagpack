@@ -171,8 +171,8 @@ public class FileServiceTest extends AbstractTestFixture {
         var queryFile = testDir.resolve("query1.sparql");
         Files.writeString(queryFile, sparql);
 
-        Map<String, Path> namedQueries = Map.of("testQuery", queryFile);
-        FileServiceImpl fileService = new FileServiceImpl();
+        var namedQueries = Map.of("testQuery", queryFile);
+        var fileService = new FileServiceImpl();
 
         // When
         fileService.loadNamedSparqlQueries(namedQueries);
@@ -196,8 +196,8 @@ public class FileServiceTest extends AbstractTestFixture {
         var queryFile = testDir.resolve("invalid.sparql");
         Files.writeString(queryFile, invalidSparql);
 
-        Map<String, Path> namedQueries = Map.of("badQuery", queryFile);
-        FileServiceImpl fileService = new FileServiceImpl();
+        var namedQueries = Map.of("badQuery", queryFile);
+        var fileService = new FileServiceImpl();
 
         // When / Then
         assertThatThrownBy(() -> fileService.loadNamedSparqlQueries(namedQueries))

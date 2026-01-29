@@ -32,6 +32,6 @@ class RuleSetsTest {
 
     @Test
     void getCommonRules_should_not_throw() {
-        List<NumberedRule> rules = ruleSets.getCommonRules();
+        var rules = ruleSets.getCommonRules();
     }
 }
