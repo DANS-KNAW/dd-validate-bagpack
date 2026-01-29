@@ -32,7 +32,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 class BagMustContainWellformedPidMappingTest extends AbstractTestFixture {
 
     @Test
-    void should_return_ok_when_pid_mapping_is_valid() throws Exception {
+    void validate_should_return_ok_when_pid_mapping_is_valid() throws Exception {
         var pidMapping = testDir.resolve(Constants.PID_MAPPING_PATH);
         Files.createDirectories(pidMapping.getParent());
         Files.writeString(pidMapping, "1234 urn:nbn:nl:ui:13-1234\n");
@@ -44,7 +44,7 @@ class BagMustContainWellformedPidMappingTest extends AbstractTestFixture {
     }
 
     @Test
-    void should_throw_when_pid_mapping_is_a_directory() throws Exception {
+    void validate_should_throw_when_pid_mapping_is_a_directory() throws Exception {
         Files.createDirectories(testDir.resolve(Constants.PID_MAPPING_PATH));
         var rule = new BagMustContainWellformedPidMapping();
 
@@ -55,7 +55,7 @@ class BagMustContainWellformedPidMappingTest extends AbstractTestFixture {
     }
 
     @Test
-    void should_return_error_when_pid_mapping_is_missing() throws Exception {
+    void validate_should_return_error_when_pid_mapping_is_missing() throws Exception {
         var rule = new BagMustContainWellformedPidMapping();
 
         var result = rule.validate(testDir);
@@ -68,7 +68,7 @@ class BagMustContainWellformedPidMappingTest extends AbstractTestFixture {
     }
 
     @Test
-    void returns_ok_when_pid_mapping_is_empty() throws Exception {
+    void validate_should_return_ok_when_pid_mapping_is_empty() throws Exception {
         var pidMapping = testDir.resolve(Constants.PID_MAPPING_PATH);
         Files.createDirectories(pidMapping.getParent());
         Files.writeString(pidMapping, "");

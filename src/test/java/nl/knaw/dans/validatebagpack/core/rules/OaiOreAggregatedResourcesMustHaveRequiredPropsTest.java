@@ -35,7 +35,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 class OaiOreAggregatedResourcesMustHaveRequiredPropsTest extends AbstractTestFixture {
 
     @Test
-    void validate_returns_error_when_oai_ore_file_missing() throws Exception {
+    void validate_should_return_error_when_oai_ore_file_missing() throws Exception {
         var rule = new OaiOreAggregatedResourcesMustHaveRequiredProps(new FileServiceImpl());
         var result = rule.validate(testDir);
 
@@ -47,7 +47,7 @@ class OaiOreAggregatedResourcesMustHaveRequiredPropsTest extends AbstractTestFix
     }
 
     @Test
-    void validate_returns_error_when_aggregated_resource_missing_required_props() throws Exception {
+    void validate_should_return_error_when_aggregated_resource_missing_required_props() throws Exception {
         var oaiOre = testDir.resolve(OAI_ORE_PATH);
         Files.createDirectories(oaiOre.getParent());
         Files.writeString(oaiOre, """
@@ -79,7 +79,7 @@ class OaiOreAggregatedResourcesMustHaveRequiredPropsTest extends AbstractTestFix
     }
 
     @Test
-    void validate_returns_ok_when_all_required_props_present_and_valid() throws Exception {
+    void validate_should_return_ok_when_all_required_props_present_and_valid() throws Exception {
         var oaiOre = testDir.resolve(OAI_ORE_PATH);
         Files.createDirectories(oaiOre.getParent());
 

@@ -35,7 +35,7 @@ class BagIsValidTest extends AbstractTestFixture {
     }
 
     @Test
-    void validate_returns_success_for_valid_bag() throws Exception {
+    void validate_should_return_success_for_valid_bag() throws Exception {
         var bagDir = testDir.resolve("validBag");
         Files.createDirectory(bagDir);
         Files.writeString(bagDir.resolve("bagit.txt"), "BagIt-Version: 0.97\nTag-File-Character-Encoding: UTF-8\n");
@@ -52,7 +52,7 @@ class BagIsValidTest extends AbstractTestFixture {
     }
 
     @Test
-    void validate_returns_error_for_missing_payload_directory() throws Exception {
+    void validate_should_return_error_for_missing_payload_directory() throws Exception {
         var bagDir = testDir.resolve("noPayload");
         Files.createDirectory(bagDir);
         Files.writeString(bagDir.resolve("bagit.txt"), "BagIt-Version: 0.97\nTag-File-Character-Encoding: UTF-8\n");
@@ -66,7 +66,7 @@ class BagIsValidTest extends AbstractTestFixture {
     }
 
     @Test
-    void validate_returns_error_for_missing_bagit_txt() throws Exception {
+    void validate_should_return_error_for_missing_bagit_txt() throws Exception {
         var bagDir = testDir.resolve("noBagitTxt");
         Files.createDirectory(bagDir);
 
@@ -78,7 +78,7 @@ class BagIsValidTest extends AbstractTestFixture {
     }
 
     @Test
-    void validate_returns_error_for_missing_manifest() throws Exception {
+    void validate_should_return_error_for_missing_manifest() throws Exception {
         var bagDir = testDir.resolve("noManifest");
         Files.createDirectory(bagDir);
         Files.writeString(bagDir.resolve("bagit.txt"), "BagIt-Version: 0.97\nTag-File-Character-Encoding: UTF-8\n");

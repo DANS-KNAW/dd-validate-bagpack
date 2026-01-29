@@ -54,7 +54,7 @@ class BagMustConformToDansBagPackBagitProfileTest extends AbstractTestFixture {
     }
 
     @Test
-    void validate_throws_when_when_bagit_txt_is_empty() throws Exception {
+    void validate_should_throw_when_when_bagit_txt_is_empty() throws Exception {
         Files.createFile(testDir.resolve("bagit.txt"));
         assertThatThrownBy(() -> rule.validate(testDir))
             .isInstanceOf(InvalidBagitFileFormatException.class)
@@ -63,7 +63,7 @@ class BagMustConformToDansBagPackBagitProfileTest extends AbstractTestFixture {
     }
 
     @Test
-    void validate_throws_when_version_is_invalid() throws Exception {
+    void validate_should_throw_when_version_is_invalid() throws Exception {
         Files.writeString(testDir.resolve("bagit.txt"), """
             BagIt-Version: 97
             Tag-File-Character-Encoding: UTF-8
@@ -74,7 +74,7 @@ class BagMustConformToDansBagPackBagitProfileTest extends AbstractTestFixture {
     }
 
     @Test
-    void validate_returns_error_with_missing_bag_info_txt() throws Exception {
+    void validate_should_return_error_with_missing_bag_info_txt() throws Exception {
         Files.writeString(testDir.resolve("bagit.txt"), """
             BagIt-Version: 0.97
             Tag-File-Character-Encoding: UTF-8
@@ -85,7 +85,7 @@ class BagMustConformToDansBagPackBagitProfileTest extends AbstractTestFixture {
     }
 
     @Test
-    void validate_throws_when_profile_is_missing() throws Exception {
+    void validate_should_throw_when_profile_is_missing() throws Exception {
         Files.writeString(testDir.resolve("bagit.txt"), """
             BagIt-Version: 0.97
             Tag-File-Character-Encoding: UTF-8
@@ -98,7 +98,7 @@ class BagMustConformToDansBagPackBagitProfileTest extends AbstractTestFixture {
     }
 
     @Test
-    void validate_returns_success_with_a_bag_conform_profile() throws Exception {
+    void validate_should_return_success_with_a_bag_conform_profile() throws Exception {
         Files.writeString(testDir.resolve("bagit.txt"), """
             BagIt-Version: 0.97
             Tag-File-Character-Encoding: UTF-8

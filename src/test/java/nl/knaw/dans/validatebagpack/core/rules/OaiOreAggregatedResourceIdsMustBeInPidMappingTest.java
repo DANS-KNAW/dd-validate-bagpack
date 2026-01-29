@@ -48,7 +48,7 @@ class OaiOreAggregatedResourceIdsMustBeInPidMappingTest extends AbstractTestFixt
     }
 
     @Test
-    void returns_error_when_aggregated_resource_id_not_in_pid_mapping() throws Exception {
+    void validate_should_return_error_when_aggregated_resource_id_not_in_pid_mapping() throws Exception {
         // Write minimal OAI-ORE file with one aggregated resource
         var oaiOre = testDir.resolve(OAI_ORE_PATH);
         Files.createDirectories(oaiOre.getParent());
@@ -85,7 +85,7 @@ class OaiOreAggregatedResourceIdsMustBeInPidMappingTest extends AbstractTestFixt
     }
 
     @Test
-    void returns_success_when_all_aggregated_resource_ids_in_pid_mapping() throws Exception {
+    void validate__should_return_success_when_all_aggregated_resource_ids_in_pid_mapping() throws Exception {
         // Write OAI-ORE file with one aggregated resource
         var oaiOre = testDir.resolve(OAI_ORE_PATH);
         Files.createDirectories(oaiOre.getParent());
@@ -113,7 +113,7 @@ class OaiOreAggregatedResourceIdsMustBeInPidMappingTest extends AbstractTestFixt
     }
 
     @Test
-    void returns_success_when_no_aggregated_resources() throws Exception {
+    void validate_should_return_success_when_no_aggregated_resources() throws Exception {
         // Write OAI-ORE file with no aggregates
         var oaiOre = testDir.resolve(OAI_ORE_PATH);
         Files.createDirectories(oaiOre.getParent());

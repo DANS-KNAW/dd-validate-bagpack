@@ -35,7 +35,7 @@ class ValidationTaskManagerTest extends AbstractTestFixture {
     }
 
     @Test
-    void should_expire_tasks_after_retention_time() throws InterruptedException {
+    void getValidationTask_should_expire_tasks_after_retention_time() throws InterruptedException {
         RuleEngineService ruleEngineService = mock(RuleEngineService.class);
         // Set retention time to 100 ms for quick expiration
         ValidationTaskManagerImpl manager = new ValidationTaskManagerImpl(ruleEngineService, Duration.ofMillis(100), 10);
@@ -53,7 +53,7 @@ class ValidationTaskManagerTest extends AbstractTestFixture {
     }
 
     @Test
-    void should_remove_oldest_task_when_maximum_size_exceeded() {
+    void getValidationTask_should_remove_oldest_task_when_maximum_size_exceeded() {
         RuleEngineService ruleEngineService = mock(RuleEngineService.class);
         ValidationTaskManagerImpl manager = new ValidationTaskManagerImpl(ruleEngineService, Duration.ofMinutes(1), 2);
 

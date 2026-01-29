@@ -45,7 +45,7 @@ class OaiOreMustHaveOneAggregationWithOneBagIdTest extends AbstractTestFixture {
     }
 
     @Test
-    void validate_returnsError_whenOaiOreFileMissing() throws Exception {
+    void validate_should_return_error_when_OaiOre_file_is_missing() throws Exception {
         var rule = new OaiOreMustHaveOneAggregationWithOneBagId(getFileService());
         var result = rule.validate(testDir);
         assertThat(result.getStatus()).isEqualTo(RuleResult.Status.ERROR);
@@ -53,7 +53,7 @@ class OaiOreMustHaveOneAggregationWithOneBagIdTest extends AbstractTestFixture {
     }
 
     @Test
-    void validate_returnsError_whenNoAggregation() throws Exception {
+    void validate_should_return_error_when_no_aggregation() throws Exception {
         var oaiOre = testDir.resolve(OAI_ORE_PATH);
         Files.createDirectories(oaiOre.getParent());
         Files.writeString(oaiOre, """
@@ -71,7 +71,7 @@ class OaiOreMustHaveOneAggregationWithOneBagIdTest extends AbstractTestFixture {
     }
 
     @Test
-    void validate_returnsError_whenMultipleAggregations() throws Exception {
+    void validate_should_return_error_when_multiple_aggregations() throws Exception {
         var oaiOre = testDir.resolve(OAI_ORE_PATH);
         Files.createDirectories(oaiOre.getParent());
         Files.writeString(oaiOre, """
@@ -93,7 +93,7 @@ class OaiOreMustHaveOneAggregationWithOneBagIdTest extends AbstractTestFixture {
     }
 
     @Test
-    void validate_returnsError_whenNoBagId() throws Exception {
+    void validate_should_return_error_when_no_bag_id() throws Exception {
         var oaiOre = testDir.resolve(OAI_ORE_PATH);
         Files.createDirectories(oaiOre.getParent());
         Files.writeString(oaiOre, """
@@ -113,7 +113,7 @@ class OaiOreMustHaveOneAggregationWithOneBagIdTest extends AbstractTestFixture {
     }
 
     @Test
-    void validate_returnsError_whenBagIdIsInvalidUrnUuid() throws Exception {
+    void validate_should_return_error_when_bagId_is_invalid_urnUuid() throws Exception {
         var oaiOre = testDir.resolve(OAI_ORE_PATH);
         Files.createDirectories(oaiOre.getParent());
         Files.writeString(oaiOre, """
@@ -134,7 +134,7 @@ class OaiOreMustHaveOneAggregationWithOneBagIdTest extends AbstractTestFixture {
     }
 
     @Test
-    void validate_returnsOk_whenValid() throws Exception {
+    void validate_should_return_ok_when_valid() throws Exception {
         var oaiOre = testDir.resolve(OAI_ORE_PATH);
         Files.createDirectories(oaiOre.getParent());
         Files.writeString(oaiOre, """

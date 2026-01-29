@@ -52,7 +52,7 @@ class PidMappingTargetsMustEqualsPayloadFilesTest extends AbstractTestFixture {
     }
 
     @Test
-    void validate_returns_ok_when_targets_and_payload_files_match() throws Exception {
+    void validate_should_return_ok_when_targets_and_payload_files_match() throws Exception {
         var bagDir = createBagWithPidMapping("""
             urn:1 data/file1.txt
             urn:2 data/file2.txt
@@ -75,7 +75,7 @@ class PidMappingTargetsMustEqualsPayloadFilesTest extends AbstractTestFixture {
     }
 
     @Test
-    void validate_returns_error_when_pid_targets_missing_payload_file() throws Exception {
+    void validate_should_return_error_when_pid_targets_missing_payload_file() throws Exception {
         var bagDir = createBagWithPidMapping("""
             urn:1 data/file1.txt
             urn:2 data/file2.txt
@@ -96,7 +96,7 @@ class PidMappingTargetsMustEqualsPayloadFilesTest extends AbstractTestFixture {
     }
 
     @Test
-    void validate_returns_error_when_payload_file_missing_pid_target() throws Exception {
+    void validate_should_return_error_when_payload_file_missing_pid_target() throws Exception {
         var bagDir = createBagWithPidMapping("urn:1 data/file1.txt");
         var dataDir = bagDir.resolve("data");
         Files.createDirectory(dataDir);
@@ -118,7 +118,7 @@ class PidMappingTargetsMustEqualsPayloadFilesTest extends AbstractTestFixture {
     }
 
     @Test
-    void validate_returns_error_when_pid_mapping_file_missing() throws Exception {
+    void validate_should_return_error_when_pid_mapping_file_missing() throws Exception {
         var bagDir = testDir.resolve("bag");
         Files.createDirectory(bagDir);
 

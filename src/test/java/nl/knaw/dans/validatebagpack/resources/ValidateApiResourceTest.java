@@ -47,7 +47,7 @@ class ValidateApiResourceTest {
     }
 
     @Test
-    void getValidationStatus_returnsOk_whenTaskExists() {
+    void getValidationStatus_should_return_ok_when_task_exists() {
         var jobId = UUID.randomUUID();
         var task = mock(nl.knaw.dans.validatebagpack.core.service.ValidationTask.class);
         when(validationTaskManager.getValidationTask(jobId)).thenReturn(Optional.of(task));
@@ -61,7 +61,7 @@ class ValidateApiResourceTest {
     }
 
     @Test
-    void getValidationStatus_returnsNotFound_whenTaskMissing() {
+    void getValidationStatus_should_return_not_found_when_task_is_missing() {
         var jobId = UUID.randomUUID();
         when(validationTaskManager.getValidationTask(jobId)).thenReturn(Optional.empty());
 
@@ -71,7 +71,7 @@ class ValidateApiResourceTest {
     }
 
     @Test
-    void validateBagPack_submitsTask_andReturnsCreated() {
+    void validateBagPack_should_submit_task_and_return_created() {
         var dto = mock(ValidateCommandDto.class);
         var task = mock(nl.knaw.dans.validatebagpack.core.service.ValidationTask.class);
         var jobId = UUID.randomUUID();

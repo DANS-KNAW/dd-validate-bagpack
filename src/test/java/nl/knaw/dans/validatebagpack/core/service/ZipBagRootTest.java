@@ -26,17 +26,17 @@ import static org.assertj.core.api.Assertions.*;
 
 class ZipBagRootTest extends AbstractTestFixture {
 
-    private Path tempZip;
+    private Path testZip;
 
     @BeforeEach
     void setUpZip() throws IOException {
-        tempZip = testDir.resolve("test-bag.zip");
-        Files.deleteIfExists(tempZip);
+        testZip = testDir.resolve("test-bag.zip");
+        Files.deleteIfExists(testZip);
     }
 
     private void createZipWithEntries(String... entries) throws IOException {
         try (FileSystem zipFs = FileSystems.newFileSystem(
-            URI.create("jar:" + tempZip.toUri()),
+            URI.create("jar:" + testZip.toUri()),
             Map.of("create", "true"))) {
             for (String entry : entries) {
                 var path = zipFs.getPath(entry);
@@ -55,45 +55,55 @@ class ZipBagRootTest extends AbstractTestFixture {
     }
 
     @Test
-    void should_find_bag_root_when_zip_is_valid() throws Exception {
+    void constructor_should_find_bag_root_when_zip_is_valid() throws Exception {
         createZipWithEntries("/bag/bagit.txt");
-        try (ZipBagRoot bagRoot = new ZipBagRoot(tempZip)) {
+        try (ZipBagRoot bagRoot = new ZipBagRoot(testZip)) {
             assertThat(bagRoot.getPath().getFileName().toString()).isEqualTo("bag");
             assertThat(Files.exists(bagRoot.getPath().resolve("bagit.txt"))).isTrue();
         }
     }
 
     @Test
-    void open_not_existing_zip_fails() throws Exception {
-        assertThat(Files.exists(tempZip)).isFalse();
-        assertThatThrownBy(() -> new ZipBagRoot(tempZip))
+    void constructor_should_fail_when_zip_does_not_exist() {
+        assertThat(Files.exists(testZip)).isFalse();
+        assertThatThrownBy(() -> new ZipBagRoot(testZip))
             .isInstanceOf(NoSuchFileException.class)
-            .hasMessage(tempZip.toString());
-        assertThat(Files.exists(tempZip)).isFalse();
+            .hasMessage(testZip.toString());
+        assertThat(Files.exists(testZip)).isFalse();
     }
 
 
     @Test
-    void should_throw_when_zip_has_no_root_directory() throws IOException {
+    void constructor_should_throw_when_zip_has_no_root_directory() throws IOException {
         createZipWithEntries();
-        assertThatThrownBy(() -> new ZipBagRoot(tempZip))
+        assertThatThrownBy(() -> new ZipBagRoot(testZip))
             .isInstanceOf(IllegalStateException.class)
             .hasMessageContaining("Zip root must contain exactly one directory");
     }
 
     @Test
-    void should_throw_when_zip_root_has_multiple_entries() throws IOException {
+    void constructor_should_throw_when_zip_root_has_multiple_entries() throws IOException {
         createZipWithEntries("/bag/", "/extra/");
-        assertThatThrownBy(() -> new ZipBagRoot(tempZip))
+        assertThatThrownBy(() -> new ZipBagRoot(testZip))
             .isInstanceOf(IllegalStateException.class)
             .hasMessageContaining("Zip root must contain exactly one directory");
     }
 
     @Test
-    void should_throw_when_bag_directory_missing_bagit_txt() throws IOException {
+    void constructor_should_throw_when_bag_directory_missing_bagit_txt() throws IOException {
         createZipWithEntries("/bag/");
-        assertThatThrownBy(() -> new ZipBagRoot(tempZip))
+        assertThatThrownBy(() -> new ZipBagRoot(testZip))
             .isInstanceOf(IllegalStateException.class)
             .hasMessageContaining("Directory does not contain bagit.txt");
+    }
+
+    @Test
+    void close_should_do_nothing() throws Exception {
+        createZipWithEntries("/bag/bagit.txt");
+
+        var bagRoot = new ZipBagRoot(testZip);
+
+        // Should not throw
+        bagRoot.close();
     }
 }

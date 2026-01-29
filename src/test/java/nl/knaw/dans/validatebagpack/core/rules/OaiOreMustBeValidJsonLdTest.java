@@ -29,7 +29,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 class OaiOreMustBeValidJsonLdTest extends AbstractTestFixture {
 
     @Test
-    void validate_returns_error_when_oai_ore_file_missing() throws Exception {
+    void validate_should_return_error_when_oai_ore_file_missing() throws Exception {
         var rule = new OaiOreMustBeValidJsonLd();
         var result = rule.validate(testDir);
 
@@ -41,7 +41,7 @@ class OaiOreMustBeValidJsonLdTest extends AbstractTestFixture {
     }
 
     @Test
-    void validate_returns_error_when_oai_ore_file_is_invalid_json() throws Exception {
+    void validate_should_return_error_when_oai_ore_file_is_invalid_json() throws Exception {
         var oaiOre = testDir.resolve(OAI_ORE_PATH);
         Files.createDirectories(oaiOre.getParent());
         Files.writeString(oaiOre, "{ invalid json }");
@@ -59,7 +59,7 @@ class OaiOreMustBeValidJsonLdTest extends AbstractTestFixture {
     }
 
     @Test
-    void validate_returns_ok_when_oai_ore_file_is_valid_jsonld() throws Exception {
+    void validate_should_return_ok_when_oai_ore_file_is_valid_jsonld() throws Exception {
         var oaiOre = testDir.resolve(OAI_ORE_PATH);
         Files.createDirectories(oaiOre.getParent());
         // Minimal valid JSON-LD

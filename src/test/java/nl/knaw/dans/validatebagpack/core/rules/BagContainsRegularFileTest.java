@@ -29,7 +29,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 class BagContainsRegularFileTest extends AbstractTestFixture {
 
     @Test
-    void validate_returnsError_whenFileDoesNotExist() throws Exception {
+    void validate_should_return_error_when_file_does_not_exist() throws Exception {
         var rule = new BagContainsRegularFile("missing.txt");
         var result = rule.validate(testDir);
 
@@ -39,7 +39,7 @@ class BagContainsRegularFileTest extends AbstractTestFixture {
     }
 
     @Test
-    void validate_returnsError_whenPathIsNotRegularFile() throws Exception {
+    void validate_should_return_error_when_path_is__a_directory() throws Exception {
         var dir = testDir.resolve("subdir");
         Files.createDirectory(dir);
 
@@ -52,7 +52,7 @@ class BagContainsRegularFileTest extends AbstractTestFixture {
     }
 
     @Test
-    void validate_returnsOk_whenRegularFileExists() throws Exception {
+    void validate_should_return_ok_when_regular_file_exists() throws Exception {
         var file = testDir.resolve("file.txt");
         Files.createFile(file);
 

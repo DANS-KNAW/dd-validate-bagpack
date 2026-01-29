@@ -26,7 +26,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 class DirectoryBagRootTest extends AbstractTestFixture {
 
     @Test
-    void should_store_and_return_path() throws Exception {
+    void constructor_should_store_and_return_path() throws Exception {
         var bagDir = testDir.resolve("bagDir");
         Files.createDirectory(bagDir);
 
