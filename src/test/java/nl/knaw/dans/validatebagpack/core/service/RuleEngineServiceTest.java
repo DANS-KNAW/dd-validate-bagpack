@@ -15,11 +15,10 @@
  */
 package nl.knaw.dans.validatebagpack.core.service;
 
-import nl.knaw.dans.lib.util.ruleengine.NumberedRule;
 import nl.knaw.dans.lib.util.ruleengine.RuleEngine;
+import nl.knaw.dans.lib.util.ruleengine.RuleEngineConfigurationException;
 import nl.knaw.dans.lib.util.ruleengine.RuleValidationResult;
 import nl.knaw.dans.validatebagpack.AbstractTestFixture;
-import nl.knaw.dans.validatebagpack.api.ValidationResultDto;
 import org.junit.jupiter.api.Test;
 
 import java.nio.file.Files;
@@ -30,8 +29,12 @@ import java.util.List;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.any;
+import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.eq;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
 class RuleEngineServiceTest extends AbstractTestFixture {
@@ -61,7 +64,11 @@ class RuleEngineServiceTest extends AbstractTestFixture {
 
         assertThat(result.getIsCompliant()).isTrue();
         assertThat(result.getRuleViolations()).isEmpty();
-    }
+
+        verify(ruleEngine).validateRuleSet(any());
+        verify(ruleEngine).validateBag(eq(bagDir), any());
+        verify(bagItService).getBagRoot(any());
+        verifyNoMoreInteractions(ruleEngine, bagItService);    }
 
     @Test
     void validateBag_should_return_noncompliant_result_with_violations() throws Exception {
@@ -90,6 +97,11 @@ class RuleEngineServiceTest extends AbstractTestFixture {
         assertThat(result.getRuleViolations()).hasSize(1);
         assertThat(result.getRuleViolations().get(0).getRule()).isEqualTo("2");
         assertThat(result.getRuleViolations().get(0).getViolation()).contains("error message");
+
+        verify(ruleEngine).validateRuleSet(any());
+        verify(ruleEngine).validateBag(eq(bagDir), any());
+        verify(bagItService).getBagRoot(any());
+        verifyNoMoreInteractions(ruleEngine, bagItService);
     }
 
     @Test
@@ -103,7 +115,10 @@ class RuleEngineServiceTest extends AbstractTestFixture {
 
             assertThatThrownBy(() -> service.validateBag(outside.toString()))
                 .isInstanceOf(IllegalArgumentException.class)
-                .hasMessage(String.format( "Path '%s' is outside the allowed base folder.", outside));
+                .hasMessage(String.format("Path '%s' is outside the allowed base folder.", outside));
+
+            verify(ruleEngine).validateRuleSet(any());
+            verifyNoMoreInteractions(ruleEngine, bagItService);
         }
         finally {
             Files.deleteIfExists(outside);
@@ -111,7 +126,7 @@ class RuleEngineServiceTest extends AbstractTestFixture {
     }
 
     @Test
-    void validateBag_should_throw_if_path_not_readable() {
+    void validateBag_should_throw_if_path_not_readable() throws RuleEngineConfigurationException {
         var notExist = testDir.resolve("doesNotExist");
         var ruleEngine = mock(RuleEngine.class);
         var bagItService = mock(BagItService.class);
@@ -121,5 +136,8 @@ class RuleEngineServiceTest extends AbstractTestFixture {
         assertThatThrownBy(() -> service.validateBag(notExist.toString()))
             .isInstanceOf(NoSuchFileException.class)
             .hasMessage("" + notExist.toAbsolutePath());
+
+        verify(ruleEngine).validateRuleSet(any());
+        verifyNoMoreInteractions(ruleEngine, bagItService);
     }
 }

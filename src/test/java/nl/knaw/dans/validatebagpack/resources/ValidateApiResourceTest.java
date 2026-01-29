@@ -58,6 +58,10 @@ class ValidateApiResourceTest {
 
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
         assertThat(response.getEntity()).isEqualTo(jobStatusDto);
+
+        verify(validationTaskManager).getValidationTask(jobId);
+        verify(task).getStatus();
+        verifyNoMoreInteractions(validationTaskManager, task);
     }
 
     @Test
@@ -68,6 +72,9 @@ class ValidateApiResourceTest {
         var response = resource.getValidationStatus(jobId);
 
         assertThat(response.getStatus()).isEqualTo(Response.Status.NOT_FOUND.getStatusCode());
+
+        verify(validationTaskManager).getValidationTask(jobId);
+        verifyNoMoreInteractions(validationTaskManager);
     }
 
     @Test
@@ -83,7 +90,11 @@ class ValidateApiResourceTest {
         try (var response = resource.validateBagPack(dto)) {
             assertThat(response.getStatus()).isEqualTo(Response.Status.CREATED.getStatusCode());
             assertThat(response.getLocation()).isEqualTo(baseUri.resolve(jobId.toString()));
-            verify(executorService).submit(task);
         }
+        verify(executorService).submit(task);
+        verify(validationTaskManager).createValidationTask("bag-location");
+        verify(task).getId();
+        verify(dto).getBagLocation();
+        verifyNoMoreInteractions(validationTaskManager, task, dto);
     }
 }

@@ -23,6 +23,7 @@ import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verifyNoInteractions;
 
 class ValidationTaskManagerTest extends AbstractTestFixture {
 
@@ -32,6 +33,7 @@ class ValidationTaskManagerTest extends AbstractTestFixture {
         var manager = new ValidationTaskManagerImpl(ruleEngineService, Duration.ofMinutes(1), 10);
 
         assertThat(manager.getValidationTask(UUID.randomUUID())).isEmpty();
+        verifyNoInteractions(ruleEngineService);
     }
 
     @Test
@@ -50,6 +52,7 @@ class ValidationTaskManagerTest extends AbstractTestFixture {
 
         // Guava cache is lazy, so access triggers cleanup
         assertThat(manager.getValidationTask(id)).isEmpty();
+        verifyNoInteractions(ruleEngineService);
     }
 
     @Test
@@ -65,5 +68,6 @@ class ValidationTaskManagerTest extends AbstractTestFixture {
         assertThat(manager.getValidationTask(task1.getId())).isEmpty();
         assertThat(manager.getValidationTask(task2.getId())).isPresent();
         assertThat(manager.getValidationTask(task3.getId())).isPresent();
+        verifyNoInteractions(ruleEngineService);
     }
 }
