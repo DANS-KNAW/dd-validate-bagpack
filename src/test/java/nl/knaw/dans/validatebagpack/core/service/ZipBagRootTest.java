@@ -72,10 +72,20 @@ class ZipBagRootTest extends AbstractTestFixture {
         assertThat(Files.exists(testZip)).isFalse();
     }
 
+    @Test
+    void constructor_should_throw_when_zip_is_empty() throws IOException {
+        createZipWithEntries();
+        // TODO confusing terminology:
+        //   getRootDirectories().iterator().hasNext() in findBagRoot will return true, but the root directory will be empty.
+        //   the bagRoot is supposed to be a directory inside the root directory.
+        assertThatThrownBy(() -> new ZipBagRoot(testZip))
+            .isInstanceOf(IllegalStateException.class)
+            .hasMessageContaining("Zip root must contain exactly one directory");
+    }
 
     @Test
     void constructor_should_throw_when_zip_has_no_root_directory() throws IOException {
-        createZipWithEntries();
+        createZipWithEntries("bagit.txt");
         assertThatThrownBy(() -> new ZipBagRoot(testZip))
             .isInstanceOf(IllegalStateException.class)
             .hasMessageContaining("Zip root must contain exactly one directory");

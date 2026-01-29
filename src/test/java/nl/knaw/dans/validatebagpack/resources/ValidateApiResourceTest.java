@@ -29,6 +29,7 @@ import java.util.UUID;
 import java.util.concurrent.ExecutorService;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
@@ -96,5 +97,37 @@ class ValidateApiResourceTest {
         verify(task).getId();
         verify(dto).getBagLocation();
         verifyNoMoreInteractions(validationTaskManager, task, dto);
+    }
+
+    @Test
+    void validateBagPack_should_throw_RuntimeException_when_createValidationTask_fails() {
+        var dto = mock(ValidateCommandDto.class);
+        when(dto.getBagLocation()).thenReturn("bag-location");
+        when(validationTaskManager.createValidationTask("bag-location"))
+            .thenThrow(new IllegalStateException("creating test task failed"));
+
+        assertThatThrownBy(() -> resource.validateBagPack(dto))
+            .isInstanceOf(RuntimeException.class)
+            .hasCauseInstanceOf(IllegalStateException.class)
+            .hasMessageContaining("creating test task failed");
+
+        verify(dto).getBagLocation();
+        verify(validationTaskManager).createValidationTask("bag-location");
+        verifyNoMoreInteractions(validationTaskManager, dto);
+    }
+
+    @Test
+    void getValidationStatus_should_throw_RuntimeException_when_manager_fails() {
+        var jobId = UUID.randomUUID();
+        when(validationTaskManager.getValidationTask(jobId))
+            .thenThrow(new IllegalStateException("test validation failed"));
+
+        assertThatThrownBy(() -> resource.getValidationStatus(jobId))
+            .isInstanceOf(RuntimeException.class)
+            .hasCauseInstanceOf(IllegalStateException.class)
+            .hasMessageContaining("test validation failed");
+
+        verify(validationTaskManager).getValidationTask(jobId);
+        verifyNoMoreInteractions(validationTaskManager);
     }
 }

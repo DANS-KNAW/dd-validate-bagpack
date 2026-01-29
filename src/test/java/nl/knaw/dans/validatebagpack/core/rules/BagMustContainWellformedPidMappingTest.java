@@ -68,6 +68,22 @@ class BagMustContainWellformedPidMappingTest extends AbstractTestFixture {
     }
 
     @Test
+    void validate_should_return_error_when_pid_mapping_is_not_well_formed() throws Exception {
+        var pidMapping = testDir.resolve(Constants.PID_MAPPING_PATH);
+        Files.createDirectories(pidMapping.getParent());
+        Files.writeString(pidMapping, "no_white_space");
+        var rule = new BagMustContainWellformedPidMapping();
+
+        var result = rule.validate(testDir);
+
+        assertThat(result.getStatus()).isEqualTo(RuleResult.Status.ERROR);
+        assertThat(result.getErrorMessages().size()).isEqualTo(1);
+        assertThat(result.getErrorMessages().get(0)).isEqualTo(
+            "Line without separator in pid mapping file: 'no_white_space'"
+        );
+    }
+
+    @Test
     void validate_should_return_ok_when_pid_mapping_is_empty() throws Exception {
         var pidMapping = testDir.resolve(Constants.PID_MAPPING_PATH);
         Files.createDirectories(pidMapping.getParent());

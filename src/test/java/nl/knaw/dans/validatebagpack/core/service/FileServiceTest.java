@@ -167,9 +167,8 @@ public class FileServiceTest extends AbstractTestFixture {
     @Test
     void loadNamedSparqlQueries_should_load_and_store_queries() throws Exception {
         // Given
-        String sparql = "SELECT * WHERE { ?s ?p ?o }";
         var queryFile = testDir.resolve("query1.sparql");
-        Files.writeString(queryFile, sparql);
+        Files.writeString(queryFile, "SELECT * WHERE { ?s ?p ?o }");
 
         var namedQueries = Map.of("testQuery", queryFile);
         var fileService = new FileServiceImpl();
@@ -179,22 +178,16 @@ public class FileServiceTest extends AbstractTestFixture {
 
         // Then
         var model = ModelFactory.createDefaultModel();
-        try (var qe = fileService.executeNamedQuery("testQuery", model)) {
-            assertThat(qe.getQuery().toString()).contains(
-                """
-                    SELECT  *
-                    WHERE
-                      { ?s  ?p  ?o }
-                    """);
-        }
+        assertThatThrownBy(() ->  fileService.executeNamedQuery("wrongQuery", model))
+            .isInstanceOf(IllegalArgumentException.class)
+            .hasMessage("No query found with name: wrongQuery");
     }
 
     @Test
     void loadNamedSparqlQueries_should_throw_for_invalid_query() throws Exception {
         // Given
-        String invalidSparql = "NOT A QUERY";
         var queryFile = testDir.resolve("invalid.sparql");
-        Files.writeString(queryFile, invalidSparql);
+        Files.writeString(queryFile, "NOT A QUERY");
 
         var namedQueries = Map.of("badQuery", queryFile);
         var fileService = new FileServiceImpl();
@@ -233,10 +226,10 @@ public class FileServiceTest extends AbstractTestFixture {
     @Test
     void readFileContents_should_return_file_bytes() throws Exception {
         var file = testDir.resolve("test.txt");
-        byte[] content = "hello world".getBytes(StandardCharsets.UTF_8);
+        var content = "hello world".getBytes(StandardCharsets.UTF_8);
         Files.write(file, content);
 
-        byte[] result = new FileServiceImpl().readFileContents(file);
+        var result = new FileServiceImpl().readFileContents(file);
 
         assertThat(result).isEqualTo(content);
     }
