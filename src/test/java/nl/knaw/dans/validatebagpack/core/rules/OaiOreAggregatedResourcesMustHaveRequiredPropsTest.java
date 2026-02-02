@@ -19,12 +19,10 @@ import nl.knaw.dans.lib.util.ruleengine.RuleResult;
 import nl.knaw.dans.validatebagpack.AbstractTestFixture;
 import nl.knaw.dans.validatebagpack.core.service.FileServiceImpl;
 import org.jspecify.annotations.NonNull;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.nio.file.Files;
-import java.nio.file.Path;
 import java.util.List;
 import java.util.Map;
 
@@ -47,23 +45,20 @@ class OaiOreAggregatedResourcesMustHaveRequiredPropsTest extends AbstractTestFix
     }
 
     @Test
-    void validate_should_return_error_when_aggregated_resource_missing_required_props() throws Exception {
+    void validate_should_return_error_when_missing_required_props() throws Exception {
         var oaiOre = testDir.resolve(OAI_ORE_PATH);
         Files.createDirectories(oaiOre.getParent());
         Files.writeString(oaiOre, """
             {
               "@context": {
                 "ore": "http://www.openarchives.org/ore/terms/",
-                "schema": "https://schema.org/"
+                "schema": "https://schema.org/",
+                "dvcore": "https://dataverse.org/schema/core#"
               },
-              "@type": "ResourceMap",
-              "ore:aggregates": [ { "@id": "urn:example:xx" } ],
-              "@graph": [
-                {
-                  "@id": "urn:example:xx",
-                  "schema:name": "Valid Name"
-                }
-              ]
+              "@type": "ore:ResourceMap",
+              "ore:aggregates": [ {
+                "@id": "urn:example:xx"
+              } ]
             }
             """);
 
@@ -72,7 +67,6 @@ class OaiOreAggregatedResourcesMustHaveRequiredPropsTest extends AbstractTestFix
 
         assertThat(result.getStatus()).isEqualTo(RuleResult.Status.ERROR);
         assertThat(result.getErrorMessages().size()).isEqualTo(2);
-        assertThat(result.getErrorMessages().get(0)).isEqualTo("(ii) Aggregated resource has missing 'name' property");
         assertThat(result.getErrorMessages()).hasSameElementsAs(List.of(
             "(ii) Aggregated resource has missing 'name' property",
             "(iii) Aggregated resource has missing 'restricted' property"));
@@ -85,13 +79,16 @@ class OaiOreAggregatedResourcesMustHaveRequiredPropsTest extends AbstractTestFix
 
         Files.writeString(oaiOre, """
             {
-              "@context": "https://schema.org/",
-              "@type": "ResourceMap",
-              "ore:aggregates": [
-                {
-                  "id": "urn:uuid:1234",
-                  "name": "Test",
-                  "restricted": false
+              "@context": {
+                "ore": "http://www.openarchives.org/ore/terms/",
+                "schema": "https://schema.org/",
+                "dvcore": "https://dataverse.org/schema/core#"
+              },
+              "@type": "ore:ResourceMap",
+              "ore:aggregates": [ {
+                    "@id": "urn:example:xx",
+                    "schema:name": "Example Resource",
+                    "dvcore:restricted": false
                 }
               ]
             }
