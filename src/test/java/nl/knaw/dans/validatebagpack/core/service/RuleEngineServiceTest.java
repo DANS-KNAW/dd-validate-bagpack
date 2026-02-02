@@ -15,12 +15,15 @@
  */
 package nl.knaw.dans.validatebagpack.core.service;
 
+import nl.knaw.dans.lib.util.ruleengine.NumberedRule;
 import nl.knaw.dans.lib.util.ruleengine.RuleEngine;
 import nl.knaw.dans.lib.util.ruleengine.RuleEngineConfigurationException;
+import nl.knaw.dans.lib.util.ruleengine.RuleEngineImpl;
 import nl.knaw.dans.lib.util.ruleengine.RuleValidationResult;
 import nl.knaw.dans.validatebagpack.AbstractTestFixture;
 import org.junit.jupiter.api.Test;
 
+import java.io.FileNotFoundException;
 import java.nio.file.Files;
 import java.nio.file.NoSuchFileException;
 import java.nio.file.Path;
@@ -29,11 +32,9 @@ import java.util.List;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.any;
-import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
@@ -68,7 +69,8 @@ class RuleEngineServiceTest extends AbstractTestFixture {
         verify(ruleEngine).validateRuleSet(any());
         verify(ruleEngine).validateBag(eq(bagDir), any());
         verify(bagItService).getBagRoot(any());
-        verifyNoMoreInteractions(ruleEngine, bagItService);    }
+        verifyNoMoreInteractions(ruleEngine, bagItService);
+    }
 
     @Test
     void validateBag_should_return_noncompliant_result_with_violations() throws Exception {
@@ -123,6 +125,52 @@ class RuleEngineServiceTest extends AbstractTestFixture {
         finally {
             Files.deleteIfExists(outside);
         }
+    }
+
+    @Test
+    void validateBag_should_throw_if_no_base_folder_provided() throws Exception {
+        var ruleEngine = mock(RuleEngine.class);
+        var bagItService = mock(BagItService.class);
+
+        var service = new RuleEngineServiceImpl(ruleEngine, List.of(), bagItService, null);
+
+        assertThatThrownBy(() -> service.validateBag(testDir.toString()))
+            .isInstanceOf(NullPointerException.class)
+            .hasMessage("""
+                Cannot invoke "nl.knaw.dans.validatebagpack.core.service.BagRoot.getPath()" because "bagRoot" is null""");
+
+        verify(ruleEngine).validateRuleSet(any());
+        verify(bagItService).getBagRoot(any());
+        verifyNoMoreInteractions(ruleEngine, bagItService);
+    }
+
+    @Test
+    void validateBag_should_throw_if_path_does_not_exist() throws Exception {
+        var ruleEngine = mock(RuleEngine.class);
+        var bagItService = mock(BagItService.class);
+        var notReadable = testDir.resolve("notReadable");
+        Files.createFile(notReadable);
+        notReadable.toFile().setReadable(false, false);
+        var service = new RuleEngineServiceImpl(ruleEngine, List.of(), bagItService, null);
+
+        assertThatThrownBy(() -> service.validateBag(notReadable.toString()))
+            .isInstanceOf(FileNotFoundException.class)
+            .hasMessageEndingWith("notReadable' could not be found or read");
+
+        verify(ruleEngine).validateRuleSet(any());
+        verifyNoMoreInteractions(ruleEngine, bagItService);
+    }
+
+    @Test
+    void constructor_should_throw_with_invalid_configuration() throws RuleEngineConfigurationException {
+        var invalidRuleSet = List.of(
+            new NumberedRule("1", null),
+            new NumberedRule("1", null)
+        );
+
+        assertThatThrownBy(() -> new RuleEngineServiceImpl(new RuleEngineImpl(), invalidRuleSet, null, testDir))
+            .isInstanceOf(RuntimeException.class)
+            .hasMessage("Rule configuration is not valid");
     }
 
     @Test

@@ -29,7 +29,6 @@ import java.io.FileNotFoundException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
-import java.util.Map;
 
 @Slf4j
 public class RuleEngineServiceImpl implements RuleEngineService {
@@ -70,7 +69,6 @@ public class RuleEngineServiceImpl implements RuleEngineService {
         }
 
         log.info("Validating bag on path '{}'", path);
-        Map<String, String> env = Map.of("readonly", "true");
         if (!Files.isReadable(path)) {
             log.warn("Path {} could not not be found or is not readable", path);
             throw new FileNotFoundException(String.format("Bag on path '%s' could not be found or read", path));
