@@ -39,7 +39,7 @@ class BagContainsRegularFileTest extends AbstractTestFixture {
     }
 
     @Test
-    void validate_should_return_error_when_path_is__a_directory() throws Exception {
+    void validate_should_return_error_when_path_is_a_directory() throws Exception {
         var dir = testDir.resolve("subdir");
         Files.createDirectory(dir);
 

@@ -21,16 +21,14 @@ import nl.knaw.dans.validatebagpack.core.service.FileServiceImpl;
 import org.jspecify.annotations.NonNull;
 import org.junit.jupiter.api.Test;
 
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.io.PrintStream;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.List;
 import java.util.Map;
 
 import static nl.knaw.dans.validatebagpack.core.rules.Constants.OAI_ORE_PATH;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class OaiOreAggregatedResourcesMustHaveRequiredPropsTest extends AbstractTestFixture {
 
@@ -42,7 +40,7 @@ class OaiOreAggregatedResourcesMustHaveRequiredPropsTest extends AbstractTestFix
         assertThat(result.getStatus()).isEqualTo(RuleResult.Status.ERROR);
         assertThat(result.getErrorMessages().size()).isEqualTo(1);
         assertThat(result.getErrorMessages().get(0)).startsWith(
-            "OAI-ORE JSON-LD file not found at expected location: " + testDir.resolve("metadata/oai-ore.jsonld")
+            "OAI-ORE JSON-LD file not found at expected location: " + testDir.resolve("metadata/oai-ore.jsonld" )
         );
     }
 
@@ -71,12 +69,13 @@ class OaiOreAggregatedResourcesMustHaveRequiredPropsTest extends AbstractTestFix
         assertThat(result.getErrorMessages().size()).isEqualTo(2);
         assertThat(result.getErrorMessages()).hasSameElementsAs(List.of(
             "(ii) Aggregated resource has missing 'name' property",
-            "(iii) Aggregated resource has missing 'restricted' property")
+            "(iii) Aggregated resource has missing 'restricted' property" )
         );
     }
 
+
     @Test
-    void validate_should_return_error_when_aggregate_id_is_blank() throws Exception {
+    void validate_should_not_throw() throws Exception {
         var oaiOre = testDir.resolve(OAI_ORE_PATH);
         Files.createDirectories(oaiOre.getParent());
         Files.writeString(oaiOre, """
@@ -84,74 +83,30 @@ class OaiOreAggregatedResourcesMustHaveRequiredPropsTest extends AbstractTestFix
               "@context": {
                 "ore": "http://www.openarchives.org/ore/terms/",
                 "schema": "https://schema.org/",
-                "dvcore": "https://dataverse.org/schema/core#"
+                "dvcore": "<https://dataverse.org/schema/core#>"
               },
               "@type": "ore:ResourceMap",
               "ore:aggregates": [ {
-                    "@id": "   ",
-                    "schema:name": "Example Resource",
-                    "dvcore:restricted": false
+                "@id": "urn:example:xx"
               } ]
             }
             """);
-        var fileService = getFileService();
 
-        // TODO temporal block to show why validate does not get a chance to detect id problems
-        var originalErr = System.err;
-        var errContent = new ByteArrayOutputStream();
-        System.setErr(new PrintStream(errContent));
-        try {
-            var model = fileService.readJsonLdAsRdfModel(oaiOre);
-            assertThat(errContent.toString()).contains("WARNING: Non well-formed subject [   ] has been skipped.");
-
-            var out = new ByteArrayOutputStream();
-            model.write(out, "JSON-LD");
-            assertThat(out.toString()).isEqualTo("""
-                {
-                    "@id": "_:b0",
-                    "@type": "ore:ResourceMap",
-                    "@context": {
-                        "schema": "https://schema.org/",
-                        "ore": "http://www.openarchives.org/ore/terms/",
-                        "dvcore": "https://dataverse.org/schema/core#"
-                    }
-                }
-                """);
-
-            var result = new OaiOreMustBeValidJsonLd().validate(testDir);
-            assertEquals(RuleResult.Status.SUCCESS, result.getStatus());
-        }
-        finally {
-            System.setErr(originalErr);
-        }
-        // end temporal block
-
-        var rule = new OaiOreAggregatedResourcesMustHaveRequiredProps(fileService);
-
+        var rule = new OaiOreAggregatedResourcesMustHaveRequiredProps(getFileService());
         var result = rule.validate(testDir);
-        assertEquals(RuleResult.Status.ERROR, result.getStatus());
-        assertThat(result.getErrorMessages()).contains("(i) Aggregated resource has missing or blank 'id' property");
+
+        assertThat(result.getStatus()).isEqualTo(RuleResult.Status.ERROR);
+        assertThat(result.getErrorMessages()).hasSameElementsAs(List.of(
+            "Jena parser threw RiotException while reading JSON-LD file target/test/OaiOreAggregatedResourcesMustHaveRequiredPropsTest/metadata/oai-ore.jsonld: JsonLdError[code=A local context contains a term that has an invalid or missing IRI mapping [code=INVALID_IRI_MAPPING]., message=A local context contains a term that has an invalid or missing IRI mapping [code=INVALID_IRI_MAPPING].]" )
+        );
     }
 
     private @NonNull FileServiceImpl getFileService() throws IOException {
         var fileService = new FileServiceImpl();
-        var sparqlFile = testDir.resolve("findAggregatedResourceProps.sparql");
-        Files.writeString(sparqlFile, """
-            PREFIX ore: <http://www.openarchives.org/ore/terms/>
-            PREFIX schemaOld: <http://schema.org/>
-            PREFIX schema: <https://schema.org/>
-            PREFIX dvcore: <https://dataverse.org/schema/core#>
-            
-            SELECT ?id ?restricted ?name
-            WHERE {
-              ?aggregation ore:aggregates ?res .
-              BIND(str(?res) AS ?id)
-              OPTIONAL { ?res dvcore:restricted ?restricted }
-              OPTIONAL { ?res schema:name ?name }
-              OPTIONAL { ?res schemaOld:name ?name }
-            }
-            """);
-        fileService.loadNamedSparqlQueries(Map.of("findAggregatedResourceProps", sparqlFile));
+        fileService.loadNamedSparqlQueries(Map.of(
+            "findAggregatedResourceProps",
+            Path.of("src/main/assembly/dist/cfg/find-aggregated-resource-props.sparql")
+        ));
         return fileService;
     }
 }

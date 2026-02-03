@@ -21,29 +21,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 class OaiOreRulesSetsIntegrationTest extends AbstractTestFixture {
 
-    private static final String FIND_PROPS = """
-        PREFIX ore: <http://www.openarchives.org/ore/terms/>
-        PREFIX schemaOld: <http://schema.org/>
-        PREFIX schema: <https://schema.org/>
-        PREFIX dvcore: <https://dataverse.org/schema/core#>
-        SELECT ?id ?restricted ?name
-        WHERE {
-          ?aggregation ore:aggregates ?res .
-          BIND(str(?res) AS ?id)
-          OPTIONAL { ?res dvcore:restricted ?restricted }
-          OPTIONAL { ?res schema:name ?name }
-          OPTIONAL { ?res schemaOld:name ?name }
-        }
-        """;
-    private static final String FIND_BAG_ID = """
-        PREFIX ore: <http://www.openarchives.org/ore/terms/>
-        PREFIX dans: <https://dans.knaw.nl/ontologies/relations#>
-        SELECT ?resource ?bagId WHERE {
-          ?resource a ore:Aggregation .
-          OPTIONAL { ?resource dans:hasDansBagId ?bagId }
-        }
-        """;
-
     private RuleEngineImpl ruleEngine;
     private List<NumberedRule> rules_2_4;
 
@@ -51,9 +28,11 @@ class OaiOreRulesSetsIntegrationTest extends AbstractTestFixture {
     public void setUp() throws Exception {
         super.setUp();
         var fileService = new FileServiceImpl();
-        fileService.loadNamedSparqlQueries(Map.ofEntries(
-                namedSparqlQuery("findAggregatedResourceProps", FIND_PROPS),
-                namedSparqlQuery("findBagId", FIND_BAG_ID)
+        fileService.loadNamedSparqlQueries(Map.of(
+                "findAggregatedResourceProps",
+                Path.of("src/main/assembly/dist/cfg/find-aggregated-resource-props.sparql" ),
+                "findBagId",
+                Path.of("src/main/assembly/dist/cfg/find-bagId.sparql" )
             )
         );
         var ruleSets = new RuleSets(null, null, "profile", fileService);
@@ -67,26 +46,75 @@ class OaiOreRulesSetsIntegrationTest extends AbstractTestFixture {
         ruleEngine = new RuleEngineImpl();
     }
 
-    private Map.Entry<String, Path> namedSparqlQuery(String name, String query) throws Exception {
-        var sparqlFile = testDir.resolve(name + "sparql" );
-        Files.writeString(sparqlFile, query);
-        return Map.entry(name, sparqlFile);
-    }
-
-    public record TestCase(
-        List<String> errorMessages, String oaiOreContent
-    ) {
-    }
+    public record TestCase(List<String> errorMessages, String oaiOreContent) { }
 
     static Stream<TestCase> oaiOreTestCases() {
         return Stream.of(
             new TestCase(
                 // note the difference with the unit test: the error message contains the file path here
                 Arrays.asList("""
-                    File is not valid JSON-LD: 'target/test/OaiOreRulesSetsIntegrationTest/bag/metadata/oai-ore.jsonld'. Error: Unexpected character ('i' (code 105)): was expecting double-quote to start field name
-                     at [Source: REDACTED (`StreamReadFeature.INCLUDE_SOURCE_IN_LOCATION` disabled); line: 1, column: 3]""", null, null
+                        File is not valid JSON-LD: 'target/test/OaiOreRulesSetsIntegrationTest/bag/metadata/oai-ore.jsonld'. Error: Unexpected character ('i' (code 105)): was expecting double-quote to start field name
+                         at [Source: REDACTED (`StreamReadFeature.INCLUDE_SOURCE_IN_LOCATION` disabled); line: 1, column: 3]""",
+                    null,
+                    null
                 ), "{ invalid json }"
             ),
+            new TestCase(
+                Arrays.asList(
+                    "File is not valid JSON-LD: 'target/test/OaiOreRulesSetsIntegrationTest/bag/metadata/oai-ore.jsonld'. Error: invalid local context: 123",
+                    null,
+                    null
+                ), """
+                { "@context": 123 }
+                """ // valid json but Invalid JSON-LD
+            ),
+            new TestCase(
+                Arrays.asList(
+                    null,
+                    """
+                        Jena parser logged warnings/errors while reading JSON-LD file target/test/OaiOreRulesSetsIntegrationTest/bag/metadata/oai-ore.jsonld:
+                        WARNING: Non well-formed subject [urn:example:invalid iri with spaces] has been skipped.""",
+                    null
+                ), """
+                {
+                  "@context": {
+                    "ore": "http://www.openarchives.org/ore/terms/"
+                  },
+                  "@type": "ore:ResourceMap",
+                  "ore:aggregates": [
+                    { "@id": "urn:example:invalid iri with spaces" }
+                  ]
+                }
+                """ // causes "has been skipped" on stderr
+            ),
+            new TestCase(
+                Arrays.asList(
+                    null,
+                    null,
+                    null
+                ),
+                """
+                    {
+                      "@context": {
+                        "ore": "http://www.openarchives.org/ore/terms/",
+                        "vaultMd": "https://schemas.dans.knaw.nl/metadatablock/dansDataVaultMetadata#"
+                      },
+                      "@graph": [
+                        { "@id": "urn:agg:1",
+                          "@type": "ore:Aggregation",
+                          "dvcore:restricted": false,
+                           "dans:hasDansBagId": "urn:uuid:123e4567-e89b-12d3-a456-426614174000"
+                        },
+                        {
+                          "@id": "urn:agg:1",
+                          "@type": "ore:Aggregation",
+                          "dvcore:restricted": true,
+                           "vaultMd:dansBagId": "urn:uuid:123e4567-e89b-12d3-a456-426614174000"
+                        }
+                      ]
+                    }
+                    """
+            ), // duplicate key (identical @id and BagId), silently the last one is used
             new TestCase(
                 Arrays.asList(null, "Expected exactly one 'ore:Aggregation' resource, but found 0", null
                 ), """
@@ -213,13 +241,13 @@ class OaiOreRulesSetsIntegrationTest extends AbstractTestFixture {
                 {
                   "@context": {
                     "ore": "http://www.openarchives.org/ore/terms/",
-                    "dans": "https://dans.knaw.nl/ontologies/relations#"
+                    "vaultMd": "https://schemas.dans.knaw.nl/metadatablock/dansDataVaultMetadata#"
                   },
                   "@graph": [
                     {
                       "@id": "urn:agg:1",
                       "@type": "ore:Aggregation",
-                      "dans:hasDansBagId": "not-a-urn:uuid"
+                      "vaultMd:dansBagId": "not-a-urn:uuid"
                     }
                   ]
                 }
@@ -230,13 +258,13 @@ class OaiOreRulesSetsIntegrationTest extends AbstractTestFixture {
                 {
                   "@context": {
                     "ore": "http://www.openarchives.org/ore/terms/",
-                    "dans": "https://dans.knaw.nl/ontologies/relations#"
+                    "vaultMd": "https://schemas.dans.knaw.nl/metadatablock/dansDataVaultMetadata#"
                   },
                   "@graph": [
                     {
                       "@id": "urn:agg:1",
                       "@type": "ore:Aggregation",
-                      "dans:hasDansBagId": "urn:uuid:123e4567-e89b-12d3-a456-426614174000"
+                      "vaultMd:dansBagId": "urn:uuid:123e4567-e89b-12d3-a456-426614174000"
                     }
                   ]
                 }

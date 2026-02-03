@@ -85,7 +85,7 @@ class OaiOreAggregatedResourceIdsMustBeInPidMappingTest extends AbstractTestFixt
     }
 
     @Test
-    void validate__should_return_success_when_all_aggregated_resource_ids_in_pid_mapping() throws Exception {
+    void validate_should_return_success_when_all_aggregated_resource_ids_in_pid_mapping() throws Exception {
         // Write OAI-ORE file with one aggregated resource
         var oaiOre = testDir.resolve(OAI_ORE_PATH);
         Files.createDirectories(oaiOre.getParent());

@@ -15,16 +15,19 @@
  */
 package nl.knaw.dans.validatebagpack.core.rules;
 
+import com.fasterxml.jackson.core.JsonParseException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import nl.knaw.dans.lib.util.ruleengine.BagValidatorRule;
 import nl.knaw.dans.lib.util.ruleengine.RuleResult;
 import nl.knaw.dans.validatebagpack.core.service.FileService;
+import org.apache.jena.rdf.model.Model;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.UUID;
 
 @RequiredArgsConstructor
@@ -41,7 +44,12 @@ public class OaiOreMustHaveOneAggregationWithOneBagId implements BagValidatorRul
             return RuleResult.error("OAI-ORE JSON-LD file not found at expected location: " + oaiOrePath);
         }
 
-        var model = fileService.readJsonLdAsRdfModel(oaiOrePath);
+        Model model = null;
+        try {
+            model = fileService.readJsonLdAsRdfModel(path.resolve(Constants.OAI_ORE_PATH));
+        } catch (JsonParseException e){
+            return RuleResult.error(e.getMessage());
+        }
 
         var aggregations = new HashSet<String>();
         var bagIds = new ArrayList<String>();

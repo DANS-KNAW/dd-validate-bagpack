@@ -15,6 +15,8 @@
  */
 package nl.knaw.dans.validatebagpack.core.service;
 
+import com.fasterxml.jackson.core.JsonParseException;
+import com.google.gson.JsonIOException;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.jena.query.Query;
 import org.apache.jena.query.QueryExecution;
@@ -22,12 +24,16 @@ import org.apache.jena.query.QueryExecutionFactory;
 import org.apache.jena.query.QueryFactory;
 import org.apache.jena.rdf.model.Model;
 import org.apache.jena.rdf.model.ModelFactory;
+import org.apache.jena.riot.RiotException;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.PrintStream;
 import java.net.URI;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.text.MessageFormat;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -52,7 +58,7 @@ public class FileServiceImpl implements FileService {
                 // throw an exception if the line does not have exactly two parts
                 .peek(parts -> {
                     if (parts.length == 1) {
-                        throw new IllegalArgumentException("Line without separator in pid mapping file: '" + parts[0] + "'");
+                        throw new IllegalArgumentException("Line without separator in pid mapping file: '" + parts[0] + "'" );
                     }
                 })
                 .collect(Collectors.toMap(
@@ -62,10 +68,53 @@ public class FileServiceImpl implements FileService {
         }
     }
 
+    // It is not possible to reliably trigger the Jena ErrorHandler from JSON-LD input alone, because most errors (syntax, structure, invalid IRIs, etc.) are caught by the JSON-LD processor (Titanium) before Jena's RDF parser and its ErrorHandler are involved. The only errors that reach the ErrorHandler are low-level RDF parsing errors, which are not typically possible to provoke via JSON-LD input.
     @Override
     public Model readJsonLdAsRdfModel(Path jsonLdPath) throws IOException {
+        // Jena (and its underlying JSON-LD processor, Titanium)
+        // may write various messages to stderr, including but not limited to:
+        //
+        //   Warnings about invalid or relative IRIs (e.g., "skipped invalid IRI")
+        //   Syntax errors in JSON-LD or RDF input
+        //   Parsing errors (malformed JSON, unexpected tokens)
+        //   Notices about unsupported or deprecated features
+        //   Stack traces for uncaught exceptions during parsing
+        //
+        // The exact messages depend on the error, the Jena version, and the Titanium processor.
+        // Most of these are warnings or errors that are not routed through SLF4J
+        // but are printed directly to System.err.
+        //
+        // Stricter validation requires a different JSON-LD processor
+        // that exposes more validation options.
         var model = ModelFactory.createDefaultModel();
-        model.read(Files.newInputStream(jsonLdPath), null, "JSON-LD");
+        var originalErr = System.err;
+        var errContent = new ByteArrayOutputStream();
+        System.setErr(new PrintStream(errContent));
+        try {
+            model.read(Files.newInputStream(jsonLdPath), null, "JSON-LD" );
+            if(errContent.size() > 0) {
+                var errorLines = errContent.toString(StandardCharsets.UTF_8)
+                    .lines()
+                    .filter(line -> line.startsWith("WARNING") || line.startsWith("ERROR") || line.startsWith("FATAL"))
+                    .collect(Collectors.toCollection(java.util.LinkedHashSet::new))
+                    .toArray(String[]::new);
+
+                if (errorLines.length > 0) {
+                    throw new JsonParseException(MessageFormat.format(
+                        "Jena parser logged warnings/errors while reading JSON-LD file {0}:\n{1}",
+                        jsonLdPath, String.join("\n", errorLines)
+                    ));
+                }
+            }
+        }
+        catch (RiotException e){
+            throw new JsonParseException(MessageFormat.format(
+                "Jena parser threw RiotException while reading JSON-LD file {0}: {1}", jsonLdPath, e.getMessage()
+            ));
+        }
+        finally {
+            System.setErr(originalErr);
+        }
         return model;
     }
 

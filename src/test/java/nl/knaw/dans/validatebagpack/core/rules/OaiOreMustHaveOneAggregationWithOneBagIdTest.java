@@ -21,26 +21,20 @@ import nl.knaw.dans.validatebagpack.core.service.FileServiceImpl;
 import org.jspecify.annotations.NonNull;
 import org.junit.jupiter.api.Test;
 
-import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.Map;
 
-import static nl.knaw.dans.validatebagpack.core.rules.Constants.OAI_ORE_PATH;
 import static org.assertj.core.api.Assertions.assertThat;
 
 class OaiOreMustHaveOneAggregationWithOneBagIdTest extends AbstractTestFixture {
 
     private @NonNull FileServiceImpl getFileService() throws Exception {
-        var sparqlFile = testDir.resolve("findBagId.sparql");
-        Files.writeString(sparqlFile, """
-            PREFIX ore: <http://www.openarchives.org/ore/terms/>
-            PREFIX dans: <https://dans.knaw.nl/ontologies/relations#>
-            SELECT ?resource ?bagId WHERE {
-              ?resource a ore:Aggregation .
-              OPTIONAL { ?resource dans:hasDansBagId ?bagId }
-            }
-            """);
         var fileService = new FileServiceImpl();
-        fileService.loadNamedSparqlQueries(Map.of("findBagId", sparqlFile));
+        fileService.loadNamedSparqlQueries(Map.of(
+                "findBagId",
+                Path.of("src/main/assembly/dist/cfg/find-bagId.sparql" )
+            )
+        );
         return fileService;
     }
 
@@ -49,6 +43,6 @@ class OaiOreMustHaveOneAggregationWithOneBagIdTest extends AbstractTestFixture {
         var rule = new OaiOreMustHaveOneAggregationWithOneBagId(getFileService());
         var result = rule.validate(testDir);
         assertThat(result.getStatus()).isEqualTo(RuleResult.Status.ERROR);
-        assertThat(result.getErrorMessages().get(0)).contains("OAI-ORE JSON-LD file not found");
+        assertThat(result.getErrorMessages().get(0)).contains("OAI-ORE JSON-LD file not found" );
     }
 }
