@@ -15,19 +15,11 @@
  */
 package nl.knaw.dans.validatebagpack.core.rules;
 
-import ch.qos.logback.classic.Level;
-import ch.qos.logback.classic.Logger;
-import ch.qos.logback.classic.spi.ILoggingEvent;
-import ch.qos.logback.core.read.ListAppender;
 import nl.knaw.dans.lib.util.ruleengine.RuleResult;
 import nl.knaw.dans.validatebagpack.AbstractTestFixture;
 import nl.knaw.dans.validatebagpack.core.service.FileServiceImpl;
-import org.assertj.core.api.AssertionsForClassTypes;
 import org.jspecify.annotations.NonNull;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.slf4j.LoggerFactory;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -41,21 +33,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class OaiOreAggregatedResourcesMustHaveRequiredPropsTest extends AbstractTestFixture {
-    private ListAppender<ILoggingEvent> listAppender;
-    PrintStream originalErr = System.err;
-    ByteArrayOutputStream errContent;
-
-    @BeforeEach
-    public void setup() throws Exception {
-        super.setUp();
-        errContent = new ByteArrayOutputStream();
-        System.setErr(new PrintStream(errContent));
-    }
-
-    @AfterEach
-    public void tearDown() {
-        System.setErr(originalErr);
-    }
 
     @Test
     void validate_should_return_error_when_oai_ore_file_missing() throws Exception {
@@ -99,7 +76,7 @@ class OaiOreAggregatedResourcesMustHaveRequiredPropsTest extends AbstractTestFix
     }
 
     @Test
-    void validate_ignores_aggregate_when_id_is_blank() throws Exception {
+    void validate_should_return_error_when_aggregate_id_is_blank() throws Exception {
         var oaiOre = testDir.resolve(OAI_ORE_PATH);
         Files.createDirectories(oaiOre.getParent());
         Files.writeString(oaiOre, """
@@ -117,14 +94,40 @@ class OaiOreAggregatedResourcesMustHaveRequiredPropsTest extends AbstractTestFix
               } ]
             }
             """);
-        var rule = new OaiOreAggregatedResourcesMustHaveRequiredProps(getFileService());
+        var fileService = getFileService();
+
+        // TODO temporal block to show why validate does not get a chance to detect id problems
+        var originalErr = System.err;
+        var errContent = new ByteArrayOutputStream();
+        System.setErr(new PrintStream(errContent));
+        try {
+            var model = fileService.readJsonLdAsRdfModel(oaiOre);
+            assertThat(errContent.toString()).contains("WARNING: Non well-formed subject [   ] has been skipped.");
+
+            var out = new ByteArrayOutputStream();
+            model.write(out, "JSON-LD");
+            assertThat(out.toString()).isEqualTo("""
+                {
+                    "@id": "_:b0",
+                    "@type": "ore:ResourceMap",
+                    "@context": {
+                        "schema": "https://schema.org/",
+                        "ore": "http://www.openarchives.org/ore/terms/",
+                        "dvcore": "https://dataverse.org/schema/core#"
+                    }
+                }
+                """);
+        }
+        finally {
+            System.setErr(originalErr);
+        }
+        // end temporal block
+
+        var rule = new OaiOreAggregatedResourcesMustHaveRequiredProps(fileService);
 
         var result = rule.validate(testDir);
-
-        assertEquals(RuleResult.Status.SUCCESS, result.getStatus());
-
-        // Check the error output
-        assertThat(errContent.toString()).contains("WARNING: Non well-formed subject [   ] has been skipped.");
+        assertEquals(RuleResult.Status.ERROR, result.getStatus());
+        assertThat(result.getErrorMessages()).contains("(i) Aggregated resource has missing or blank 'id' property");
     }
 
     @Test
