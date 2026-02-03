@@ -117,6 +117,9 @@ class OaiOreAggregatedResourcesMustHaveRequiredPropsTest extends AbstractTestFix
                     }
                 }
                 """);
+
+            var result = new OaiOreMustBeValidJsonLd().validate(testDir);
+            assertEquals(RuleResult.Status.SUCCESS, result.getStatus());
         }
         finally {
             System.setErr(originalErr);
