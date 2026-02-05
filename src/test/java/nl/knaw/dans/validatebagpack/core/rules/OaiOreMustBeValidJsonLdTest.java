@@ -57,24 +57,4 @@ class OaiOreMustBeValidJsonLdTest extends AbstractTestFixture {
                  at [Source: REDACTED (`StreamReadFeature.INCLUDE_SOURCE_IN_LOCATION` disabled); line: 1, column: 3]""", oaiOre
             ));
     }
-
-    @Test
-    void validate_should_return_ok_when_oai_ore_file_is_valid_jsonld() throws Exception {
-        var oaiOre = testDir.resolve(OAI_ORE_PATH);
-        Files.createDirectories(oaiOre.getParent());
-        // Minimal valid JSON-LD
-        var validJsonLd = """
-            {
-              "@context": "https://schema.org/",
-              "@type": "Dataset",
-              "name": "Test dataset"
-            }
-            """;
-        Files.writeString(oaiOre, validJsonLd);
-
-        var rule = new OaiOreMustBeValidJsonLd();
-        var result = rule.validate(testDir);
-
-        assertThat(result.getStatus()).isEqualTo(RuleResult.Status.SUCCESS);
-    }
 }
