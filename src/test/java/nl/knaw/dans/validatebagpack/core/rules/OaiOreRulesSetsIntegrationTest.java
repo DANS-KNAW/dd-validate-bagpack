@@ -16,9 +16,12 @@
 // src/test/java/nl/knaw/dans/validatebagpack/core/rules/OaiOreRulesRuleEngineIntegrationTest.java
 package nl.knaw.dans.validatebagpack.core.rules;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import nl.knaw.dans.lib.util.ruleengine.NumberedRule;
 import nl.knaw.dans.lib.util.ruleengine.RuleEngineImpl;
 import nl.knaw.dans.validatebagpack.AbstractTestFixture;
+import nl.knaw.dans.validatebagpack.config.ValidationConfig;
 import nl.knaw.dans.validatebagpack.core.service.FileServiceImpl;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -42,26 +45,30 @@ class OaiOreRulesSetsIntegrationTest extends AbstractTestFixture {
     @BeforeEach
     public void setUp() throws Exception {
         super.setUp();
-        var fileService = new FileServiceImpl();
-        fileService.loadNamedSparqlQueries(Map.of(
-                "findAggregatedResourceProps",
-                Path.of("src/main/assembly/dist/cfg/find-aggregated-resource-props.sparql" ),
-                "findBagId",
-                Path.of("src/main/assembly/dist/cfg/find-bagId.sparql" )
-            )
-        );
-        var ruleSets = new RuleSets(null, null, "profile", fileService);
-        rules_2_4 = ruleSets.getCommonRules().stream()
-            .filter(r1 -> r1.getNumber().startsWith("2.4" ))
-            .map(r -> r.getNumber().equals("2.4(a)" )
-                ? new NumberedRule(r.getNumber(), r.getRule())
-                : r
-            ).toList();
+        var configDir = Path.of("src/main/assembly/dist/cfg/");
+        var mapper = new ObjectMapper(new YAMLFactory());
+        var validationConfig = mapper.readTree(Files.readString(configDir.resolve("config.yml"))).get("validation");
+        var namedQueries = mapper.treeToValue(validationConfig, ValidationConfig.class)
+            .getSparqlQueries().entrySet().stream()
+            .collect(java.util.stream.Collectors.toMap(
+                Map.Entry::getKey,
+                e -> configDir.resolve(e.getValue().getFileName())
+            ));
 
+        var fileService = new FileServiceImpl();
+        fileService.loadNamedSparqlQueries(namedQueries);
+        var ruleSets = new RuleSets(null, null, "profile", fileService);
         ruleEngine = new RuleEngineImpl();
+        rules_2_4 = ruleSets.getCommonRules().stream()
+            .filter(r1 -> r1.getNumber().startsWith("2.4"))
+            .map(r -> r.getNumber().equals("2.4(a)")
+                ? new NumberedRule(r.getNumber(), r.getRule()) // strip dependency from first tested rule
+                : r // with dependencies
+            ).toList();
     }
 
-    public record TestCase(List<String> errorMessages, String oaiOreContent) { }
+    public record TestCase(List<String> errorMessages, String oaiOreContent) {
+    }
 
     static Stream<TestCase> oaiOreTestCases() {
         return Stream.of(
@@ -79,9 +86,10 @@ class OaiOreRulesSetsIntegrationTest extends AbstractTestFixture {
                     "File is not valid JSON-LD: 'target/test/OaiOreRulesSetsIntegrationTest/bag/metadata/oai-ore.jsonld'. Error: invalid local context: 123",
                     null,
                     null
-                ), """
+                ), // valid json but Invalid JSON-LD
+                """
                 { "@context": 123 }
-                """ // valid json but Invalid JSON-LD
+                """
             ),
             new TestCase(
                 Arrays.asList(
@@ -90,7 +98,8 @@ class OaiOreRulesSetsIntegrationTest extends AbstractTestFixture {
                         Jena parser logged warnings/errors while reading JSON-LD file target/test/OaiOreRulesSetsIntegrationTest/bag/metadata/oai-ore.jsonld:
                         WARNING: Non well-formed subject [urn:example:invalid iri with spaces] has been skipped.""",
                     null
-                ), """
+                ), // causes "has been skipped" on stderr
+                """
                 {
                   "@context": {
                     "ore": "http://www.openarchives.org/ore/terms/"
@@ -100,14 +109,14 @@ class OaiOreRulesSetsIntegrationTest extends AbstractTestFixture {
                     { "@id": "urn:example:invalid iri with spaces" }
                   ]
                 }
-                """ // causes "has been skipped" on stderr
+                """
             ),
             new TestCase(
                 Arrays.asList(
                     null,
                     null,
                     null
-                ),
+                ), // duplicate key (identical @id and BagId), silently the last one is used
                 """
                     {
                       "@context": {
@@ -129,7 +138,7 @@ class OaiOreRulesSetsIntegrationTest extends AbstractTestFixture {
                       ]
                     }
                     """
-            ), // duplicate key (identical @id and BagId), silently the last one is used
+            ),
             new TestCase(
                 Arrays.asList(null, "Expected exactly one 'ore:Aggregation' resource, but found 0", null
                 ), """
@@ -289,10 +298,10 @@ class OaiOreRulesSetsIntegrationTest extends AbstractTestFixture {
     }
 
     @ParameterizedTest
-    @MethodSource("oaiOreTestCases" )
+    @MethodSource("oaiOreTestCases")
     void validateBag_with_2_4_rules(TestCase testCase) throws Exception {
-        var bagDir = testDir.resolve("bag" );
-        Files.createDirectories(bagDir.resolve("metadata" ));
+        var bagDir = testDir.resolve("bag");
+        Files.createDirectories(bagDir.resolve("metadata"));
 
         // Write OAI-ORE file for this test case
         var oaiOreFile = bagDir.resolve(OAI_ORE_PATH);
@@ -312,8 +321,8 @@ class OaiOreRulesSetsIntegrationTest extends AbstractTestFixture {
                     .isEqualTo(expected);
             }
             else {
-                assertThat(actual.split("\n" )).as("Rule %s", ruleNr)
-                    .hasSameElementsAs(Arrays.asList(expected.split("\n" )));
+                assertThat(actual.split("\n")).as("Rule %s", ruleNr)
+                    .hasSameElementsAs(Arrays.asList(expected.split("\n")));
             }
         }
     }
