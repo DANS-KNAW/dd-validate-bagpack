@@ -114,9 +114,28 @@ class OaiOreRulesSetsIntegrationTest extends AbstractTestFixture {
             new TestCase(
                 Arrays.asList(
                     null,
+                    "Expected exactly one 'ore:Aggregation' resource, but found 0",
+                    null
+                ), // missing context
+                """
+                {
+                  "@type": "ore:ResourceMap",
+                  "ore:aggregates": [
+                        { "@id": "urn:agg:1",
+                          "@type": "ore:Aggregation",
+                          "dvcore:restricted": false,
+                           "dans:hasDansBagId": "urn:uuid:123e4567-e89b-12d3-a456-426614174000"
+                        }
+                  ]
+                }
+                """
+            ),
+            new TestCase(
+                Arrays.asList(
+                    null,
                     null,
                     null
-                ), // duplicate key (identical @id and BagId), silently the last one is used
+                ), // duplicate (identical @id and BagId), silently the last one is used
                 """
                     {
                       "@context": {
