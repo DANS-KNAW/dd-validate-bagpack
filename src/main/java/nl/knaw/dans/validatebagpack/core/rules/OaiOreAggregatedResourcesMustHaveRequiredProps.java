@@ -46,7 +46,7 @@ public class OaiOreAggregatedResourcesMustHaveRequiredProps implements BagValida
             return RuleResult.error("OAI-ORE JSON-LD file not found at expected location: " + oaiOrePath);
         }
 
-        Model model = null;
+        Model model;
         try {
             model = fileService.readJsonLdAsRdfModel(path.resolve(Constants.OAI_ORE_PATH));
         } catch (JsonParseException e){

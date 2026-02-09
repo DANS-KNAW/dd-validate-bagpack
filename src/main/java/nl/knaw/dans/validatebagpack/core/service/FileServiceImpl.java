@@ -16,7 +16,6 @@
 package nl.knaw.dans.validatebagpack.core.service;
 
 import com.fasterxml.jackson.core.JsonParseException;
-import com.google.gson.JsonIOException;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.jena.query.Query;
 import org.apache.jena.query.QueryExecution;
@@ -24,7 +23,7 @@ import org.apache.jena.query.QueryExecutionFactory;
 import org.apache.jena.query.QueryFactory;
 import org.apache.jena.rdf.model.Model;
 import org.apache.jena.rdf.model.ModelFactory;
-import org.apache.jena.riot.RiotException;
+import org.apache.jena.shared.JenaException;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -58,7 +57,7 @@ public class FileServiceImpl implements FileService {
                 // throw an exception if the line does not have exactly two parts
                 .peek(parts -> {
                     if (parts.length == 1) {
-                        throw new IllegalArgumentException("Line without separator in pid mapping file: '" + parts[0] + "'" );
+                        throw new IllegalArgumentException("Line without separator in pid mapping file: '" + parts[0] + "'");
                     }
                 })
                 .collect(Collectors.toMap(
@@ -68,7 +67,6 @@ public class FileServiceImpl implements FileService {
         }
     }
 
-    // It is not possible to reliably trigger the Jena ErrorHandler from JSON-LD input alone, because most errors (syntax, structure, invalid IRIs, etc.) are caught by the JSON-LD processor (Titanium) before Jena's RDF parser and its ErrorHandler are involved. The only errors that reach the ErrorHandler are low-level RDF parsing errors, which are not typically possible to provoke via JSON-LD input.
     @Override
     public Model readJsonLdAsRdfModel(Path jsonLdPath) throws IOException {
         // Jena (and its underlying JSON-LD processor, Titanium)
@@ -91,8 +89,8 @@ public class FileServiceImpl implements FileService {
         var errContent = new ByteArrayOutputStream();
         System.setErr(new PrintStream(errContent));
         try {
-            model.read(Files.newInputStream(jsonLdPath), null, "JSON-LD" );
-            if(errContent.size() > 0) {
+            model.read(Files.newInputStream(jsonLdPath), null, "JSON-LD");
+            if (errContent.size() > 0) {
                 var errorLines = errContent.toString(StandardCharsets.UTF_8)
                     .lines()
                     .filter(line -> line.startsWith("WARNING") || line.startsWith("ERROR") || line.startsWith("FATAL"))
@@ -107,7 +105,7 @@ public class FileServiceImpl implements FileService {
                 }
             }
         }
-        catch (RiotException e){
+        catch (JenaException e) {
             throw new JsonParseException(MessageFormat.format(
                 "Jena parser threw RiotException while reading JSON-LD file {0}: {1}", jsonLdPath, e.getMessage()
             ));
