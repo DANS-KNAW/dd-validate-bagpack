@@ -30,13 +30,8 @@ public class ZipBagRoot implements BagRoot {
     @Getter
     private final Path path;
 
-    public ZipBagRoot(Path path, boolean readOnly) throws Exception {
-        if (readOnly) {
-            this.fileSystem = FileSystems.newFileSystem(path, Map.of("create", "false"));
-        }
-        else {
-            this.fileSystem = FileSystems.newFileSystem(path);
-        }
+    public ZipBagRoot(Path path) throws Exception {
+        this.fileSystem = FileSystems.newFileSystem(path, Map.of("create", "false"));
         this.path = findBagRoot();
     }
 

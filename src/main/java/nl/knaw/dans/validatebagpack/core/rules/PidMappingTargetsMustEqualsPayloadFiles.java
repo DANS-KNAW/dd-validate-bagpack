@@ -26,7 +26,7 @@ import java.nio.file.Path;
 import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
-public class PidMapingTargetsMustEqualsPayloadFiles implements BagValidatorRule {
+public class PidMappingTargetsMustEqualsPayloadFiles implements BagValidatorRule {
     private final FileService fileService;
     private final BagItService bagItService;
 

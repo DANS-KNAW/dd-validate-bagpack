@@ -15,13 +15,15 @@
  */
 package nl.knaw.dans.validatebagpack.core.rules;
 
+import com.fasterxml.jackson.core.JsonParseException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import nl.knaw.dans.lib.util.ruleengine.BagValidatorRule;
 import nl.knaw.dans.lib.util.ruleengine.RuleResult;
 import nl.knaw.dans.validatebagpack.core.service.FileService;
+import org.apache.jena.rdf.model.Model;
+import org.jspecify.annotations.NonNull;
 
-import java.io.IOException;
 import java.net.URI;
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -29,14 +31,21 @@ import java.util.List;
 
 @RequiredArgsConstructor
 @Slf4j
-public class OaireAggregatedResourceIdsMustBeInPidMapping implements BagValidatorRule {
+public class OaiOreAggregatedResourceIdsMustBeInPidMapping implements BagValidatorRule {
     private final FileService fileService;
 
     @Override
     public RuleResult validate(Path path) throws Exception {
         var pidMappingFile = path.resolve(Constants.PID_MAPPING_PATH);
         var pidMap = fileService.parsePidMapping(pidMappingFile);
-        var uris = getAggregatedResourceIds(path.resolve(Constants.OAI_ORE_PATH));
+
+        Model model = null;
+        try {
+            model = fileService.readJsonLdAsRdfModel(path.resolve(Constants.OAI_ORE_PATH));
+        } catch (JsonParseException e){
+            return RuleResult.error(e.getMessage());
+        }
+        var uris = getAggregatedResourceIds(model);
 
         List<String> errors = new ArrayList<>();
         for (URI uri : uris) {
@@ -52,9 +61,7 @@ public class OaireAggregatedResourceIdsMustBeInPidMapping implements BagValidato
         return RuleResult.ok();
     }
 
-    private List<URI> getAggregatedResourceIds(Path oaiOrePath) throws IOException {
-        var model = fileService.readJsonLdAsRdfModel(oaiOrePath);
-
+    private @NonNull List<URI> getAggregatedResourceIds(Model model) {
         List<URI> uris = new ArrayList<>();
         try (var exec = fileService.executeNamedQuery("findAggregatedResourceIds", model)) {
             var results = exec.execSelect();

@@ -49,8 +49,8 @@ public class RuleSets {
             new NumberedRule("2.4(a)", new OaiOreMustBeValidJsonLd(), List.of("2.2(a)")),
             new NumberedRule("2.4(b)", new OaiOreMustHaveOneAggregationWithOneBagId(fileService), List.of("2.4(a)")),
             new NumberedRule("2.4(c)", new OaiOreAggregatedResourcesMustHaveRequiredProps(fileService), List.of("2.4(a)")),
-            new NumberedRule("2.5(a)", new OaireAggregatedResourceIdsMustBeInPidMapping(fileService), List.of("2.4(c)")),
-            new NumberedRule("2.5(b)", new PidMapingTargetsMustEqualsPayloadFiles(fileService, bagItService), List.of("2.2(a)"))
+            new NumberedRule("2.5(a)", new OaiOreAggregatedResourceIdsMustBeInPidMapping(fileService), List.of("2.4(c)")),
+            new NumberedRule("2.5(b)", new PidMappingTargetsMustEqualsPayloadFiles(fileService, bagItService), List.of("2.2(a)"))
         );
     }
 }
