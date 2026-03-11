@@ -67,7 +67,7 @@ public class DdValidateBagpackApplication extends Application<DdValidateBagpackC
             throw new RuntimeException("Failed to load SPARQL queries", e);
         }
         var ruleSets = new RuleSets(bagItService, xmlSchemaValidator, getContentsAsString(config.getValidation().getDansBagPackBagItProfile(), StandardCharsets.UTF_8),
-            fileService);
+            fileService, config.getValidation().isAllowHoleyBags());
         var ruleEngineService = new RuleEngineServiceImpl(new RuleEngineImpl(), ruleSets.getCommonRules(), bagItService, config.getValidation().getBaseFolder());
         var validationTaskFactory = new ValidationTaskManagerImpl(
             ruleEngineService, config.getValidation().getTaskRetentionTime().toJavaDuration(),

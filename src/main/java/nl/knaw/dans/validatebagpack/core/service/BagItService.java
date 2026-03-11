@@ -32,10 +32,11 @@ public interface BagItService {
     /**
      * Verifies whether the bag at the given path is valid, according to BagIt specifications.
      *
-     * @param path the root directory of the bag
+     * @param path           the root directory of the bag
+     * @param allowHoleyBags whether to allow holey bags (bags with fetch.txt)
      * @throws Exception if the bag is not valid or an error occurs during verification
      */
-    void verifyBag(Path path) throws Exception;
+    void verifyBag(Path path, boolean allowHoleyBags) throws Exception;
 
     Set<String> listPayloadFiles(Path bagRoot) throws Exception;
 }

@@ -33,10 +33,11 @@ public class RuleSets {
     private final XmlSchemaValidator xmlSchemaValidator;
     private final String dansBagPackBagItProfile;
     private final FileService fileService;
+    private final boolean allowHoleyBags;
 
     public List<NumberedRule> getCommonRules() {
         return List.of(
-            new NumberedRule("1.1", new BagIsValid(bagItService)),
+            new NumberedRule("1.1", new BagIsValid(bagItService, allowHoleyBags)),
             new NumberedRule("1.2(a)", new BagContainsRegularFile("metadata/datacite.xml"), List.of("1.1")),
             new NumberedRule("1.2(b)", new BagFileConformsToXmlSchema("metadata/datacite.xml",
                 fileService, KEY_DATACITE_SCHEMA, xmlSchemaValidator,

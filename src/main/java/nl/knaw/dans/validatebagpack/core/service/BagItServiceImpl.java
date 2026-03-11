@@ -48,17 +48,17 @@ public class BagItServiceImpl implements BagItService {
     }
 
     @Override
-    public void verifyBag(Path path) throws Exception {
+    public void verifyBag(Path path, boolean allowHoleyBags) throws Exception {
         var bag = new BagReader().read(path);
 
         try (var verifier = new BagVerifier()) {
             var ignoreHiddenFiles = false;
 
-            log.debug("Verifying bag is complete on path {}", path);
-            verifier.isComplete(bag, ignoreHiddenFiles);
+            log.debug("Verifying bag is complete on path {} (allowHoleyBags={})", path, allowHoleyBags);
+            verifier.isComplete(bag, ignoreHiddenFiles, allowHoleyBags);
 
-            log.debug("Verifying bag is valid on path {}", path);
-            verifier.isValid(bag, ignoreHiddenFiles);
+            log.debug("Verifying bag is valid on path {} (allowHoleyBags={})", path, allowHoleyBags);
+            verifier.isValid(bag, ignoreHiddenFiles, allowHoleyBags);
         }
     }
 

@@ -52,4 +52,6 @@ public class ValidationConfig {
     @NotNull
     private Map<String, Path> sparqlQueries;
 
+    private boolean allowHoleyBags;
+
 }

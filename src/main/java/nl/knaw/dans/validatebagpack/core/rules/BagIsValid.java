@@ -36,12 +36,13 @@ import java.nio.file.Path;
 @AllArgsConstructor
 public class BagIsValid implements BagValidatorRule {
     private final BagItService bagItService;
+    private final boolean allowHoleyBags;
 
     @Override
     public RuleResult validate(Path path) throws Exception {
         try {
             log.debug("Verifying bag {}", path);
-            bagItService.verifyBag(path);
+            bagItService.verifyBag(path, allowHoleyBags);
             log.debug("Bag {} is valid", path);
             return RuleResult.ok();
         }

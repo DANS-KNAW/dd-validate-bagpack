@@ -28,6 +28,7 @@ validation:
     findBagId: "/etc/opt/dans.knaw.nl/dd-validate-bagpack/find-bagId.sparql"
     findAggregatedResourceProps: "/etc/opt/dans.knaw.nl/dd-validate-bagpack/find-aggregated-resource-props.sparql"
     findAggregatedResourceIds: "/etc/opt/dans.knaw.nl/dd-validate-bagpack/find-aggregated-resource-ids.sparql"
+  allowHoleyBags: false
 
   taskQueue:
     nameFormat: "validation-worker-%d"

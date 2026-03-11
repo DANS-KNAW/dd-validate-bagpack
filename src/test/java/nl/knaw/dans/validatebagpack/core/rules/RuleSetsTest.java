@@ -27,7 +27,7 @@ class RuleSetsTest {
 
     @BeforeEach
     void setUp() {
-        ruleSets = new RuleSets(null, null, "profile", null);
+        ruleSets = new RuleSets(null, null, "profile", null, false);
     }
 
     @Test
