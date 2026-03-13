@@ -21,6 +21,8 @@ import nl.knaw.dans.bagit.verify.BagVerifier;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Collections;
+import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -48,17 +50,17 @@ public class BagItServiceImpl implements BagItService {
     }
 
     @Override
-    public void verifyBag(Path path) throws Exception {
+    public void verifyBag(Path path, boolean allowHoleyBags, Map<String, Map<String, String>> urlConfigs) throws Exception {
         var bag = new BagReader().read(path);
 
         try (var verifier = new BagVerifier()) {
             var ignoreHiddenFiles = false;
 
-            log.debug("Verifying bag is complete on path {}", path);
-            verifier.isComplete(bag, ignoreHiddenFiles);
+            log.debug("Verifying bag is complete on path {} (allowHoleyBags={})", path, allowHoleyBags);
+            verifier.isComplete(bag, ignoreHiddenFiles, allowHoleyBags);
 
-            log.debug("Verifying bag is valid on path {}", path);
-            verifier.isValid(bag, ignoreHiddenFiles);
+            log.debug("Verifying bag is valid on path {} (allowHoleyBags={}, urlConfigs={})", path, allowHoleyBags, urlConfigs);
+            verifier.isValid(bag, ignoreHiddenFiles, allowHoleyBags, Collections.emptyMap(), urlConfigs);
         }
     }
 

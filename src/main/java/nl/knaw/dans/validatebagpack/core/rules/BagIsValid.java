@@ -31,17 +31,20 @@ import nl.knaw.dans.validatebagpack.core.service.BagItService;
 
 import java.nio.file.NoSuchFileException;
 import java.nio.file.Path;
+import java.util.Map;
 
 @Slf4j
 @AllArgsConstructor
 public class BagIsValid implements BagValidatorRule {
     private final BagItService bagItService;
+    private final boolean allowHoleyBags;
+    private final Map<String, Map<String, String>> urlConfigs;
 
     @Override
     public RuleResult validate(Path path) throws Exception {
         try {
             log.debug("Verifying bag {}", path);
-            bagItService.verifyBag(path);
+            bagItService.verifyBag(path, allowHoleyBags, urlConfigs);
             log.debug("Bag {} is valid", path);
             return RuleResult.ok();
         }

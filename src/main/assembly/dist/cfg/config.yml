@@ -28,6 +28,15 @@ validation:
     findBagId: "/etc/opt/dans.knaw.nl/dd-validate-bagpack/find-bagId.sparql"
     findAggregatedResourceProps: "/etc/opt/dans.knaw.nl/dd-validate-bagpack/find-aggregated-resource-props.sparql"
     findAggregatedResourceIds: "/etc/opt/dans.knaw.nl/dd-validate-bagpack/find-aggregated-resource-ids.sparql"
+  #
+  # Holey bags are bags with a fetch.txt file that specifies where to fetch the missing files.
+  holeyBags:
+    # Turn on support for holey bags; if false holey bags are considered invalid
+    allow: false
+    # Specify headers to be added to the requests to the remote servers. The keys are base URLs. This can be used to fetch files that require authentication or custom headers.
+    addHeaders: { }
+    # 'https://mydataverse.example.com':
+    #     X-Dataverse-key: <your-api-token>
 
   taskQueue:
     nameFormat: "validation-worker-%d"

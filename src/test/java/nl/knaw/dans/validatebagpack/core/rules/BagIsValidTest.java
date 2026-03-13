@@ -23,6 +23,7 @@ import org.junit.jupiter.api.Test;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Collections;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -31,7 +32,7 @@ class BagIsValidTest extends AbstractTestFixture {
 
     @BeforeEach
     void createRule() {
-        bagIsValid = new BagIsValid(new BagItServiceImpl());
+        bagIsValid = new BagIsValid(new BagItServiceImpl(), false, Collections.emptyMap());
     }
 
     @Test
@@ -49,6 +50,47 @@ class BagIsValidTest extends AbstractTestFixture {
         var result = bagIsValid.validate(bagDir);
 
         assertThat(result.getStatus()).isEqualTo(RuleResult.Status.SUCCESS);
+    }
+
+    @Test
+    void validate_should_return_success_for_holey_bag_if_allowed() throws Exception {
+        var bagDir = testDir.resolve("holeyBag");
+        Files.createDirectory(bagDir);
+        Files.writeString(bagDir.resolve("bagit.txt"), "BagIt-Version: 0.97\nTag-File-Character-Encoding: UTF-8\n");
+
+        var dataDir = bagDir.resolve("data");
+        Files.createDirectory(dataDir);
+
+        // create a file that is "remotely" available
+        var remoteFile = testDir.resolve("remoteFile.txt");
+        Files.writeString(remoteFile, "content1");
+
+        Files.writeString(bagDir.resolve("fetch.txt"), remoteFile.toUri().toURL() + " 8 data/file1.txt\n");
+        Files.writeString(bagDir.resolve("manifest-md5.txt"),
+            "7e55db001d319a94b0b713529a756623  data/file1.txt\n");
+
+        bagIsValid = new BagIsValid(new BagItServiceImpl(), true, Collections.emptyMap());
+        var result = bagIsValid.validate(bagDir);
+
+        assertThat(result.getStatus()).isEqualTo(RuleResult.Status.SUCCESS);
+    }
+
+    @Test
+    void validate_should_return_error_for_holey_bag_if_not_allowed() throws Exception {
+        var bagDir = testDir.resolve("holeyBagNotAllowed");
+        Files.createDirectory(bagDir);
+        Files.writeString(bagDir.resolve("bagit.txt"), "BagIt-Version: 0.97\nTag-File-Character-Encoding: UTF-8\n");
+        var dataDir = bagDir.resolve("data");
+        Files.createDirectory(dataDir);
+        Files.writeString(bagDir.resolve("fetch.txt"), "http://example.com/file1.txt 8 data/file1.txt\n");
+        Files.writeString(bagDir.resolve("manifest-md5.txt"),
+            "7e55db001d319a94b0b713529a756623  data/file1.txt\n");
+
+        bagIsValid = new BagIsValid(new BagItServiceImpl(), false, Collections.emptyMap());
+        var result = bagIsValid.validate(bagDir);
+
+        assertThat(result.getStatus()).isEqualTo(RuleResult.Status.ERROR);
+        assertThat(result.getErrorMessages().get(0)).contains("Bag is not valid");
     }
 
     @Test
