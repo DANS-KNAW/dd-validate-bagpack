@@ -23,6 +23,7 @@ import org.junit.jupiter.api.Test;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Collections;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -31,7 +32,7 @@ class BagIsValidTest extends AbstractTestFixture {
 
     @BeforeEach
     void createRule() {
-        bagIsValid = new BagIsValid(new BagItServiceImpl(), false);
+        bagIsValid = new BagIsValid(new BagItServiceImpl(), false, Collections.emptyMap());
     }
 
     @Test
@@ -68,7 +69,7 @@ class BagIsValidTest extends AbstractTestFixture {
         Files.writeString(bagDir.resolve("manifest-md5.txt"),
             "7e55db001d319a94b0b713529a756623  data/file1.txt\n");
 
-        bagIsValid = new BagIsValid(new BagItServiceImpl(), true);
+        bagIsValid = new BagIsValid(new BagItServiceImpl(), true, Collections.emptyMap());
         var result = bagIsValid.validate(bagDir);
 
         assertThat(result.getStatus()).isEqualTo(RuleResult.Status.SUCCESS);
@@ -85,7 +86,7 @@ class BagIsValidTest extends AbstractTestFixture {
         Files.writeString(bagDir.resolve("manifest-md5.txt"),
             "7e55db001d319a94b0b713529a756623  data/file1.txt\n");
 
-        bagIsValid = new BagIsValid(new BagItServiceImpl(), false);
+        bagIsValid = new BagIsValid(new BagItServiceImpl(), false, Collections.emptyMap());
         var result = bagIsValid.validate(bagDir);
 
         assertThat(result.getStatus()).isEqualTo(RuleResult.Status.ERROR);

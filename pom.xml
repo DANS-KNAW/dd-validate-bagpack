@@ -35,7 +35,7 @@
 
     <properties>
         <main-class>nl.knaw.dans.validatebagpack.DdValidateBagpackApplication</main-class>
-        <dans-bagit-lib.version>1.2.3-SNAPSHOT</dans-bagit-lib.version>
+        <dans-bagit-lib.version>1.4.0</dans-bagit-lib.version>
     </properties>
 
     <scm>

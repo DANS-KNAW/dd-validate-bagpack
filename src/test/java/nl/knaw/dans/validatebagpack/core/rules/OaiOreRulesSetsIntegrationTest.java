@@ -30,6 +30,7 @@ import org.junit.jupiter.params.provider.MethodSource;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Stream;
@@ -57,7 +58,7 @@ class OaiOreRulesSetsIntegrationTest extends AbstractTestFixture {
 
         var fileService = new FileServiceImpl();
         fileService.loadNamedSparqlQueries(namedQueries);
-        var ruleSets = new RuleSets(null, null, "profile", fileService, false);
+        var ruleSets = new RuleSets(null, null, "profile", fileService, false, Collections.emptyMap());
         ruleEngine = new RuleEngineImpl();
         rules_2_4 = ruleSets.getCommonRules().stream()
             .filter(r1 -> r1.getNumber().startsWith("2.4"))

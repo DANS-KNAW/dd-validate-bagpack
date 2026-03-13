@@ -24,6 +24,7 @@ import java.net.URI;
 import java.nio.file.Files;
 import java.nio.file.NoSuchFileException;
 import java.nio.file.Path;
+import java.util.Collections;
 import java.util.Map;
 import java.util.zip.ZipOutputStream;
 
@@ -106,7 +107,7 @@ class BagItServiceTest extends AbstractTestFixture {
             "7e55db001d319a94b0b713529a756623  data/file1.txt\n");
 
         // Should not throw
-        service.verifyBag(bagDir, false);
+        service.verifyBag(bagDir, false, Collections.emptyMap());
     }
 
     @Test
@@ -116,7 +117,7 @@ class BagItServiceTest extends AbstractTestFixture {
         Files.writeString(bagDir.resolve("bagit.txt"), "BagIt-Version: 0.97\nTag-File-Character-Encoding: UTF-8\n");
         // No manifest or data
 
-        assertThatThrownBy(() -> service.verifyBag(bagDir, false))
+        assertThatThrownBy(() -> service.verifyBag(bagDir, false, Collections.emptyMap()))
             .isInstanceOf(MissingPayloadDirectoryException.class);
     }
 

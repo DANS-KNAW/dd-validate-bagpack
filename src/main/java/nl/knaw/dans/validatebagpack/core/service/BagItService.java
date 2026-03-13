@@ -16,6 +16,7 @@
 package nl.knaw.dans.validatebagpack.core.service;
 
 import java.nio.file.Path;
+import java.util.Map;
 import java.util.Set;
 
 public interface BagItService {
@@ -34,9 +35,10 @@ public interface BagItService {
      *
      * @param path           the root directory of the bag
      * @param allowHoleyBags whether to allow holey bags (bags with fetch.txt)
+     * @param urlConfigs     a map of base URLs to custom headers
      * @throws Exception if the bag is not valid or an error occurs during verification
      */
-    void verifyBag(Path path, boolean allowHoleyBags) throws Exception;
+    void verifyBag(Path path, boolean allowHoleyBags, Map<String, Map<String, String>> urlConfigs) throws Exception;
 
     Set<String> listPayloadFiles(Path bagRoot) throws Exception;
 }

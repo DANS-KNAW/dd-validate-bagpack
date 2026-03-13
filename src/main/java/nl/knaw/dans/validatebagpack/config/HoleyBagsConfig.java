@@ -15,42 +15,13 @@
  */
 package nl.knaw.dans.validatebagpack.config;
 
-import io.dropwizard.util.Duration;
 import lombok.Data;
-import nl.knaw.dans.lib.util.ExecutorServiceFactory;
 
-import javax.validation.Valid;
-import javax.validation.constraints.NotNull;
-import java.net.URI;
-import java.nio.file.Path;
+import java.util.HashMap;
 import java.util.Map;
 
 @Data
-public class ValidationConfig {
-    @NotNull
-    private Path baseFolder;
-
-    @NotNull
-    private URI baseUrl;
-
-    @NotNull
-    private URI dataCiteSchema;
-
-    @NotNull
-    private URI dansBagPackBagItProfile;
-
-    @Valid
-    @NotNull
-    private ExecutorServiceFactory taskQueue;
-
-    @Valid
-    private Duration taskRetentionTime = Duration.days(1);
-
-    private long maxNumberOfTasks = 1000;
-
-    @Valid
-    @NotNull
-    private Map<String, Path> sparqlQueries;
-
-    private HoleyBagsConfig holeyBags;
+public class HoleyBagsConfig {
+    private boolean allow = false;
+    private Map<String, Map<String, String>> addHeaders = new HashMap<>();
 }

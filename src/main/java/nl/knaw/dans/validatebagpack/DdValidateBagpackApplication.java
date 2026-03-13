@@ -34,6 +34,7 @@ import java.io.IOException;
 import java.net.URI;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
+import java.util.Collections;
 import java.util.Map;
 
 public class DdValidateBagpackApplication extends Application<DdValidateBagpackConfig> {
@@ -66,14 +67,19 @@ public class DdValidateBagpackApplication extends Application<DdValidateBagpackC
         catch (IOException e) {
             throw new RuntimeException("Failed to load SPARQL queries", e);
         }
-        var ruleSets = new RuleSets(bagItService, xmlSchemaValidator, getContentsAsString(config.getValidation().getDansBagPackBagItProfile(), StandardCharsets.UTF_8),
-            fileService, config.getValidation().isAllowHoleyBags());
-        var ruleEngineService = new RuleEngineServiceImpl(new RuleEngineImpl(), ruleSets.getCommonRules(), bagItService, config.getValidation().getBaseFolder());
+        var validationConfig = config.getValidation();
+        var holeyBagsConfig = validationConfig.getHoleyBags();
+        var allowHoleyBags = holeyBagsConfig != null && holeyBagsConfig.isAllow();
+        var urlConfigs = holeyBagsConfig != null ? holeyBagsConfig.getAddHeaders() : Collections.<String, Map<String, String>>emptyMap();
+
+        var ruleSets = new RuleSets(bagItService, xmlSchemaValidator, getContentsAsString(validationConfig.getDansBagPackBagItProfile(), StandardCharsets.UTF_8),
+            fileService, allowHoleyBags, urlConfigs);
+        var ruleEngineService = new RuleEngineServiceImpl(new RuleEngineImpl(), ruleSets.getCommonRules(), bagItService, validationConfig.getBaseFolder());
         var validationTaskFactory = new ValidationTaskManagerImpl(
-            ruleEngineService, config.getValidation().getTaskRetentionTime().toJavaDuration(),
-            config.getValidation().getMaxNumberOfTasks());
-        environment.jersey().register(new ValidateApiResource(validationTaskFactory, config.getValidation().getTaskQueue().build(environment),
-            appendEndSlashIfMissing(config.getValidation().getBaseUrl())));
+            ruleEngineService, validationConfig.getTaskRetentionTime().toJavaDuration(),
+            validationConfig.getMaxNumberOfTasks());
+        environment.jersey().register(new ValidateApiResource(validationTaskFactory, validationConfig.getTaskQueue().build(environment),
+            appendEndSlashIfMissing(validationConfig.getBaseUrl())));
     }
 
     private URI appendEndSlashIfMissing(URI uri) {
