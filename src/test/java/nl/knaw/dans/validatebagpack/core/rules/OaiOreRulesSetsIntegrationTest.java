@@ -21,6 +21,7 @@ import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import nl.knaw.dans.lib.util.ruleengine.NumberedRule;
 import nl.knaw.dans.lib.util.ruleengine.RuleEngineImpl;
 import nl.knaw.dans.validatebagpack.AbstractTestFixture;
+import nl.knaw.dans.validatebagpack.config.HoleyBagsConfig;
 import nl.knaw.dans.validatebagpack.config.ValidationConfig;
 import nl.knaw.dans.validatebagpack.core.service.FileServiceImpl;
 import org.junit.jupiter.api.BeforeEach;
@@ -58,7 +59,7 @@ class OaiOreRulesSetsIntegrationTest extends AbstractTestFixture {
 
         var fileService = new FileServiceImpl();
         fileService.loadNamedSparqlQueries(namedQueries);
-        var ruleSets = new RuleSets(null, null, "profile", fileService, false, Collections.emptyMap());
+        var ruleSets = new RuleSets(null, null, "profile", fileService, new HoleyBagsConfig());
         ruleEngine = new RuleEngineImpl();
         rules_2_4 = ruleSets.getCommonRules().stream()
             .filter(r1 -> r1.getNumber().startsWith("2.4"))

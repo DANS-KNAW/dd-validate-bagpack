@@ -107,7 +107,7 @@ class BagItServiceTest extends AbstractTestFixture {
             "7e55db001d319a94b0b713529a756623  data/file1.txt\n");
 
         // Should not throw
-        service.verifyBag(bagDir, false, Collections.emptyMap());
+        service.verifyBag(bagDir, null);
     }
 
     @Test
@@ -117,7 +117,7 @@ class BagItServiceTest extends AbstractTestFixture {
         Files.writeString(bagDir.resolve("bagit.txt"), "BagIt-Version: 0.97\nTag-File-Character-Encoding: UTF-8\n");
         // No manifest or data
 
-        assertThatThrownBy(() -> service.verifyBag(bagDir, false, Collections.emptyMap()))
+        assertThatThrownBy(() -> service.verifyBag(bagDir, null))
             .isInstanceOf(MissingPayloadDirectoryException.class);
     }
 

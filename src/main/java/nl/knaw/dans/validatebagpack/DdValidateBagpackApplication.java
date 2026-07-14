@@ -69,11 +69,9 @@ public class DdValidateBagpackApplication extends Application<DdValidateBagpackC
         }
         var validationConfig = config.getValidation();
         var holeyBagsConfig = validationConfig.getHoleyBags();
-        var allowHoleyBags = holeyBagsConfig != null && holeyBagsConfig.isAllow();
-        var urlConfigs = holeyBagsConfig != null ? holeyBagsConfig.getAddHeaders() : Collections.<String, Map<String, String>>emptyMap();
 
         var ruleSets = new RuleSets(bagItService, xmlSchemaValidator, getContentsAsString(validationConfig.getDansBagPackBagItProfile(), StandardCharsets.UTF_8),
-            fileService, allowHoleyBags, urlConfigs);
+            fileService, holeyBagsConfig);
         var ruleEngineService = new RuleEngineServiceImpl(new RuleEngineImpl(), ruleSets.getCommonRules(), bagItService, validationConfig.getBaseFolder());
         var validationTaskFactory = new ValidationTaskManagerImpl(
             ruleEngineService, validationConfig.getTaskRetentionTime().toJavaDuration(),

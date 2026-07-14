@@ -19,6 +19,8 @@ import lombok.extern.slf4j.Slf4j;
 import nl.knaw.dans.bagit.reader.BagReader;
 import nl.knaw.dans.bagit.verify.BagVerifier;
 
+import nl.knaw.dans.validatebagpack.config.HoleyBagsConfig;
+
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Collections;
@@ -50,11 +52,21 @@ public class BagItServiceImpl implements BagItService {
     }
 
     @Override
-    public void verifyBag(Path path, boolean allowHoleyBags, Map<String, Map<String, String>> urlConfigs) throws Exception {
+    public void verifyBag(Path path, HoleyBagsConfig holeyBagsConfig) throws Exception {
         var bag = new BagReader().read(path);
 
         try (var verifier = new BagVerifier()) {
             var ignoreHiddenFiles = false;
+            var allowHoleyBags = holeyBagsConfig != null && holeyBagsConfig.isAllow();
+            var urlConfigs = holeyBagsConfig != null ? holeyBagsConfig.getAddHeaders() : Collections.<String, Map<String, String>>emptyMap();
+
+            if (holeyBagsConfig != null) {
+                verifier.setChunkSize((int) holeyBagsConfig.getChunkSize().toBytes());
+                verifier.setMaxRetries(holeyBagsConfig.getMaxRetries());
+                verifier.setRetrySleepMs((int) holeyBagsConfig.getRetrySleep().toMilliseconds());
+                verifier.setMaxRedirects(holeyBagsConfig.getMaxRedirects());
+                verifier.setFallBackToFullStreamOnRangeFail(holeyBagsConfig.isFallBackToFullStreamOnRangeFail());
+            }
 
             log.debug("Verifying bag is complete on path {} (allowHoleyBags={})", path, allowHoleyBags);
             verifier.isComplete(bag, ignoreHiddenFiles, allowHoleyBags);

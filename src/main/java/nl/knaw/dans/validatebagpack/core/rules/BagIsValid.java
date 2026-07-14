@@ -27,24 +27,23 @@ import nl.knaw.dans.bagit.exceptions.MissingPayloadManifestException;
 import nl.knaw.dans.bagit.exceptions.VerificationException;
 import nl.knaw.dans.lib.util.ruleengine.BagValidatorRule;
 import nl.knaw.dans.lib.util.ruleengine.RuleResult;
+import nl.knaw.dans.validatebagpack.config.HoleyBagsConfig;
 import nl.knaw.dans.validatebagpack.core.service.BagItService;
 
 import java.nio.file.NoSuchFileException;
 import java.nio.file.Path;
-import java.util.Map;
 
 @Slf4j
 @AllArgsConstructor
 public class BagIsValid implements BagValidatorRule {
     private final BagItService bagItService;
-    private final boolean allowHoleyBags;
-    private final Map<String, Map<String, String>> urlConfigs;
+    private final HoleyBagsConfig holeyBagsConfig;
 
     @Override
     public RuleResult validate(Path path) throws Exception {
         try {
             log.debug("Verifying bag {}", path);
-            bagItService.verifyBag(path, allowHoleyBags, urlConfigs);
+            bagItService.verifyBag(path, holeyBagsConfig);
             log.debug("Bag {} is valid", path);
             return RuleResult.ok();
         }

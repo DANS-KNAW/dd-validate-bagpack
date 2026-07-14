@@ -41,6 +41,17 @@ validation:
     addHeaders: { }
     # 'https://mydataverse.example.com':
     #     X-Dataverse-key: <your-api-token>
+
+    # When calculating the hash of fetched files, use chunks of this size.
+    chunkSize: 128Mb
+    # Maximum times to try and hash a chunk
+    maxRetries: 30
+    # Sleep between retries
+    retrySleep: 10 seconds
+    # Maximum number of redirects to follow
+    maxRedirects: 20
+    # Whether to fall back to full stream if range request fails
+    fallBackToFullStreamOnRangeFail: true
   taskQueue:
     nameFormat: "validation-worker-%d"
     maxQueueSize: 5000

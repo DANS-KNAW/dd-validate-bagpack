@@ -18,12 +18,11 @@ package nl.knaw.dans.validatebagpack.core.rules;
 import lombok.AllArgsConstructor;
 import nl.knaw.dans.lib.util.XmlSchemaValidator;
 import nl.knaw.dans.lib.util.ruleengine.NumberedRule;
+import nl.knaw.dans.validatebagpack.config.HoleyBagsConfig;
 import nl.knaw.dans.validatebagpack.core.service.BagItService;
 import nl.knaw.dans.validatebagpack.core.service.FileService;
 
-import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 import java.util.regex.Pattern;
 
 @AllArgsConstructor
@@ -35,12 +34,11 @@ public class RuleSets {
     private final XmlSchemaValidator xmlSchemaValidator;
     private final String dansBagPackBagItProfile;
     private final FileService fileService;
-    private final boolean allowHoleyBags;
-    private final Map<String, Map<String, String>> urlConfigs;
+    private final HoleyBagsConfig holeyBagsConfig;
 
     public List<NumberedRule> getCommonRules() {
         return List.of(
-            new NumberedRule("1.1", new BagIsValid(bagItService, allowHoleyBags, urlConfigs)),
+            new NumberedRule("1.1", new BagIsValid(bagItService, holeyBagsConfig)),
             new NumberedRule("1.2(a)", new BagContainsRegularFile("metadata/datacite.xml"), List.of("1.1")),
             new NumberedRule("1.2(b)", new BagFileConformsToXmlSchema("metadata/datacite.xml",
                 fileService, KEY_DATACITE_SCHEMA, xmlSchemaValidator,

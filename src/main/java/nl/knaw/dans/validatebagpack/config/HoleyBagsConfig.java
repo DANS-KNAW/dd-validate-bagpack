@@ -15,6 +15,8 @@
  */
 package nl.knaw.dans.validatebagpack.config;
 
+import io.dropwizard.util.DataSize;
+import io.dropwizard.util.Duration;
 import lombok.Data;
 
 import java.util.HashMap;
@@ -24,4 +26,9 @@ import java.util.Map;
 public class HoleyBagsConfig {
     private boolean allow = false;
     private Map<String, Map<String, String>> addHeaders = new HashMap<>();
+    private DataSize chunkSize = DataSize.megabytes(128);
+    private int maxRetries = 5;
+    private Duration retrySleep = Duration.seconds(5);
+    private int maxRedirects = 20;
+    private boolean fallBackToFullStreamOnRangeFail = true;
 }
