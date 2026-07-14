@@ -15,7 +15,6 @@
  */
 package nl.knaw.dans.validatebagpack.core.service;
 
-import nl.knaw.dans.validatebagpack.config.HoleyBagsConfig;
 
 import java.nio.file.Path;
 import java.util.Set;
@@ -35,10 +34,9 @@ public interface BagItService {
      * Verifies whether the bag at the given path is valid, according to BagIt specifications.
      *
      * @param path            the root directory of the bag
-     * @param holeyBagsConfig the configuration for holey bags
      * @throws Exception if the bag is not valid or an error occurs during verification
      */
-    void verifyBag(Path path, HoleyBagsConfig holeyBagsConfig) throws Exception;
+    void verifyBag(Path path) throws Exception;
 
     Set<String> listPayloadFiles(Path bagRoot) throws Exception;
 }

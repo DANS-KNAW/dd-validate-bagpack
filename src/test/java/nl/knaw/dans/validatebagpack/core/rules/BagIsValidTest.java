@@ -32,7 +32,7 @@ class BagIsValidTest extends AbstractTestFixture {
 
     @BeforeEach
     void createRule() {
-        bagIsValid = new BagIsValid(new BagItServiceImpl(), new HoleyBagsConfig());
+        bagIsValid = new BagIsValid(new BagItServiceImpl(new HoleyBagsConfig()));
     }
 
     @Test
@@ -71,7 +71,7 @@ class BagIsValidTest extends AbstractTestFixture {
 
         var holeyBagsConfig = new HoleyBagsConfig();
         holeyBagsConfig.setAllow(true);
-        bagIsValid = new BagIsValid(new BagItServiceImpl(), holeyBagsConfig);
+        bagIsValid = new BagIsValid(new BagItServiceImpl(holeyBagsConfig));
         var result = bagIsValid.validate(bagDir);
 
         assertThat(result.getStatus()).isEqualTo(RuleResult.Status.SUCCESS);
@@ -90,7 +90,7 @@ class BagIsValidTest extends AbstractTestFixture {
 
         var holeyBagsConfig = new HoleyBagsConfig();
         holeyBagsConfig.setAllow(false);
-        bagIsValid = new BagIsValid(new BagItServiceImpl(), holeyBagsConfig);
+        bagIsValid = new BagIsValid(new BagItServiceImpl(holeyBagsConfig));
         var result = bagIsValid.validate(bagDir);
 
         assertThat(result.getStatus()).isEqualTo(RuleResult.Status.ERROR);

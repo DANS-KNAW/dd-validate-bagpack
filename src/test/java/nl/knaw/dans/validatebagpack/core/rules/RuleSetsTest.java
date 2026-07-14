@@ -17,7 +17,6 @@
 package nl.knaw.dans.validatebagpack.core.rules;
 
 import nl.knaw.dans.lib.util.ruleengine.NumberedRule;
-import nl.knaw.dans.validatebagpack.config.HoleyBagsConfig;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -28,7 +27,7 @@ class RuleSetsTest {
 
     @BeforeEach
     void setUp() {
-        ruleSets = new RuleSets(null, null, "profile", null, new HoleyBagsConfig());
+        ruleSets = new RuleSets(null, null, "profile", null);
     }
 
     @Test

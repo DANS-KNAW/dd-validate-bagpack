@@ -17,6 +17,7 @@ package nl.knaw.dans.validatebagpack.core.rules;
 
 import nl.knaw.dans.lib.util.ruleengine.RuleResult;
 import nl.knaw.dans.validatebagpack.AbstractTestFixture;
+import nl.knaw.dans.validatebagpack.config.HoleyBagsConfig;
 import nl.knaw.dans.validatebagpack.core.service.BagItServiceImpl;
 import nl.knaw.dans.validatebagpack.core.service.FileServiceImpl;
 import org.junit.jupiter.api.Test;
@@ -68,7 +69,7 @@ class PidMappingTargetsMustEqualsPayloadFilesTest extends AbstractTestFixture {
                 """);
 
         var rule = new PidMappingTargetsMustEqualsPayloadFiles(
-            new FileServiceImpl(), new BagItServiceImpl());
+            new FileServiceImpl(), new BagItServiceImpl(new HoleyBagsConfig()));
         var result = rule.validate(bagDir);
 
         assertThat(result.getStatus()).isEqualTo(RuleResult.Status.SUCCESS);
@@ -87,7 +88,7 @@ class PidMappingTargetsMustEqualsPayloadFilesTest extends AbstractTestFixture {
             "900150983cd24fb0d6963f7d28e17f72  data/file1.txt");
 
         var rule = new PidMappingTargetsMustEqualsPayloadFiles(
-            new FileServiceImpl(), new BagItServiceImpl());
+            new FileServiceImpl(), new BagItServiceImpl(new HoleyBagsConfig()));
         var result = rule.validate(bagDir);
 
         assertThat(result.getStatus()).isEqualTo(RuleResult.Status.ERROR);
@@ -109,7 +110,7 @@ class PidMappingTargetsMustEqualsPayloadFilesTest extends AbstractTestFixture {
                 """);
 
         var rule = new PidMappingTargetsMustEqualsPayloadFiles(
-            new FileServiceImpl(), new BagItServiceImpl());
+            new FileServiceImpl(), new BagItServiceImpl(new HoleyBagsConfig()));
         var result = rule.validate(bagDir);
 
         assertThat(result.getStatus()).isEqualTo(RuleResult.Status.ERROR);
@@ -123,7 +124,7 @@ class PidMappingTargetsMustEqualsPayloadFilesTest extends AbstractTestFixture {
         Files.createDirectory(bagDir);
 
         var rule = new PidMappingTargetsMustEqualsPayloadFiles(
-            new FileServiceImpl(), new BagItServiceImpl());
+            new FileServiceImpl(), new BagItServiceImpl(new HoleyBagsConfig()));
         var result = rule.validate(bagDir);
 
         assertThat(result.getStatus()).isEqualTo(RuleResult.Status.ERROR);
