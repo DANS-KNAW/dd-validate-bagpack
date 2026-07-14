@@ -47,7 +47,7 @@ validation:
     # Maximum number of redirects to follow
     maxRedirects: 20
     # Whether to fall back to full stream if range request fails
-    fallBackToFullStreamOnRangeFail: true
+    fallBackToFullStreamOnRangeFail: false
 
   taskQueue:
     nameFormat: "validation-worker-%d"

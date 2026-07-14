@@ -30,5 +30,5 @@ public class HoleyBagsConfig {
     private int maxRetries = 5;
     private Duration retrySleep = Duration.seconds(5);
     private int maxRedirects = 20;
-    private boolean fallBackToFullStreamOnRangeFail = true;
+    private boolean fallBackToFullStreamOnRangeFail = false;
 }
