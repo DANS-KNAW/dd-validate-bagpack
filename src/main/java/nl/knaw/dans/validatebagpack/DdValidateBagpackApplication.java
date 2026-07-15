@@ -59,7 +59,10 @@ public class DdValidateBagpackApplication extends Application<DdValidateBagpackC
             "DataCite", config.getValidation().getDataCiteSchema()
         ));
 
-        var bagItService = new BagItServiceImpl();
+        var validationConfig = config.getValidation();
+        var holeyBagsConfig = validationConfig.getHoleyBags();
+
+        var bagItService = new BagItServiceImpl(holeyBagsConfig);
         var fileService = new FileServiceImpl();
         try {
             fileService.loadNamedSparqlQueries(config.getValidation().getSparqlQueries());
@@ -67,13 +70,9 @@ public class DdValidateBagpackApplication extends Application<DdValidateBagpackC
         catch (IOException e) {
             throw new RuntimeException("Failed to load SPARQL queries", e);
         }
-        var validationConfig = config.getValidation();
-        var holeyBagsConfig = validationConfig.getHoleyBags();
-        var allowHoleyBags = holeyBagsConfig != null && holeyBagsConfig.isAllow();
-        var urlConfigs = holeyBagsConfig != null ? holeyBagsConfig.getAddHeaders() : Collections.<String, Map<String, String>>emptyMap();
 
         var ruleSets = new RuleSets(bagItService, xmlSchemaValidator, getContentsAsString(validationConfig.getDansBagPackBagItProfile(), StandardCharsets.UTF_8),
-            fileService, allowHoleyBags, urlConfigs);
+            fileService);
         var ruleEngineService = new RuleEngineServiceImpl(new RuleEngineImpl(), ruleSets.getCommonRules(), bagItService, validationConfig.getBaseFolder());
         var validationTaskFactory = new ValidationTaskManagerImpl(
             ruleEngineService, validationConfig.getTaskRetentionTime().toJavaDuration(),

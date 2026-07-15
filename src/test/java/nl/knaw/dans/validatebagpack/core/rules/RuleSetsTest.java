@@ -20,7 +20,6 @@ import nl.knaw.dans.lib.util.ruleengine.NumberedRule;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import java.util.Collections;
 import java.util.List;
 
 class RuleSetsTest {
@@ -28,7 +27,7 @@ class RuleSetsTest {
 
     @BeforeEach
     void setUp() {
-        ruleSets = new RuleSets(null, null, "profile", null, false, Collections.emptyMap());
+        ruleSets = new RuleSets(null, null, "profile", null);
     }
 
     @Test

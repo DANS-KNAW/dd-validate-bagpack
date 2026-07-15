@@ -17,6 +17,7 @@ package nl.knaw.dans.validatebagpack.core.service;
 
 import nl.knaw.dans.bagit.exceptions.MissingPayloadDirectoryException;
 import nl.knaw.dans.validatebagpack.AbstractTestFixture;
+import nl.knaw.dans.validatebagpack.config.HoleyBagsConfig;
 import org.junit.jupiter.api.Test;
 
 import java.io.OutputStream;
@@ -33,7 +34,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 class BagItServiceTest extends AbstractTestFixture {
 
-    private final BagItServiceImpl service = new BagItServiceImpl();
+    private final BagItServiceImpl service = new BagItServiceImpl(new HoleyBagsConfig());
 
     @Test
     void getBagRoot_should_return_DirectoryBagRoot_for_directory_bag() throws Exception {
@@ -107,7 +108,7 @@ class BagItServiceTest extends AbstractTestFixture {
             "7e55db001d319a94b0b713529a756623  data/file1.txt\n");
 
         // Should not throw
-        service.verifyBag(bagDir, false, Collections.emptyMap());
+        service.verifyBag(bagDir);
     }
 
     @Test
@@ -117,7 +118,7 @@ class BagItServiceTest extends AbstractTestFixture {
         Files.writeString(bagDir.resolve("bagit.txt"), "BagIt-Version: 0.97\nTag-File-Character-Encoding: UTF-8\n");
         // No manifest or data
 
-        assertThatThrownBy(() -> service.verifyBag(bagDir, false, Collections.emptyMap()))
+        assertThatThrownBy(() -> service.verifyBag(bagDir))
             .isInstanceOf(MissingPayloadDirectoryException.class);
     }
 

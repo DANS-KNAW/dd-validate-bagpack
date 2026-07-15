@@ -52,5 +52,6 @@ public class ValidationConfig {
     @NotNull
     private Map<String, Path> sparqlQueries;
 
-    private HoleyBagsConfig holeyBags;
+    @Valid
+    private HoleyBagsConfig holeyBags = new HoleyBagsConfig();
 }

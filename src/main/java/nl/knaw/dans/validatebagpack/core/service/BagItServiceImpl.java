@@ -15,9 +15,13 @@
  */
 package nl.knaw.dans.validatebagpack.core.service;
 
+import lombok.AllArgsConstructor;
+import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import nl.knaw.dans.bagit.reader.BagReader;
 import nl.knaw.dans.bagit.verify.BagVerifier;
+
+import nl.knaw.dans.validatebagpack.config.HoleyBagsConfig;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -27,7 +31,11 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 @Slf4j
+@AllArgsConstructor
 public class BagItServiceImpl implements BagItService {
+    @NonNull
+    private final HoleyBagsConfig holeyBagsConfig;
+
     @Override
     public BagRoot getBagRoot(Path bagPath) throws Exception {
         if (isDirectoryBag(bagPath)) {
@@ -50,17 +58,26 @@ public class BagItServiceImpl implements BagItService {
     }
 
     @Override
-    public void verifyBag(Path path, boolean allowHoleyBags, Map<String, Map<String, String>> urlConfigs) throws Exception {
+    public void verifyBag(Path path) throws Exception {
         var bag = new BagReader().read(path);
 
         try (var verifier = new BagVerifier()) {
             var ignoreHiddenFiles = false;
+            var urlConfigs = holeyBagsConfig.isAllow() ? holeyBagsConfig.getAddHeaders() : Collections.<String, Map<String, String>>emptyMap();
 
-            log.debug("Verifying bag is complete on path {} (allowHoleyBags={})", path, allowHoleyBags);
-            verifier.isComplete(bag, ignoreHiddenFiles, allowHoleyBags);
+            if (holeyBagsConfig.isAllow()) {
+                verifier.setChunkSize((int) holeyBagsConfig.getChunkSize().toBytes());
+                verifier.setMaxRetries(holeyBagsConfig.getMaxRetries());
+                verifier.setRetrySleepMs((int) holeyBagsConfig.getRetrySleep().toMilliseconds());
+                verifier.setMaxRedirects(holeyBagsConfig.getMaxRedirects());
+                verifier.setFallBackToFullStreamOnRangeFail(holeyBagsConfig.isFallBackToFullStreamOnRangeFail());
+            }
 
-            log.debug("Verifying bag is valid on path {} (allowHoleyBags={}, urlConfigs={})", path, allowHoleyBags, urlConfigs);
-            verifier.isValid(bag, ignoreHiddenFiles, allowHoleyBags, Collections.emptyMap(), urlConfigs);
+            log.debug("Verifying bag is complete on path {} (allowHoleyBags={})", path, holeyBagsConfig.isAllow());
+            verifier.isComplete(bag, ignoreHiddenFiles, holeyBagsConfig.isAllow());
+
+            log.debug("Verifying bag is valid on path {} (allowHoleyBags={}, urlConfigs={})", path, holeyBagsConfig.isAllow(), urlConfigs);
+            verifier.isValid(bag, ignoreHiddenFiles, holeyBagsConfig.isAllow(), Collections.emptyMap(), urlConfigs);
         }
     }
 
