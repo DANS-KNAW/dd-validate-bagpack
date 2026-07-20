@@ -21,6 +21,8 @@ import lombok.extern.slf4j.Slf4j;
 import nl.knaw.dans.validatebagpack.api.ValidationJobStatusDto;
 import nl.knaw.dans.validatebagpack.api.ValidationJobStatusDto.StatusEnum;
 
+import nl.knaw.dans.lib.util.healthcheck.DependenciesReadyCheck;
+
 import java.util.UUID;
 
 @RequiredArgsConstructor
@@ -38,9 +40,15 @@ public class ValidationTask implements Runnable {
      */
     private final String bagLocation;
     private final RuleEngineService ruleEngineService;
+    private final DependenciesReadyCheck readyCheck;
 
     @Override
     public void run() {
+        if (readyCheck != null) {
+            log.debug("Waiting for dependencies to become ready");
+            readyCheck.waitUntilReady();
+            log.debug("Dependencies are ready");
+        }
         status.setStatus(StatusEnum.RUNNING);
         try {
             var validationResultDto = ruleEngineService.validateBag(bagLocation);

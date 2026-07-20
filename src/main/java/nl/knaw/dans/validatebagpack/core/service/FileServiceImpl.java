@@ -34,6 +34,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.text.MessageFormat;
 import java.util.HashMap;
+import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.stream.Collectors;
 
@@ -43,7 +44,7 @@ public class FileServiceImpl implements FileService {
 
     @Override
     public byte[] readFileContents(Path path) throws IOException {
-        return java.nio.file.Files.readAllBytes(path);
+        return Files.readAllBytes(path);
     }
 
     @Override
@@ -94,7 +95,7 @@ public class FileServiceImpl implements FileService {
                 var errorLines = errContent.toString(StandardCharsets.UTF_8)
                     .lines()
                     .filter(line -> line.startsWith("WARNING") || line.startsWith("ERROR") || line.startsWith("FATAL"))
-                    .collect(Collectors.toCollection(java.util.LinkedHashSet::new))
+                    .collect(Collectors.toCollection(LinkedHashSet::new))
                     .toArray(String[]::new);
 
                 if (errorLines.length > 0) {

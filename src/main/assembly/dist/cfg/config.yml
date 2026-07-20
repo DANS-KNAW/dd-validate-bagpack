@@ -18,6 +18,16 @@ server:
         timeZone: system
         currentLogFilename: /var/opt/dans.knaw.nl/log/dd-validate-bagpack/request.log
 
+lobstore:
+  url: http://localhost:20385
+  pingUrl: http://localhost:20386/ping
+  httpClient:
+    timeout: 30s
+    connectionTimeout: 15s
+    timeToLive: 1h
+    retries: 2
+    userAgent: dd-validate-bagpack
+
 validation:
   # The base folder under which the bags to be validated must be placed.
   baseFolder: "/var/opt/dans.knaw.nl/tmp"
@@ -48,6 +58,11 @@ validation:
     maxRedirects: 20
     # Whether to fall back to full stream if range request fails
     fallBackToFullStreamOnRangeFail: false
+    # Maps the base URL of a datastation to its store name in dd-lob-store.
+    # When a fetch item's URL starts with one of these base URLs, dd-lob-store is queried for
+    # its SHA-1 checksum. If a location is found the item is skipped for SHA-1 hashing.
+    lobstores: { }
+    # 'https://archaeology.datastations.nl': archaeology
 
   taskQueue:
     nameFormat: "validation-worker-%d"
@@ -62,6 +77,11 @@ validation:
   taskRetentionTime: 1 day
   # Maximum number of tasks to keep in memory.
   maxNumberOfTasks: 1000
+
+readyCheck:
+  healthChecks:
+    - LobStore
+  pollInterval: 5s
 
 #
 # See https://www.dropwizard.io/en/latest/manual/configuration.html#logging

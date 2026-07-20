@@ -17,6 +17,7 @@ package nl.knaw.dans.validatebagpack.core.service;
 
 import nl.knaw.dans.bagit.exceptions.MissingPayloadDirectoryException;
 import nl.knaw.dans.validatebagpack.AbstractTestFixture;
+import nl.knaw.dans.validatebagpack.client.LobStoreClient;
 import nl.knaw.dans.validatebagpack.config.HoleyBagsConfig;
 import org.junit.jupiter.api.Test;
 
@@ -31,6 +32,11 @@ import java.util.zip.ZipOutputStream;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.eq;
+import static org.mockito.Mockito.anyString;
+import static org.mockito.Mockito.verify;
 
 class BagItServiceTest extends AbstractTestFixture {
 
@@ -159,5 +165,31 @@ class BagItServiceTest extends AbstractTestFixture {
         var notABag = testDir.resolve("notaBag");
         assertThatThrownBy(() -> service.listPayloadFiles(notABag))
             .isInstanceOf(NoSuchFileException.class);
+    }
+
+    @Test
+    void verifyBag_should_ignore_fetch_items_if_present_in_lobstore() throws Exception {
+        var holeyBagsConfig = new HoleyBagsConfig();
+        holeyBagsConfig.setAllow(true);
+        holeyBagsConfig.setLobstores(Map.of("http://localhost:8080/", "test-store"));
+
+        var lobStoreClient = mock(LobStoreClient.class);
+        when(lobStoreClient.isPresent(eq("test-store"), anyString())).thenReturn(true);
+
+        var serviceWithLobstore = new BagItServiceImpl(holeyBagsConfig, lobStoreClient);
+
+        var bagDir = testDir.resolve("holeyBag");
+        Files.createDirectory(bagDir);
+        Files.writeString(bagDir.resolve("bagit.txt"), "BagIt-Version: 0.97\nTag-File-Character-Encoding: UTF-8\n");
+        var dataDir = bagDir.resolve("data");
+        Files.createDirectory(dataDir);
+
+        Files.writeString(bagDir.resolve("fetch.txt"), "http://localhost:8080/file1.txt - data/file1.txt\n");
+        Files.writeString(bagDir.resolve("manifest-sha1.txt"),
+            "1234567890123456789012345678901234567890  data/file1.txt\n");
+
+        serviceWithLobstore.verifyBag(bagDir);
+
+        verify(lobStoreClient).isPresent("test-store", "1234567890123456789012345678901234567890");
     }
 }

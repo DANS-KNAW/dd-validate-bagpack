@@ -16,7 +16,8 @@
     limitations under the License.
 
 -->
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
@@ -26,7 +27,7 @@
     </parent>
 
     <artifactId>dd-validate-bagpack</artifactId>
-    <version>1.3.1-SNAPSHOT</version>
+    <version>1.4.0-SNAPSHOT</version>
 
     <name>DD Validate BagPack</name>
     <url>https://github.com/DANS-KNAW/dd-validate-bagpack</url>
@@ -35,7 +36,9 @@
 
     <properties>
         <main-class>nl.knaw.dans.validatebagpack.DdValidateBagpackApplication</main-class>
-        <dans-bagit-lib.version>1.5.0</dans-bagit-lib.version>
+        <dans-bagit-lib.version>1.6.0</dans-bagit-lib.version>
+        <dd-lob-store-api.version>1.0.0</dd-lob-store-api.version>
+        <dans-java-utils.version>4.1.0</dans-java-utils.version>
     </properties>
 
     <scm>
@@ -47,6 +50,10 @@
         <dependency>
             <groupId>io.dropwizard</groupId>
             <artifactId>dropwizard-core</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>io.dropwizard</groupId>
+            <artifactId>dropwizard-client</artifactId>
         </dependency>
         <dependency>
             <groupId>org.projectlombok</groupId>
@@ -108,6 +115,19 @@
             <artifactId>mockito-core</artifactId>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>com.google.code.findbugs</groupId>
+            <artifactId>jsr305</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.glassfish.jersey.media</groupId>
+            <artifactId>jersey-media-json-jackson</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.glassfish.jersey.media</groupId>
+            <artifactId>jersey-media-multipart</artifactId>
+            <version>${jersey-media-json-jackson.version}</version>
+        </dependency>
     </dependencies>
 
     <build>
@@ -147,6 +167,12 @@
                                     <version>${dd-validate-bagpack-api.version}</version>
                                     <outputDirectory>${project.build.directory}/openapi</outputDirectory>
                                 </artifactItem>
+                                <artifactItem>
+                                    <groupId>nl.knaw.dans</groupId>
+                                    <artifactId>dd-lob-store-api</artifactId>
+                                    <version>${dd-lob-store-api.version}</version>
+                                    <outputDirectory>${project.build.directory}/openapi</outputDirectory>
+                                </artifactItem>
                             </artifactItems>
                         </configuration>
                     </execution>
@@ -168,6 +194,24 @@
                             <modelPackage>nl.knaw.dans.validatebagpack.api</modelPackage>
                             <invokerPackage>nl.knaw.dans.validatebagpack.resources</invokerPackage>
                             <templateDirectory>${project.basedir}/src/main/resources/openapi-generator-templates</templateDirectory>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>generate-lob-store-client</id>
+                        <goals>
+                            <goal>generate</goal>
+                        </goals>
+                        <configuration combine.children="override">
+                            <generatorName>java</generatorName>
+                            <inputSpec>${project.build.directory}/openapi/dd-lob-store-api.yml</inputSpec>
+                            <apiPackage>nl.knaw.dans.lobstore.client.resources</apiPackage>
+                            <modelPackage>nl.knaw.dans.lobstore.client.api</modelPackage>
+                            <invokerPackage>nl.knaw.dans.lobstore.client.invoker</invokerPackage>
+                            <configOptions>
+                                <annotationLibrary>none</annotationLibrary>
+                                <library>jersey2</library>
+                                <openApiNullable>false</openApiNullable>
+                            </configOptions>
                         </configuration>
                     </execution>
                 </executions>

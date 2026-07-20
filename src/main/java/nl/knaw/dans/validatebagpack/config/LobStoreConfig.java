@@ -13,27 +13,23 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package nl.knaw.dans.validatebagpack.config;
 
-import io.dropwizard.core.Configuration;
+import io.dropwizard.client.JerseyClientConfiguration;
 import lombok.Data;
-import lombok.EqualsAndHashCode;
-import nl.knaw.dans.lib.util.healthcheck.DependenciesReadyCheckConfig;
 
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
+import java.net.URI;
 
 @Data
-@EqualsAndHashCode(callSuper = true)
-public class DdValidateBagpackConfig extends Configuration {
+public class LobStoreConfig {
     @NotNull
-    @Valid
-    private ValidationConfig validation;
+    private URI url;
+
+    private URI pingUrl;
 
     @Valid
-    private LobStoreConfig lobstore;
-
-    @Valid
-    private DependenciesReadyCheckConfig readyCheck;
+    @NotNull
+    private JerseyClientConfiguration httpClient = new JerseyClientConfiguration();
 }

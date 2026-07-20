@@ -31,4 +31,10 @@ public class HoleyBagsConfig {
     private Duration retrySleep = Duration.seconds(5);
     private int maxRedirects = 20;
     private boolean fallBackToFullStreamOnRangeFail = false;
+    /**
+     * Maps fetch-URL base (e.g. "https://archaeology.datastations.nl") to the lob-store datastation name (e.g. "archaeology").
+     * When a fetch item's URL starts with one of these keys its SHA-1 is checked against dd-lob-store before bag validation,
+     * and the item is skipped for SHA-1 hashing if it is already present there.
+     */
+    private Map<String, String> lobstores = new HashMap<>();
 }

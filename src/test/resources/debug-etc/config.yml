@@ -9,6 +9,15 @@ server:
     - type: http
       port: 20376
 
+lobstore:
+  url: http://localhost:20385
+  httpClient:
+    timeout: 30s
+    connectionTimeout: 15s
+    timeToLive: 1h
+    retries: 2
+    userAgent: dd-validate-bagpack
+
 #
 # See https://www.dropwizard.io/en/latest/manual/configuration.html#logging
 #
@@ -52,6 +61,9 @@ validation:
     maxRedirects: 20
     # Whether to fall back to full stream if range request fails
     fallBackToFullStreamOnRangeFail: true
+    # Maps the base URL of a datastation to its store name in dd-lob-store.
+    lobstores: { }
+    # 'https://archaeology.datastations.nl': archaeology
   taskQueue:
     nameFormat: "validation-worker-%d"
     maxQueueSize: 5000

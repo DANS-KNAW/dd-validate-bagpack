@@ -19,8 +19,16 @@ package nl.knaw.dans.validatebagpack;
 import io.dropwizard.core.Application;
 import io.dropwizard.core.setup.Bootstrap;
 import io.dropwizard.core.setup.Environment;
+import io.dropwizard.lifecycle.Managed;
+import nl.knaw.dans.lib.util.ClientProxyBuilder;
+import nl.knaw.dans.lib.util.PingHealthCheck;
 import nl.knaw.dans.lib.util.XmlSchemaValidator;
+import nl.knaw.dans.lib.util.healthcheck.DependenciesReadyCheck;
+import nl.knaw.dans.lib.util.healthcheck.HealthChecksDependenciesReadyCheck;
 import nl.knaw.dans.lib.util.ruleengine.RuleEngineImpl;
+import nl.knaw.dans.lobstore.client.invoker.ApiClient;
+import nl.knaw.dans.lobstore.client.resources.DefaultApi;
+import nl.knaw.dans.validatebagpack.client.LobStoreClient;
 import nl.knaw.dans.validatebagpack.config.DdValidateBagpackConfig;
 import nl.knaw.dans.validatebagpack.core.rules.RuleSets;
 import nl.knaw.dans.validatebagpack.core.service.BagItServiceImpl;
@@ -62,7 +70,31 @@ public class DdValidateBagpackApplication extends Application<DdValidateBagpackC
         var validationConfig = config.getValidation();
         var holeyBagsConfig = validationConfig.getHoleyBags();
 
-        var bagItService = new BagItServiceImpl(holeyBagsConfig);
+        HealthChecksDependenciesReadyCheck readyCheck = null;
+        if (config.getReadyCheck() != null) {
+            readyCheck = new HealthChecksDependenciesReadyCheck(environment, config.getReadyCheck());
+            environment.lifecycle().manage(readyCheck);
+        }
+
+        LobStoreClient lobStoreClient = null;
+        if (config.getLobstore() != null) {
+            var lobStoreProxy = new ClientProxyBuilder<ApiClient, DefaultApi>()
+                .apiClientCtor(ApiClient::new)
+                .basePath(config.getLobstore().getUrl())
+                .httpClient(config.getLobstore().getHttpClient())
+                .proxyCtor(DefaultApi::new)
+                .build();
+            lobStoreClient = new LobStoreClient(lobStoreProxy);
+            if (config.getLobstore().getPingUrl() != null) {
+                environment.healthChecks().register("LobStore", new PingHealthCheck(
+                    "LobStore",
+                    lobStoreProxy.getApiClient().getHttpClient(),
+                    config.getLobstore().getPingUrl())
+                );
+            }
+        }
+
+        var bagItService = new BagItServiceImpl(holeyBagsConfig, lobStoreClient);
         var fileService = new FileServiceImpl();
         try {
             fileService.loadNamedSparqlQueries(config.getValidation().getSparqlQueries());
@@ -76,7 +108,7 @@ public class DdValidateBagpackApplication extends Application<DdValidateBagpackC
         var ruleEngineService = new RuleEngineServiceImpl(new RuleEngineImpl(), ruleSets.getCommonRules(), bagItService, validationConfig.getBaseFolder());
         var validationTaskFactory = new ValidationTaskManagerImpl(
             ruleEngineService, validationConfig.getTaskRetentionTime().toJavaDuration(),
-            validationConfig.getMaxNumberOfTasks());
+            validationConfig.getMaxNumberOfTasks(), readyCheck);
         environment.jersey().register(new ValidateApiResource(validationTaskFactory, validationConfig.getTaskQueue().build(environment),
             appendEndSlashIfMissing(validationConfig.getBaseUrl())));
     }
