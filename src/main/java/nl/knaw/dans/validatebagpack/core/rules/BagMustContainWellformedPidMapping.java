@@ -17,6 +17,7 @@ package nl.knaw.dans.validatebagpack.core.rules;
 
 import nl.knaw.dans.lib.util.ruleengine.BagValidatorRule;
 import nl.knaw.dans.lib.util.ruleengine.RuleResult;
+import nl.knaw.dans.validatebagpack.core.service.FileServiceImpl;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -30,7 +31,7 @@ public class BagMustContainWellformedPidMapping implements BagValidatorRule {
                 return RuleResult.error("PID mapping file is missing: " + Constants.PID_MAPPING_PATH);
             }
 
-            var fileService = new nl.knaw.dans.validatebagpack.core.service.FileServiceImpl();
+            var fileService = new FileServiceImpl();
             fileService.parsePidMapping(pidMapping);
 
             return RuleResult.ok();

@@ -16,6 +16,7 @@
 package nl.knaw.dans.validatebagpack.core.service;
 
 import lombok.extern.slf4j.Slf4j;
+import nl.knaw.dans.bagit.domain.Bag;
 import nl.knaw.dans.bagit.domain.FetchItem;
 import nl.knaw.dans.bagit.hash.StandardSupportedAlgorithms;
 import nl.knaw.dans.bagit.hash.SupportedAlgorithm;
@@ -100,7 +101,7 @@ public class BagItServiceImpl implements BagItService {
      * Returns a map from SHA-1 algorithm to the fetch items that are already present in the store,
      * so the bag verifier can skip re-fetching and re-hashing them for SHA-1.
      */
-    private Map<SupportedAlgorithm, Collection<FetchItem>> buildIgnoredFetchItems(nl.knaw.dans.bagit.domain.Bag bag) {
+    private Map<SupportedAlgorithm, Collection<FetchItem>> buildIgnoredFetchItems(Bag bag) {
         if (lobStoreClient == null || holeyBagsConfig.getLobstores().isEmpty() || bag.getItemsToFetch().isEmpty()) {
             return Collections.emptyMap();
         }

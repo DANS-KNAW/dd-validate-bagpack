@@ -51,7 +51,7 @@ public class ZipBagRoot implements BagRoot {
         Path root = rootStream.next();
         try (var stream = Files.list(root)) {
             var entries = stream.toList();
-            if (entries.size() != 1 || !java.nio.file.Files.isDirectory(entries.get(0))) {
+            if (entries.size() != 1 || !Files.isDirectory(entries.get(0))) {
                 throw new IllegalStateException("Zip root must contain exactly one directory");
             }
             Path candidate = entries.get(0);
