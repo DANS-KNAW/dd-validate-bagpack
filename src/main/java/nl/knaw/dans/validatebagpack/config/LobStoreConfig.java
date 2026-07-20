@@ -27,6 +27,8 @@ public class LobStoreConfig {
     @NotNull
     private URI url;
 
+    private URI pingUrl;
+
     @Valid
     @NotNull
     private JerseyClientConfiguration httpClient = new JerseyClientConfiguration();

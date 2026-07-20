@@ -19,6 +19,7 @@ package nl.knaw.dans.validatebagpack.config;
 import io.dropwizard.core.Configuration;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import nl.knaw.dans.lib.util.healthcheck.DependenciesReadyCheckConfig;
 
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
@@ -32,4 +33,7 @@ public class DdValidateBagpackConfig extends Configuration {
 
     @Valid
     private LobStoreConfig lobstore;
+
+    @Valid
+    private DependenciesReadyCheckConfig readyCheck;
 }

@@ -30,7 +30,7 @@ class ValidationTaskManagerTest extends AbstractTestFixture {
     @Test
     void getValidationTask_should_return_empty_for_unknown_id() {
         var ruleEngineService = mock(RuleEngineService.class);
-        var manager = new ValidationTaskManagerImpl(ruleEngineService, Duration.ofMinutes(1), 10);
+        var manager = new ValidationTaskManagerImpl(ruleEngineService, Duration.ofMinutes(1), 10, null);
 
         assertThat(manager.getValidationTask(UUID.randomUUID())).isEmpty();
         verifyNoInteractions(ruleEngineService);
@@ -40,7 +40,7 @@ class ValidationTaskManagerTest extends AbstractTestFixture {
     void getValidationTask_should_expire_tasks_after_retention_time() throws InterruptedException {
         var ruleEngineService = mock(RuleEngineService.class);
         // Set retention time to 100 ms for quick expiration
-        var manager = new ValidationTaskManagerImpl(ruleEngineService, Duration.ofMillis(100), 10);
+        var manager = new ValidationTaskManagerImpl(ruleEngineService, Duration.ofMillis(100), 10, null);
 
         var task = manager.createValidationTask("bag/location");
         var id = task.getId();
@@ -58,7 +58,7 @@ class ValidationTaskManagerTest extends AbstractTestFixture {
     @Test
     void getValidationTask_should_remove_oldest_task_when_maximum_size_exceeded() {
         var ruleEngineService = mock(RuleEngineService.class);
-        var manager = new ValidationTaskManagerImpl(ruleEngineService, Duration.ofMinutes(1), 2);
+        var manager = new ValidationTaskManagerImpl(ruleEngineService, Duration.ofMinutes(1), 2, null);
 
         var task1 = manager.createValidationTask("bag/1");
         var task2 = manager.createValidationTask("bag/2");

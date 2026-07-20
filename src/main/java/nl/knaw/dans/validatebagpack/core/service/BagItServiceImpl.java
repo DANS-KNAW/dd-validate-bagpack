@@ -76,7 +76,7 @@ public class BagItServiceImpl implements BagItService {
 
         try (var verifier = new BagVerifier()) {
             var ignoreHiddenFiles = false;
-            var urlConfigs = holeyBagsConfig.isAllow() ? holeyBagsConfig.getAddHeaders() : Collections.<String, Map<String, String>>emptyMap();
+            var urlConfigs = holeyBagsConfig.isAllow() ? holeyBagsConfig.getAddHeaders() : Collections.<String, Map<String, String>> emptyMap();
 
             if (holeyBagsConfig.isAllow()) {
                 verifier.setChunkSize((int) holeyBagsConfig.getChunkSize().toBytes());
@@ -92,14 +92,15 @@ public class BagItServiceImpl implements BagItService {
             var ignoredFetchItems = buildIgnoredFetchItems(bag);
             log.debug("Verifying bag is valid on path {} (allowHoleyBags={}, urlConfigs={}, ignoredFetchItems={})", path, holeyBagsConfig.isAllow(), urlConfigs,
                 ignoredFetchItems);
+            log.info("The SHA-1 checksums of the following fetch items will NOT be recalculated, because they are already in the LOB store {}",
+                ignoredFetchItems.get(StandardSupportedAlgorithms.SHA1));
             verifier.isValid(bag, ignoreHiddenFiles, holeyBagsConfig.isAllow(), Collections.emptyMap(), urlConfigs, ignoredFetchItems);
         }
     }
 
     /**
-     * Queries dd-lob-store for each fetch item whose URL base matches a configured datastation.
-     * Returns a map from SHA-1 algorithm to the fetch items that are already present in the store,
-     * so the bag verifier can skip re-fetching and re-hashing them for SHA-1.
+     * Queries dd-lob-store for each fetch item whose URL base matches a configured datastation. Returns a map from SHA-1 algorithm to the fetch items that are already present in the store, so the bag
+     * verifier can skip re-fetching and re-hashing them for SHA-1.
      */
     private Map<SupportedAlgorithm, Collection<FetchItem>> buildIgnoredFetchItems(Bag bag) {
         if (lobStoreClient == null || holeyBagsConfig.getLobstores().isEmpty() || bag.getItemsToFetch().isEmpty()) {

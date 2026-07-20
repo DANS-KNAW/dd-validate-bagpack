@@ -19,6 +19,8 @@ import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import lombok.extern.slf4j.Slf4j;
 
+import nl.knaw.dans.lib.util.healthcheck.DependenciesReadyCheck;
+
 import java.time.Duration;
 import java.util.Optional;
 import java.util.UUID;
@@ -27,9 +29,11 @@ import java.util.UUID;
 public class ValidationTaskManagerImpl implements ValidationTaskManager {
     private final RuleEngineService ruleEngineService;
     private final Cache<UUID, ValidationTask> validationTasks;
+    private final DependenciesReadyCheck readyCheck;
 
-    public ValidationTaskManagerImpl(RuleEngineService ruleEngineService, Duration retentionTime, long maximumNumberOfTasks) {
+    public ValidationTaskManagerImpl(RuleEngineService ruleEngineService, Duration retentionTime, long maximumNumberOfTasks, DependenciesReadyCheck readyCheck) {
         this.ruleEngineService = ruleEngineService;
+        this.readyCheck = readyCheck;
         this.validationTasks = CacheBuilder.newBuilder()
             .expireAfterWrite(retentionTime)
             .maximumSize(maximumNumberOfTasks)
@@ -41,7 +45,7 @@ public class ValidationTaskManagerImpl implements ValidationTaskManager {
 
     @Override
     public ValidationTask createValidationTask(String bagLocation) {
-        var validationTask = new ValidationTask(bagLocation, ruleEngineService);
+        var validationTask = new ValidationTask(bagLocation, ruleEngineService, readyCheck);
         validationTasks.put(validationTask.getId(), validationTask);
         return validationTask;
     }

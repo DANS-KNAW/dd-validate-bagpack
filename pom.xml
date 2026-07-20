@@ -38,6 +38,7 @@
         <main-class>nl.knaw.dans.validatebagpack.DdValidateBagpackApplication</main-class>
         <dans-bagit-lib.version>1.5.1-SNAPSHOT</dans-bagit-lib.version>
         <dd-lob-store-api.version>1.0.0</dd-lob-store-api.version>
+        <dans-java-utils.version>4.1.0</dans-java-utils.version>
     </properties>
 
     <scm>
