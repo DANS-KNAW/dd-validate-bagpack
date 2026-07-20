@@ -27,7 +27,7 @@
     </parent>
 
     <artifactId>dd-validate-bagpack</artifactId>
-    <version>1.3.1-SNAPSHOT</version>
+    <version>1.4.0-SNAPSHOT</version>
 
     <name>DD Validate BagPack</name>
     <url>https://github.com/DANS-KNAW/dd-validate-bagpack</url>
