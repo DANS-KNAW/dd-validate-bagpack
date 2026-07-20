@@ -19,8 +19,12 @@ package nl.knaw.dans.validatebagpack;
 import io.dropwizard.core.Application;
 import io.dropwizard.core.setup.Bootstrap;
 import io.dropwizard.core.setup.Environment;
+import nl.knaw.dans.lib.util.ClientProxyBuilder;
 import nl.knaw.dans.lib.util.XmlSchemaValidator;
 import nl.knaw.dans.lib.util.ruleengine.RuleEngineImpl;
+import nl.knaw.dans.lobstore.client.invoker.ApiClient;
+import nl.knaw.dans.lobstore.client.resources.DefaultApi;
+import nl.knaw.dans.validatebagpack.client.LobStoreClient;
 import nl.knaw.dans.validatebagpack.config.DdValidateBagpackConfig;
 import nl.knaw.dans.validatebagpack.core.rules.RuleSets;
 import nl.knaw.dans.validatebagpack.core.service.BagItServiceImpl;
@@ -62,7 +66,18 @@ public class DdValidateBagpackApplication extends Application<DdValidateBagpackC
         var validationConfig = config.getValidation();
         var holeyBagsConfig = validationConfig.getHoleyBags();
 
-        var bagItService = new BagItServiceImpl(holeyBagsConfig);
+        LobStoreClient lobStoreClient = null;
+        if (config.getLobstore() != null) {
+            var lobStoreProxy = new ClientProxyBuilder<ApiClient, DefaultApi>()
+                .apiClient(new ApiClient())
+                .basePath(config.getLobstore().getUrl())
+                .httpClient(config.getLobstore().getHttpClient())
+                .defaultApiCtor(DefaultApi::new)
+                .build();
+            lobStoreClient = new LobStoreClient(lobStoreProxy);
+        }
+
+        var bagItService = new BagItServiceImpl(holeyBagsConfig, lobStoreClient);
         var fileService = new FileServiceImpl();
         try {
             fileService.loadNamedSparqlQueries(config.getValidation().getSparqlQueries());
