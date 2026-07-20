@@ -70,10 +70,10 @@ public class DdValidateBagpackApplication extends Application<DdValidateBagpackC
         var validationConfig = config.getValidation();
         var holeyBagsConfig = validationConfig.getHoleyBags();
 
-        DependenciesReadyCheck readyCheck = null;
+        HealthChecksDependenciesReadyCheck readyCheck = null;
         if (config.getReadyCheck() != null) {
             readyCheck = new HealthChecksDependenciesReadyCheck(environment, config.getReadyCheck());
-            environment.lifecycle().manage((Managed) readyCheck);
+            environment.lifecycle().manage(readyCheck);
         }
 
         LobStoreClient lobStoreClient = null;

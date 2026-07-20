@@ -92,8 +92,11 @@ public class BagItServiceImpl implements BagItService {
             var ignoredFetchItems = buildIgnoredFetchItems(bag);
             log.debug("Verifying bag is valid on path {} (allowHoleyBags={}, urlConfigs={}, ignoredFetchItems={})", path, holeyBagsConfig.isAllow(), urlConfigs,
                 ignoredFetchItems);
-            log.info("The SHA-1 checksums of the following fetch items will NOT be recalculated, because they are already in the LOB store {}",
-                ignoredFetchItems.get(StandardSupportedAlgorithms.SHA1));
+            var sha1Ignored = ignoredFetchItems.get(StandardSupportedAlgorithms.SHA1);
+            if (sha1Ignored != null && !sha1Ignored.isEmpty()) {
+                log.info("The SHA-1 checksums of the following fetch items will NOT be recalculated, because they are already in dd-lob-store: {}",
+                    sha1Ignored);
+            }
             verifier.isValid(bag, ignoreHiddenFiles, holeyBagsConfig.isAllow(), Collections.emptyMap(), urlConfigs, ignoredFetchItems);
         }
     }
