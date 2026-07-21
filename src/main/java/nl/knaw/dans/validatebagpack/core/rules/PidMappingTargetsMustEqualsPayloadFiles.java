@@ -36,7 +36,7 @@ public class PidMappingTargetsMustEqualsPayloadFiles implements BagValidatorRule
         if (Files.exists(pidMappingFile)) {
             var pidTargets = fileService.parsePidMapping(pidMappingFile).values().stream()
                 .filter(s -> !s.endsWith("/")) // exclude directory targets
-                .map(String::trim).collect(Collectors.toSet());
+                .collect(Collectors.toSet());
             var payloadFiles = bagItService.listPayloadFiles(path);
 
             var notInPayload = pidTargets.stream()
