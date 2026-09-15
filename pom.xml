@@ -30,7 +30,7 @@
 
     <name>DD Validate BagPack</name>
     <description>Checks if a bag conforms to the BagPack specifications</description>
-    <url>https://github.com/DANS-KNAW/dd-validate-bagpack</url>
+    <url>https://dans-knaw.github.io/dd-validate-bagpack</url>
     <inceptionYear>2025</inceptionYear>
 
     <scm>
