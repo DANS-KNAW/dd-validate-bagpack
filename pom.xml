@@ -22,28 +22,25 @@
     <parent>
         <groupId>nl.knaw.dans</groupId>
         <artifactId>dd-parent</artifactId>
-        <version>1.12.0</version>
+        <version>3.0.0-SNAPSHOT</version>
     </parent>
 
     <artifactId>dd-validate-bagpack</artifactId>
     <version>1.4.2-SNAPSHOT</version>
 
     <name>DD Validate BagPack</name>
-    <url>https://github.com/DANS-KNAW/dd-validate-bagpack</url>
     <description>Checks if a bag conforms to the BagPack specifications</description>
+    <url>https://github.com/DANS-KNAW/dd-validate-bagpack</url>
     <inceptionYear>2025</inceptionYear>
-
-    <properties>
-        <main-class>nl.knaw.dans.validatebagpack.DdValidateBagpackApplication</main-class>
-        <dans-bagit-lib.version>1.6.0</dans-bagit-lib.version>
-        <dd-lob-store-api.version>1.0.0</dd-lob-store-api.version>
-        <dans-java-utils.version>4.1.0</dans-java-utils.version>
-    </properties>
 
     <scm>
         <developerConnection>scm:git:ssh://github.com/DANS-KNAW/dd-validate-bagpack</developerConnection>
         <tag>HEAD</tag>
     </scm>
+
+    <properties>
+        <main-class>nl.knaw.dans.validatebagpack.DdValidateBagpackApplication</main-class>
+    </properties>
 
     <dependencies>
         <dependency>
@@ -67,7 +64,7 @@
             <artifactId>dd-validate-bagpack-api</artifactId>
         </dependency>
         <dependency>
-            <groupId>nl.knaw.dans</groupId>
+            <groupId>nl.datastations</groupId>
             <artifactId>dans-bagit-lib</artifactId>
         </dependency>
         <dependency>
@@ -125,7 +122,6 @@
         <dependency>
             <groupId>org.glassfish.jersey.media</groupId>
             <artifactId>jersey-media-multipart</artifactId>
-            <version>${jersey-media-json-jackson.version}</version>
         </dependency>
     </dependencies>
 
@@ -154,10 +150,10 @@
                 <executions>
                     <execution>
                         <id>compilation-dependencies</id>
-                        <phase>initialize</phase>
                         <goals>
                             <goal>unpack</goal>
                         </goals>
+                        <phase>initialize</phase>
                         <configuration>
                             <artifactItems>
                                 <artifactItem>
@@ -217,53 +213,6 @@
             </plugin>
         </plugins>
     </build>
-
-
-    <repositories>
-        <repository>
-            <id>dans-releases</id>
-            <releases>
-                <enabled>true</enabled>
-            </releases>
-            <snapshots>
-                <enabled>false</enabled>
-            </snapshots>
-            <url>https://maven.dans.knaw.nl/releases/</url>
-        </repository>
-        <repository>
-            <id>dans-snapshots</id>
-            <releases>
-                <enabled>false</enabled>
-            </releases>
-            <snapshots>
-                <enabled>true</enabled>
-            </snapshots>
-            <url>https://maven.dans.knaw.nl/snapshots/</url>
-        </repository>
-    </repositories>
-
-    <pluginRepositories>
-        <pluginRepository>
-            <id>dans-releases</id>
-            <releases>
-                <enabled>true</enabled>
-            </releases>
-            <snapshots>
-                <enabled>false</enabled>
-            </snapshots>
-            <url>https://maven.dans.knaw.nl/releases/</url>
-        </pluginRepository>
-        <pluginRepository>
-            <id>dans-snapshots</id>
-            <releases>
-                <enabled>false</enabled>
-            </releases>
-            <snapshots>
-                <enabled>true</enabled>
-            </snapshots>
-            <url>https://maven.dans.knaw.nl/snapshots/</url>
-        </pluginRepository>
-    </pluginRepositories>
 
     <profiles>
         <profile>
